@@ -40,7 +40,7 @@
 (depends-on "yasnippet")
 
 ;; document modes
-(depends-on "less-mode")
+(depends-on "less-css-mode")
 (depends-on "markdown-mode")
 (depends-on "sass-mode")
 (depends-on "scss-mode")
