@@ -35,10 +35,6 @@
 ;; Nyan-mode
 (nyan-mode)
 
-;; Rainbow delimiters
-(rainbow-delimiters-mode)
-(add-hook 'scss-mode-hook #'rainbow-delimiters-mode)
-
 ;;; Also highlight parenthesis
 (setq show-paren-delay 0 show-paren-style 'parenthesis)
 (show-paren-mode 1)
