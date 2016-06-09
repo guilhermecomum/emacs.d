@@ -33,13 +33,14 @@
 (depends-on "zencoding-mode")
 
 ;; editing support
-(depends-on "sr-speedbar")
-(depends-on "yasnippet")
 (depends-on "auto-complete")
 (depends-on "dropdown-list")
 (depends-on "expand-region")
+(depends-on "sr-speedbar")
+(depends-on "yasnippet")
 
 ;; document modes
+(depends-on "less-mode")
 (depends-on "markdown-mode")
 (depends-on "sass-mode")
 (depends-on "scss-mode")
