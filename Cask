@@ -2,6 +2,7 @@
 (source melpa)
 
 (depends-on "ac-helm")
+(depends-on "autopair")
 (depends-on "bind-key")
 (depends-on "cask")
 (depends-on "color-theme")

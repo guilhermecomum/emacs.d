@@ -39,6 +39,10 @@
 (setq show-paren-delay 0 show-paren-style 'parenthesis)
 (show-paren-mode 1)
 
+;;; Autopair
+(require 'autopair)
+(autopair-global-mode)
+
 ;;; Editing options
 (setq-default indent-tabs-mode nil)    ;; spaces instead of tabs
 (setq make-backup-files nil)           ;; No backup files
