@@ -3,11 +3,11 @@
 (menu-bar-mode 0)
 (tool-bar-mode 0)
 
-;; Initialize cask
+;;; Initialize cask
 (require 'cask "~/.emacs.d/.cask/cask/cask.el")
 (cask-initialize)
 
-;; utf-8 for good (is there any other encoding related var I could set?)
+;;; utf-8 for good (is there any other encoding related var I could set?)
 (prefer-coding-system 'utf-8)
 (setq locale-coding-system 'utf-8)
 (setq current-language-environment "UTF-8")
@@ -16,7 +16,7 @@
 (set-keyboard-coding-system 'utf-8)
 (set-selection-coding-system 'utf-8)
 
-;; UI Configuration
+;;; UI Configuration
 (load-theme 'deeper-blue)               ;; Theme
 (column-number-mode)                    ;; Basic config for columns
 (setq ring-bell-function 'ignore)       ;; No freaking bell
@@ -32,7 +32,7 @@
 (setq linum-format "%d ")
 (setq-default truncate-lines t)         ;; Do not wrap lines
 
-;; Nyan-mode
+;;; Nyan-mode
 (nyan-mode)
 
 ;;; Also highlight parenthesis
@@ -61,72 +61,72 @@
   (message "This buffer was refreshed due to external changes"))
 
 
-;;-------- Keybinds --------
+;;;-------- Keybinds --------
 
-;; change window
+;;; change window
 (global-set-key [C-tab] 'other-window)
 
-;; comments
+;;; comments
 (global-set-key [(ctrl c) (c)] 'comment-region)
 (global-set-key [(ctrl c) (d)] 'uncomment-region)
 
-;; delete trailing whitespace
+;;; delete trailing whitespace
 (global-set-key [(ctrl x) (w)] 'delete-trailing-whitespace)
 
-;; buffer
+;;; buffer
 (global-set-key [s-tab] 'next-buffer)
 (global-set-key [S-s-iso-lefttab] 'previous-buffer)
 
-;; Navegation
+;;; Navegation
 (global-set-key (kbd "M-g") 'goto-line)
 
-;; Sort
+;;; Sort
 (global-set-key (kbd "C-c s") 'sort-lines)
 
-;; List buffers
+;;; List buffers
 (bind-key "C-x b" 'helm-buffers-list)
 
-;; highlight indentation column
+;;; highlight indentation column
 (global-set-key (kbd "M-1") 'highlight-indentation-current-column-mode)
 
-;; scrolling without changing the cursor
+;;; scrolling without changing the cursor
 (global-set-key [(meta n)] '(lambda () (interactive) (scroll-up 1)))
 (global-set-key [(meta p)] '(lambda () (interactive) (scroll-down 1)))
 
-;; scrolling other window
+;;; scrolling other window
 (global-set-key [(meta j)] '(lambda () (interactive) (scroll-other-window 1)))
 (global-set-key [(meta k)] '(lambda () (interactive) (scroll-other-window -1)))
 
-;; join lines
+;;; join lines
 (global-set-key [(ctrl J)] '(lambda () (interactive) (join-line -1)))
 
-;; resize windows
+;;; resize windows
 (global-set-key (kbd "C-}") 'shrink-window-horizontally)
 (global-set-key (kbd "C-{") 'enlarge-window-horizontally)
 (global-set-key (kbd "C-M-}") 'shrink-window)
 (global-set-key (kbd "C-M-{") 'enlarge-window)
 
-;; Multiple Cursors
+;;; Multiple Cursors
 (global-set-key (kbd "C-c C-c") 'mc/edit-lines)
 (global-set-key (kbd "C->") 'mc/mark-next-like-this)
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
 (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
 
-;; Fiplr
+;;; Fiplr
 (global-set-key (kbd "C-c f") 'fiplr-find-file)
 (setq fiplr-ignored-globs '((directories (".git" ".svn"))
                             (files ("*.jpg" "*.png" "*.zip" "*~" "public/*" "tmp/*" "vendor" "bin" "docs" "log" "script"))))
 
-;; Mac specific stuff
+;;; Mac specific stuff
 (when (eq system-type 'darwin)
   (setq mac-option-modifier 'alt)
   (setq mac-command-modifier 'meta)
 
-  ;; Loads environment variables from the shell
+  ;;; Loads environment variables from the shell
   (setq exec-path-from-shell-variables '("GOPATH" "PATH" "MANPATH"))
   (exec-path-from-shell-initialize)
 
-  ;; sets fn-delete to be right-delete
+  ;;; sets fn-delete to be right-delete
   (global-set-key [kp-delete] 'delete-char)
   (menu-bar-mode 1))
 
@@ -136,11 +136,11 @@
 (require 'tramp)           ;; ssh and local sudo/su
 
 
-;; Neotree
+;;; Neotree
 (require 'neotree)
 (global-set-key [f8] 'neotree-toggle)
 
-;; Flyspell
+;;; Flyspell
 (defun fd-switch-dictionary()
   (interactive)
   (let* ((dic ispell-current-dictionary)
@@ -153,11 +153,11 @@
 (global-set-key (kbd "<f6>") 'ispell-word)
 
 
-;; css config
+;;; css config
 (setq cssm-indent-function #'cssm-c-style-indenter)
 (setq cssm-indent-level 4)
 
-; Set CSS colors with themselves
+;;; Set CSS colors with themselves
 (defvar hexcolour-keywords
   '(("#[abcdef[:digit:]]\\{6\\}"
      (0 (put-text-property
@@ -171,18 +171,18 @@
 
 (add-hook 'css-mode-hook 'hexcolour-add-to-font-lock)
 
-;; sass mode
+;;; sass mode
 (require 'sass-mode)
 (add-to-list 'auto-mode-alist '("\\.sass$" . sass-mode))
 (add-to-list 'auto-mode-alist '("\\.scss$" . sass-mode))
 (setq sass-indent-offset 4)
 
-;; less mode
+;;; less mode
 (require 'less-css-mode)
 (add-to-list 'auto-mode-alist '("\\.less$" . less-css-mode))
 (setq less-compile-at-save nil)
 
-;; Web mode
+;;; Web mode
 (require 'web-mode)
 (defun web-mode-hook ()
   "Hooks for Web mode."
@@ -202,21 +202,21 @@
 (add-to-list 'auto-mode-alist '("\\.js[x]?\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
 
-;; Zencoding
+;;; Zencoding
 (require 'zencoding-mode)
 (add-hook 'web-mode-hook 'zencoding-mode)
 
-;; Markdown mode
+;;; Markdown mode
 (require 'markdown-mode)
 (autoload 'markdown-mode "markdown-mode.el"
   "Major mode for editing Markdown files" t)
 (add-to-list 'auto-mode-alist '("\\.md$" . markdown-mode))
 (add-hook 'markdown-mode-hook '(lambda() (flyspell-mode)))
 
-;; Slim-mode
+;;; Slim-mode
 (require 'slim-mode)
 
-;; Auto complete
+;;; Auto complete
 (require 'auto-complete)
 (require 'auto-complete-config)
 (global-auto-complete-mode t)
@@ -225,17 +225,17 @@
 (define-key ac-complete-mode-map "\C-n" 'ac-next)
 (define-key ac-complete-mode-map "\C-p" 'ac-previous)
 
-;; Loading YAS personal snippets
+;;; Loading YAS personal snippets
 (require 'yasnippet)
 (setq yas-root-directory "~/.emacs.d/snippets")
 (yas-global-mode 1)
 (yas-load-directory yas-root-directory)
 
-;; Configuring the dropdown list, submodule used by yasnippet
+;;; Configuring the dropdown list, submodule used by yasnippet
 (require 'dropdown-list)
 (setq yas-prompt-functions '(yas-dropdown-prompt))
 
-;; Projectile
+;;; Projectile
 (projectile-global-mode)
 (setq projectile-completion-system 'helm)
 (helm-projectile-on)
