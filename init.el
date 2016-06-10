@@ -34,7 +34,7 @@
 
 (global-font-lock-mode 1)               ;; Always do syntax highlighting
 (transient-mark-mode 1)                 ;; highlight mark region
-(set-default-font "Monaco 10")          ;; Font face/size
+(set-frame-font "Monaco 10")          ;; Font face/size
 
 (require 'linum)                        ;; show line numbers
 (global-linum-mode 1)
