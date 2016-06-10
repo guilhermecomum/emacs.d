@@ -16,6 +16,15 @@
 (set-keyboard-coding-system 'utf-8)
 (set-selection-coding-system 'utf-8)
 
+;;; Use node binaries on emacs
+(setq exec-path
+      '(
+        "/usr/local/bin/"
+        "/usr/bin/"
+        "~/.nodenv/shims/"
+        "~/.emacs.d/node_modules/.bin/"
+        ))
+
 ;;; UI Configuration
 (load-theme 'deeper-blue)               ;; Theme
 (column-number-mode)                    ;; Basic config for columns
@@ -139,6 +148,11 @@
 ;;; Neotree
 (require 'neotree)
 (global-set-key [f8] 'neotree-toggle)
+
+;; ;;; Flycheck
+(require 'flycheck)
+(add-hook 'after-init-hook 'global-flycheck-mode)
+(flycheck-add-mode 'javascript-jshint 'web-mode)
 
 ;;; Flyspell
 (defun fd-switch-dictionary()

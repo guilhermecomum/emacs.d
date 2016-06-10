@@ -1,0 +1,24 @@
+{
+  "name": "emacs.d",
+  "version": "1.0.0",
+  "description": "This repository contains my Emacs setup, these configurations are is pretty personal but you might find a few of them useful and improve the configuration of your Emacs.",
+  "main": "index.js",
+  "dependencies": {
+    "jshint": "^2.9.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/guilhermecomum/emacs.d.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/guilhermecomum/emacs.d/issues"
+  },
+  "homepage": "https://github.com/guilhermecomum/emacs.d#readme"
+}
