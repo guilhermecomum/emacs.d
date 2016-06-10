@@ -133,6 +133,15 @@
   (setq mac-option-modifier 'alt)
   (setq mac-command-modifier 'meta)
 
+  ;; Font face/size
+  (set-default-font "Monaco 12")
+
+  ;; Keybinds
+
+  ;; buffer
+  (global-set-key [A-tab] 'next-buffer)
+  (global-set-key [A-S-tab] 'previous-buffer)
+
   ;;; Loads environment variables from the shell
   (setq exec-path-from-shell-variables '("GOPATH" "PATH" "MANPATH"))
   (exec-path-from-shell-initialize)
