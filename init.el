@@ -160,24 +160,7 @@
 (require 'neotree)
 (global-set-key [f8] 'neotree-toggle)
 
-;; ;;; Flycheck
-(require 'flycheck)
 
-;; turn on flychecking globally
-(add-hook 'after-init-hook 'global-flycheck-mode)
-
-(setq flycheck-eslintrc "~/.emacs.d/.eslintrc")
-
-;; disable jshint since we prefer eslint checking
-(setq-default flycheck-disabled-checkers
-  (append flycheck-disabled-checkers
-    '(javascript-jshint)))
-
-;; use eslint with web-mode for jsx files
-(flycheck-add-mode 'javascript-eslint 'web-mode)
-
-;; customize flycheck temp file prefix
-(setq-default flycheck-temp-prefix ".flycheck")
 
 ;;; Flyspell
 (defun fd-switch-dictionary()
@@ -237,18 +220,33 @@
   (set-face-attribute 'web-mode-html-attr-value-face nil :foreground
                       (face-foreground font-lock-type-face)))
 
-;; for better jsx syntax-highlighting in web-mode
-;; - courtesy of Patrick @halbtuerke
-(defadvice web-mode-highlight-part (around tweak-jsx activate)
-  (if (equal web-mode-content-type "jsx")
-    (let ((web-mode-enable-part-face nil))
-      ad-do-it)
-    ad-do-it))
-
 (add-hook 'web-mode-hook  'web-mode-hook)
 (add-to-list 'auto-mode-alist '("\\.json\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.js[x]?\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+
+;; Using jsx tags highlighte on js file
+(setq web-mode-content-types-alist
+  '(("jsx" . "\\.js[x]?\\'")))
+
+;;; Flycheck
+(require 'flycheck)
+
+;; turn on flychecking globally
+(add-hook 'after-init-hook 'global-flycheck-mode)
+
+(setq flycheck-eslintrc "~/.emacs.d/.eslintrc")
+
+;; disable jshint since we prefer eslint checking
+(setq-default flycheck-disabled-checkers
+  (append flycheck-disabled-checkers
+    '(javascript-jshint)))
+
+;; use eslint with web-mode for jsx files
+(flycheck-add-mode 'javascript-eslint 'web-mode)
+
+;; customize flycheck temp file prefix
+(setq-default flycheck-temp-prefix ".flycheck")
 
 ;;; Zencoding
 (require 'zencoding-mode)
