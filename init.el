@@ -197,7 +197,7 @@
 (require 'sass-mode)
 (add-to-list 'auto-mode-alist '("\\.sass$" . sass-mode))
 (add-to-list 'auto-mode-alist '("\\.scss$" . sass-mode))
-(setq sass-indent-offset 4)
+(setq sass-indent-offset 2)
 
 ;;; less mode
 (require 'less-css-mode)
