@@ -42,6 +42,8 @@
 (global-linum-mode 1)
 (setq linum-format "%d ")
 (setq-default truncate-lines t)         ;; Do not wrap lines
+(require 'hlinum)
+(hlinum-activate)
 
 ;;; Nyan-mode
 (nyan-mode)
@@ -248,6 +250,42 @@
 ;; customize flycheck temp file prefix
 (setq-default flycheck-temp-prefix ".flycheck")
 
+;; Custom fringe indicator
+(when (fboundp 'define-fringe-bitmap)
+  (define-fringe-bitmap 'my-flycheck-fringe-indicator
+    (vector #b00000000
+            #b00000000
+            #b00000000
+            #b00000000
+            #b00000000
+            #b00000000
+            #b00000000
+            #b00011100
+            #b00111110
+            #b00111110
+            #b00111110
+            #b00011100
+            #b00000000
+            #b00000000
+            #b00000000
+            #b00000000
+            #b00000000)))
+
+(flycheck-define-error-level 'error
+  :overlay-category 'flycheck-error-overlay
+  :fringe-bitmap 'my-flycheck-fringe-indicator
+  :fringe-face 'flycheck-fringe-error)
+
+(flycheck-define-error-level 'warning
+  :overlay-category 'flycheck-warning-overlay
+  :fringe-bitmap 'my-flycheck-fringe-indicator
+  :fringe-face 'flycheck-fringe-warning)
+
+(flycheck-define-error-level 'info
+  :overlay-category 'flycheck-info-overlay
+  :fringe-bitmap 'my-flycheck-fringe-indicator
+  :fringe-face 'flycheck-fringe-info)
+
 ;;; Zencoding
 (require 'zencoding-mode)
 (add-hook 'web-mode-hook 'zencoding-mode)
@@ -288,3 +326,21 @@
 (setq grep-find-ignored-files '("*.json" "*.http"))
 (setq projectile-globally-ignored-files '(".git" ".svn" "tmp" "*.json" "*.http"))
 (bind-key (kbd "C-c C-p") 'helm-projectile-ack)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   (quote
+    ("2727076b8550e953021895a73ee2f3dee4240a5df4baf4f2c42ea888984fec66" "258723ffcd4973bdc3d123d366bd1eba5924842d5dcef36b9726d498eaaade56" default))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(flycheck-error ((t (:underline "Red1"))))
+ '(flycheck-info ((t (:underline "ForestGreen"))))
+ '(flycheck-warning ((t (:underline "DarkOrange"))))
+ '(linum ((t (:inherit default :foreground "#4d4d4d"))))
+ '(linum-highlight-face ((t (:inherit default :background "#181A26" :foreground "white")))))
