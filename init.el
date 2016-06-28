@@ -132,7 +132,7 @@
 
 ;;; Mac specific stuff
 (when (eq system-type 'darwin)
-  (setq mac-option-modifier 'alt)
+  (setq mac-option-modifier 'nil)
   (setq mac-command-modifier 'meta)
 
   ;; Font face/size
