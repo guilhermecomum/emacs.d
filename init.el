@@ -28,7 +28,7 @@
 (setenv "PATH" (concat (getenv "PATH") ":/home/guerrinha/.nodenv/shims/"))
 
 ;;; UI Configuration
-(load-theme 'deeper-blue)               ;; Theme
+(load-theme 'deeper-blue t)             ;; Theme
 (column-number-mode)                    ;; Basic config for columns
 (setq ring-bell-function 'ignore)       ;; No freaking bell
 (setq inhibit-splash-screen t)          ;; No splash screen
@@ -328,21 +328,12 @@
 (setq grep-find-ignored-files '("*.json" "*.http"))
 (setq projectile-globally-ignored-files '(".git" ".svn" "tmp" "*.json" "*.http"))
 (bind-key (kbd "C-c C-p") 'helm-projectile-ack)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   (quote
-    ("2727076b8550e953021895a73ee2f3dee4240a5df4baf4f2c42ea888984fec66" "258723ffcd4973bdc3d123d366bd1eba5924842d5dcef36b9726d498eaaade56" default))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(flycheck-error ((t (:underline "Red1"))))
- '(flycheck-info ((t (:underline "ForestGreen"))))
- '(flycheck-warning ((t (:underline "DarkOrange"))))
- '(linum ((t (:inherit default :foreground "#4d4d4d"))))
- '(linum-highlight-face ((t (:inherit default :background "#181A26" :foreground "white")))))
+
+(setq custom-file "~/.emacs.d/custom-variables.el")
+(load custom-file)
+
+;; Loading some custom variables after loading everything else
+(load "~/.emacs.d/custom-variables.el")
+
+;; Enabling the server mode by default
+(server-mode)
