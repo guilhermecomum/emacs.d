@@ -319,6 +319,9 @@
 (require 'dropdown-list)
 (setq yas-prompt-functions '(yas-dropdown-prompt))
 
+;; Loading some custom functions after loading everything else
+(load "~/.emacs.d/defuns.el")
+
 ;;; Projectile
 (projectile-global-mode)
 (setq projectile-completion-system 'helm)
