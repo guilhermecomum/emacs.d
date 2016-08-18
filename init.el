@@ -77,7 +77,8 @@
 ;;;-------- Keybinds --------
 
 ;;; change window
-(global-set-key [C-tab] 'other-window)
+(global-set-key (kbd "C-.") 'other-window)
+(global-set-key (kbd "C-,") '(lambda () (interactive) (other-window -1)))
 
 ;;; comments
 (global-set-key [(ctrl c) (c)] 'comment-region)
