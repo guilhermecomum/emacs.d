@@ -7,6 +7,9 @@
 (require 'cask "~/.emacs.d/.cask/cask/cask.el")
 (cask-initialize)
 
+(require 'pallet)
+(pallet-mode t)
+
 ;;; utf-8 for good (is there any other encoding related var I could set?)
 (prefer-coding-system 'utf-8)
 (setq locale-coding-system 'utf-8)
