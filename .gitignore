@@ -3,3 +3,5 @@ ac-comphist.dat
 auto-save-list/
 projectile-bookmarks.eld
 node_modules/
+.mc-lists.el
+oauth2.plstore
