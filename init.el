@@ -24,8 +24,8 @@
       '(
         "/usr/local/bin/"
         "/usr/bin/"
-        "/home/guerrinha/.nodenv/shims/"
-        "/home/guerrinha/.emacs.d/node_modules/.bin/"
+        "~/.nodenv/shims/"
+        "~/.emacs.d/node_modules/.bin/"
         )
       )
 (setenv "PATH" (concat (getenv "PATH") ":/home/guerrinha/.nodenv/shims/"))
@@ -80,8 +80,11 @@
 ;;;-------- Keybinds --------
 
 ;;; change window
-(global-set-key (kbd "C-.") 'other-window)
-(global-set-key (kbd "C-,") '(lambda () (interactive) (other-window -1)))
+(global-set-key [(C-tab)] 'other-window)
+
+;; moving from one window to another
+(global-set-key [(ctrl .)] 'next-multiframe-window)
+;;(global-set-key [(ctrl ,)] 'previous-multiframe-window)
 
 ;;; comments
 (global-set-key [(ctrl c) (c)] 'comment-region)
@@ -195,8 +198,7 @@
 
 
 ;;; css config
-(setq cssm-indent-function #'cssm-c-style-indenter)
-(setq cssm-indent-level 4)
+(setq css-indent-level 4)
 
 ;;; Set CSS colors with themselves
 (defvar hexcolour-keywords
