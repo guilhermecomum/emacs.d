@@ -22,10 +22,13 @@
 ;;; Use node binaries on emacs
 (setq exec-path
       '(
-        "/usr/local/bin/"
+        "/bin/"
         "/usr/bin/"
-        "~/.nodenv/shims/"
+        "/usr/local/bin/"
         "~/.emacs.d/node_modules/.bin/"
+        "~/.emacs.d/node_modules/.bin/"
+        "~/.nodenv/shims/"
+        "~/.nodenv/shims/"
         )
       )
 (setenv "PATH" (concat (getenv "PATH") ":/home/guerrinha/.nodenv/shims/"))
