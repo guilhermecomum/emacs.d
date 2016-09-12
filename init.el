@@ -346,7 +346,7 @@
 (setq yas-prompt-functions '(yas-dropdown-prompt))
 
 ;; Loading some custom functions after loading everything else
-(load "~/.emacs.d/defuns.el")
+(load "~/.emacs.d/lisp/defuns.el")
 
 ;;; Projectile
 (projectile-global-mode)
@@ -356,11 +356,8 @@
 (setq projectile-globally-ignored-files '(".git" ".svn" "tmp" "*.json" "*.http"))
 (bind-key (kbd "C-c C-p") 'helm-projectile-ack)
 
-(setq custom-file "~/.emacs.d/custom-variables.el")
+(setq custom-file "~/.emacs.d/lisp/custom-variables.el")
 (load custom-file)
-
-;; Loading some custom variables after loading everything else
-(load "~/.emacs.d/custom-variables.el")
 
 ;; Enabling the server mode by default
 (server-mode)
