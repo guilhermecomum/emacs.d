@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: package
+# key: package
+# --
+{
+  "name": "$0",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./$0.js"
+}

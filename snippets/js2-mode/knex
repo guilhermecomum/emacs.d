@@ -1,0 +1,6 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: knex
+# key: knex
+# binding: direct-keybinding
+# --
+const knex = require('knex')({client: 'mysql'});

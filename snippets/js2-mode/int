@@ -1,0 +1,6 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: int
+# key: int
+# binding: direct-keybinding
+# --
+parseInt($0)

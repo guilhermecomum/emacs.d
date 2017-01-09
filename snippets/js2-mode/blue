@@ -1,0 +1,6 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: blue
+# key: blue
+# binding: direct-keybinding
+# --
+import P from 'bluebird';

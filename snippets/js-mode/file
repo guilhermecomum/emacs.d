@@ -1,0 +1,14 @@
+# key: file
+# name: file
+# --
+/* @flow */
+import React, { Component } from 'react';
+import withStyles from 'isomorphic-style-loader/lib/withStyles';
+import s from './$1.scss';
+import classNames from 'classnames';
+
+class $1 extends Component {
+
+}
+
+export default withStyles(s)($1);

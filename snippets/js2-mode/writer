@@ -1,0 +1,6 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: writer
+# key: writer
+# binding: direct-keybinding
+# --
+var write = process.stdout.write.bind(process.stdout);

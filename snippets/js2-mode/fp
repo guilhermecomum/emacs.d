@@ -1,0 +1,6 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: fp
+# key: fp
+# binding: direct-keybinding
+# --
+import _ from 'lodash/fp';

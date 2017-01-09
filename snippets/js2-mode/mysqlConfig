@@ -1,0 +1,11 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: mysqlConfig
+# key: mysqlConfig
+# binding: direct-keybinding
+# --
+var mysqlConfig = {
+  host: 'localhost',
+  user: 'root',
+  password: 'paytm@197',
+  database: 'mktplace'
+};

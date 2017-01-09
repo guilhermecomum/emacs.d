@@ -1,0 +1,13 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: package
+# key: package
+# binding: direct-keybinding
+# --
+;;; Commentary:
+;;; $2
+
+;;; Code:
+$0
+
+(provide 'init-$1)
+;;; init-$1.el ends here

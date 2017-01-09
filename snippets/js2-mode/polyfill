@@ -1,0 +1,6 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: polyfill
+# key: polyfill
+# binding: direct-keybinding
+# --
+import 'babel-polyfill';

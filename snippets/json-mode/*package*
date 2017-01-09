@@ -1,0 +1,9 @@
+# key: package
+# name: package
+# --
+{
+  "name": "$1",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./$1.js"
+}

@@ -1,0 +1,8 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: bootstrap
+# key: bootstrap
+# binding: direct-keybinding
+# --
+<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css">
+<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>

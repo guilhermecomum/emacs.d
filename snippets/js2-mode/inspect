@@ -1,0 +1,6 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: inspect
+# key: inspect
+# binding: direct-keybinding
+# --
+console.log(require('util').inspect($0, false, null));

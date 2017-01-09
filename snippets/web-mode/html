@@ -1,0 +1,15 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: html
+# key: html
+# binding: direct-keybinding
+# --
+<!doctype HTML>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    $0
+    <script src="bundle.js"></script>
+  </body>
+</html>

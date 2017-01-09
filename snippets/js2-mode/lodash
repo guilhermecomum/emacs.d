@@ -1,0 +1,6 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: lodash
+# key: lodash
+# binding: direct-keybinding
+# --
+import _ from 'lodash';

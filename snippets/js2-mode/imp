@@ -1,0 +1,6 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: imp
+# key: imp
+# binding: direct-keybinding
+# --
+import $1 from '$1';$0

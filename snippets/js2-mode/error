@@ -1,0 +1,6 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: error
+# key: error
+# binding: direct-keybinding
+# --
+throw new Error(err);

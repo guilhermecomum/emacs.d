@@ -1,0 +1,11 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: valid
+# key: valid
+# binding: direct-keybinding
+# --
+if (!ajv.validate($1, $2)) {
+  const error = new Error(ajv.errorsText());
+  error.status = 400;
+  throw error;
+}
+$0

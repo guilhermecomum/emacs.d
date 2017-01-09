@@ -1,0 +1,6 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: rdl
+# key: rdl
+# binding: direct-keybinding
+# --
+readLine()
