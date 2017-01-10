@@ -84,15 +84,15 @@
 (electric-pair-mode 1)
 
 ;; Ctrl-K with no kill
-(defun delete-line-no-kill ()
-  "Do not cut line with Control-k, just remove it."
-  (interactive)
-  (delete-region
-   (point)
-   (save-excursion (move-end-of-line 1) (point)))
-  (delete-char 1)
-  )
-(global-set-key (kbd "C-k") 'delete-line-no-kill)
+;;(defun delete-line-no-kill ()
+;;  "Do not cut line with Control-k, just remove it."
+;;  (interactive)
+;;  (delete-region
+;;   (point)
+;;   (save-excursion (move-end-of-line 1) (point)))
+;;  (delete-char 1)
+;;  )
+;;(global-set-key (kbd "C-k") 'delete-line-no-kill)
 
 ;; enable rainbow-delimiters-mode in any programming mode
 (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
@@ -101,8 +101,6 @@
 (setq auto-window-vscroll nil)
 
 (setq system-uses-terminfo nil)
-
-(global-undo-tree-mode t)
 
 (global-flycheck-mode 1)
 

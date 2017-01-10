@@ -30,6 +30,9 @@
 (setq org-confirm-babel-evaluate nil)
 (setq org-src-fontify-natively t)
 
+;; org-jira
+(setq jiralib-url "https://objectedge.atlassian.net")
+
 
 (provide 'init-org)
 ;;; init-org.el ends here

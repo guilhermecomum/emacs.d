@@ -9,6 +9,5 @@
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
 (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
 
-
 (provide 'init-mc)
 ;;; init-mc.el ends here

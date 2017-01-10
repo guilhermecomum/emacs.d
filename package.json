@@ -11,6 +11,7 @@
     "eslint-plugin-import": "^1.8.1",
     "eslint-plugin-jsx-a11y": "^1.4.0",
     "eslint-plugin-react": "^5.1.1",
+    "react-app-rewire-eslint": "0.2.0",
     "jshint": "^2.9.2"
   },
   "devDependencies": {},
@@ -27,5 +28,20 @@
   "bugs": {
     "url": "https://github.com/guilhermecomum/emacs.d/issues"
   },
-  "homepage": "https://github.com/guilhermecomum/emacs.d#readme"
+  "eslintConfig": {
+    "extends": [
+      "react-app"
+    ],
+    "rules": {
+      "object-property-newline": 1,
+      "operator-linebreak": 1,
+      "prefer-const": 1,
+      "no-var": 2,
+      "comma-dangle": [
+        2,
+        "always-multiline"
+      ]
+    }
+  },
+  "homepage": "https://github.com/guilhermecomum/emacs.d#readme",
 }

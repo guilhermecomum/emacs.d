@@ -29,3 +29,20 @@
 
 (provide 'init-keys)
 ;;; init-keys.el ends here
+
+;;; change window
+(global-set-key [(C-tab)] 'other-window)
+
+;;; buffer
+(global-set-key [s-tab] 'next-buffer)
+(global-set-key [S-s-iso-lefttab] 'previous-buffer)
+
+;;; comments
+(global-set-key [(ctrl c) (c)] 'comment-region)
+(global-set-key [(ctrl c) (d)] 'uncomment-region)
+
+;;; Navegation
+(global-set-key (kbd "M-g") 'goto-line)
+
+;;; Sort
+(global-set-key (kbd "C-c s") 'sort-lines)

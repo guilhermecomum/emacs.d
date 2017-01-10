@@ -20,7 +20,6 @@
 (require 'init-keys)
 (require 'init-extensions)
 (require 'init-functions)
-(require 'init-dired)
 (require 'init-scss)
 (require 'init-css)
 (require 'init-theme)
