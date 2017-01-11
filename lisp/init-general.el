@@ -4,8 +4,7 @@
 ;;; Code:
 
 ;; execute path from shell
- (when (memq window-system '(mac ns))
-   (exec-path-from-shell-initialize))
+(exec-path-from-shell-initialize)
 
 ;; Disable distractions
 (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
@@ -56,20 +55,23 @@
 ;; window size
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
-;; show column number
-(setq column-number-mode t)
+;; scroll smoothly
+(setq scroll-conservatively 10000)
 
-;; smooth scrolling
-;; scroll one line at a time (less "jumpy" than defaults)
+;; ;; show column number
+;; (setq column-number-mode t)
 
-;; one line at a time
-(setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
-;; don't accelerate scrolling
-(setq mouse-wheel-progressive-speed nil)
-;; scroll window under mouse
-(setq mouse-wheel-follow-mouse 't)
-;; keyboard scroll one line at a time
-(setq scroll-step 1)
+;; ;; smooth scrolling
+;; ;; scroll one line at a time (less "jumpy" than defaults)
+
+;; ;; one line at a time
+;; (setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
+;; ;; don't accelerate scrolling
+;; (setq mouse-wheel-progressive-speed nil)
+;; ;; scroll window under mouse
+;; (setq mouse-wheel-follow-mouse 't)
+;; ;; keyboard scroll one line at a time
+;; (setq scroll-step 1)
 
 ;; allow narrow-to-region
 (put 'narrow-to-region 'disabled nil)
