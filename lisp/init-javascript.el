@@ -21,9 +21,6 @@
 
 (quickrun-set-default "javascript" "babel")
 
-
-(setq flycheck-eslintrc "~/.emacs.d/.eslintrc")
-
 ;; Custom fringe indicator
 (when (fboundp 'define-fringe-bitmap)
   (define-fringe-bitmap 'my-flycheck-fringe-indicator
@@ -99,6 +96,8 @@
 (setq web-mode-code-indent-offset 2)
 (setq web-mode-attr-indent-offset 2)
 
+(eval-after-load 'web-mode
+  '(add-hook 'js-mode-hook #'add-node-modules-path))
 
 (provide 'init-javascript)
 ;;; init-javascript.el ends here
