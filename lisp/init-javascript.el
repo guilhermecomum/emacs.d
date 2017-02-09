@@ -91,6 +91,9 @@
 (add-to-list 'auto-mode-alist '("\\.js\\'"      . jsWithEslint))
 (add-to-list 'magic-mode-alist '("/\\* @flow \\*/" . jsWithEslintFlow))
 
+(add-to-list 'web-mode-comment-formats '("jsx" . "//" ))
+(add-to-list 'web-mode-comment-formats '("javascript" . "//" ))
+
 (setq web-mode-markup-indent-offset 2)
 (setq web-mode-css-indent-offset 2)
 (setq web-mode-code-indent-offset 2)
