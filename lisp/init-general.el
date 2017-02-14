@@ -6,6 +6,24 @@
 ;; execute path from shell
 (exec-path-from-shell-initialize)
 
+;;; Mac specific stuff
+(when (eq system-type 'darwin)
+  (setq mac-option-modifier 'nil)
+  (setq mac-command-modifier 'meta)
+
+  ;; Font face/size
+  ;;(set-default-font "Monaco 12")
+
+  ;; Keybinds
+
+  ;; buffer
+  (global-set-key (kbd "M-]") 'next-buffer)
+  (global-set-key (kbd "M-[") 'previous-buffer)
+
+  ;;; sets fn-delete to be right-delete
+  (global-set-key [kp-delete] 'delete-char)
+  (menu-bar-mode 1))
+
 ;; Disable distractions
 (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
 (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
