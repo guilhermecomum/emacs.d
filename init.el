@@ -27,6 +27,7 @@
 (require 'init-javascript)
 (require 'init-lisp)
 (require 'init-python)
+(require 'init-neotree)
 
 ;; server
 (server-start)
