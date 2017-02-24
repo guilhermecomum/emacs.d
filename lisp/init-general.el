@@ -45,6 +45,8 @@
 ;; show line numbers globally
 (global-linum-mode 1)
 
+(setq require-final-newline t)
+
 ;; don't kill scratch
 (defun my/dont-kill-scratch ()
   "This function doesn't let you kill scratch by mistake."
