@@ -1,3 +1,7 @@
+;; Default path to load lisp files
+(add-to-list 'load-path "~/.emacs.d/site-lisp/")
+(add-to-list 'load-path "~/.emacs.d/lisp/")
+
 ;; cask
 (require 'cask "~/.emacs.d/.cask/cask/cask.el")
 (cask-initialize)
@@ -8,27 +12,23 @@
 ;; load path so that configs from lisp folder can be required
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 
-;; (require 'init-melpa)
+(require 'init-lisp)
 (require 'init-general)
+(require 'init-keys)
 (require 'init-helm)
+(require 'init-company)
+(require 'init-neotree)
 (require 'init-projectile)
 (require 'init-magit)
 (require 'init-yasnippet)
-(require 'init-company)
-(require 'init-helm-swoop)
+(require 'init-flyspell)
+(require 'init-theme)
 (require 'init-org)
-(require 'init-keys)
-(require 'init-extensions)
-(require 'init-functions)
 (require 'init-scss)
 (require 'init-css)
-(require 'init-theme)
-(require 'init-mc)
 (require 'init-javascript)
-(require 'init-lisp)
-(require 'init-python)
-(require 'init-neotree)
-(require 'init-flyspell)
+(require 'init-mc)
+
 
 ;; server
 (server-start)
@@ -36,6 +36,5 @@
 ;; file with custom-set-variables
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file)
-
 
 ;;; init.el ends here

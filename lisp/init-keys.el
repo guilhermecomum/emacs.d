@@ -24,14 +24,14 @@
 (define-key global-map (kbd "C-c C-k") 'quickrun)
 (define-key global-map (kbd "C-c C-q") 'quickrun-shell)
 
-
-(provide 'init-keys)
-;;; init-keys.el ends here
-
 ;;; change window
 (global-set-key [(C-tab)] 'other-window)
 
 ;;; buffer
+(when (eq system-type 'darwin)
+  (global-set-key (kbd "M-]") 'next-buffer)
+  (global-set-key (kbd "M-[") 'previous-buffer))
+
 (global-set-key [s-tab] 'next-buffer)
 (global-set-key [S-s-iso-lefttab] 'previous-buffer)
 
@@ -44,3 +44,9 @@
 
 ;;; Sort
 (global-set-key (kbd "C-c s") 'sort-lines)
+
+;;; highlight indentation column
+(global-set-key (kbd "M-1") 'highlight-indentation-current-column-mode)
+
+(provide 'init-keys)
+;;; init-keys.el ends here

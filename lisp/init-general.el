@@ -2,26 +2,20 @@
 ;; general settings for Emacs
 
 ;;; Code:
+(require 'pallet)
+;; Sync package list with Cask file
+(pallet-mode t)
 
-;; execute path from shell
-(exec-path-from-shell-initialize)
 
 ;;; Mac specific stuff
 (when (eq system-type 'darwin)
   (setq mac-option-modifier 'nil)
   (setq mac-command-modifier 'meta)
 
-  ;; Font face/size
-  ;;(set-default-font "Monaco 12")
+  ;; Loads environment variables from the shell
+  (setq exec-path-from-shell-variables '("GOPATH" "PATH" "MANPATH"))
+  (exec-path-from-shell-initialize)
 
-  ;; Keybinds
-
-  ;; buffer
-  (global-set-key (kbd "M-]") 'next-buffer)
-  (global-set-key (kbd "M-[") 'previous-buffer)
-
-  ;;; sets fn-delete to be right-delete
-  (global-set-key [kp-delete] 'delete-char)
   (menu-bar-mode 1))
 
 ;; Disable distractions
@@ -78,21 +72,6 @@
 ;; scroll smoothly
 (setq scroll-conservatively 10000)
 
-;; ;; show column number
-;; (setq column-number-mode t)
-
-;; ;; smooth scrolling
-;; ;; scroll one line at a time (less "jumpy" than defaults)
-
-;; ;; one line at a time
-;; (setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
-;; ;; don't accelerate scrolling
-;; (setq mouse-wheel-progressive-speed nil)
-;; ;; scroll window under mouse
-;; (setq mouse-wheel-follow-mouse 't)
-;; ;; keyboard scroll one line at a time
-;; (setq scroll-step 1)
-
 ;; allow narrow-to-region
 (put 'narrow-to-region 'disabled nil)
 
@@ -105,17 +84,6 @@
 ;; electric pair mode
 (electric-pair-mode 1)
 
-;; Ctrl-K with no kill
-;;(defun delete-line-no-kill ()
-;;  "Do not cut line with Control-k, just remove it."
-;;  (interactive)
-;;  (delete-region
-;;   (point)
-;;   (save-excursion (move-end-of-line 1) (point)))
-;;  (delete-char 1)
-;;  )
-;;(global-set-key (kbd "C-k") 'delete-line-no-kill)
-
 ;; enable rainbow-delimiters-mode in any programming mode
 (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 
@@ -127,9 +95,6 @@
 (global-flycheck-mode 1)
 
 (show-paren-mode t)
-
-;;; highlight indentation column
-(global-set-key (kbd "M-1") 'highlight-indentation-current-column-mode)
 
 (provide 'init-general)
 ;;; init-general.el ends here
