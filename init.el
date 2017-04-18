@@ -28,6 +28,7 @@
 (require 'init-lisp)
 (require 'init-python)
 (require 'init-neotree)
+(require 'init-flyspell)
 
 ;; server
 (server-start)
