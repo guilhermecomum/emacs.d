@@ -12,14 +12,6 @@
 (global-set-key "\C-cc" 'org-capture)
 (global-set-key "\C-cb" 'org-iswitchb)
 
-(setq org-todo-keywords
-      '((sequence "TODO" "DOING" "WAITING_REVIEW" "|" "DONE")))
-
-(setq org-todo-keyword-faces
-      '(("WAITING_REVIEW" . "yellow")))
-
-(setq org-log-done 'time)
-
 ;; make org mode allow eval of some langs
 (org-babel-do-load-languages
  'org-babel-load-languages
@@ -30,9 +22,8 @@
 (setq org-confirm-babel-evaluate nil)
 (setq org-src-fontify-natively t)
 
-;; org-jira
-(setq jiralib-url "https://objectedge.atlassian.net")
-
+;; Flyspell
+(add-hook 'org-mode-hook 'turn-on-flyspell)
 
 (provide 'init-org)
 ;;; init-org.el ends here

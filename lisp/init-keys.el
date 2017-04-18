@@ -6,8 +6,6 @@
 ;; Replacement for backspace, because backspace is very far
 (global-set-key (kbd "C-j") 'backward-delete-char-untabify)
 
-(global-set-key (kbd "RET") 'newline-and-indent)
-
 ;; expand-region
 (require 'expand-region)
 (global-set-key (kbd "C-=") 'er/expand-region)

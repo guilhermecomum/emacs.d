@@ -128,5 +128,8 @@
 
 (show-paren-mode t)
 
+;;; highlight indentation column
+(global-set-key (kbd "M-1") 'highlight-indentation-current-column-mode)
+
 (provide 'init-general)
 ;;; init-general.el ends here

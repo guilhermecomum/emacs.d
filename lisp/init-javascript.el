@@ -99,6 +99,9 @@
 (setq web-mode-code-indent-offset 2)
 (setq web-mode-attr-indent-offset 2)
 
+;; Disable auto-indent after yank
+(setq web-mode-enable-auto-indentation nil)
+
 (eval-after-load 'web-mode
   '(add-hook 'js-mode-hook #'add-node-modules-path))
 
