@@ -1,6 +1,0 @@
-# -*- mode: snippet; require-final-newline: nil -*-
-# name: write
-# key: write
-# binding: direct-keybinding
-# --
-write($0);

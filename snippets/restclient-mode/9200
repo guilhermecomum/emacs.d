@@ -1,6 +1,0 @@
-# -*- mode: snippet; require-final-newline: nil -*-
-# name: 9200
-# key: 9200
-# binding: direct-keybinding
-# --
-http://localhost:9200/

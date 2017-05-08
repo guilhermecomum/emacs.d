@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: class
-# key: class
-# --
-import classNames from 'classnames';

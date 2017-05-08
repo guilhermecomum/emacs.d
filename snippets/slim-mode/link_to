@@ -1,7 +1,0 @@
-# -*- mode: snippet; -*-
-# name: link_to
-# key: link
-# binding: direct-keybinding
-# --
-
-#{link_to("")}

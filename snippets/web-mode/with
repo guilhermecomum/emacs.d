@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: with
-# key: with
-# --
-import withStyles from 'isomorphic-style-loader/lib/withStyles';
