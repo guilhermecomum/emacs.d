@@ -1,3 +1,12 @@
+;;; init.el --- My Emacs Setup
+;;
+;;; Commentary:
+;;
+;; Entry point for my Emacs setup.  This module's main goal is to load
+;; other files that do more specific setup work.
+;;
+;;; Code:
+
 ;; Default path to load lisp files
 (add-to-list 'load-path "~/.emacs.d/site-lisp/")
 (add-to-list 'load-path "~/.emacs.d/lisp/")
@@ -14,7 +23,6 @@
 
 (require 'init-lisp)
 (require 'init-general)
-(require 'init-keys)
 (require 'init-helm)
 (require 'init-company)
 (require 'init-neotree)
@@ -28,7 +36,7 @@
 (require 'init-css)
 (require 'init-javascript)
 (require 'init-mc)
-
+(require 'init-keys)
 
 ;; server
 (server-start)

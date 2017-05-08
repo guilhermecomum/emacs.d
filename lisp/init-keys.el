@@ -36,6 +36,7 @@
 (global-set-key [S-s-iso-lefttab] 'previous-buffer)
 
 ;;; comments
+(global-unset-key (kbd "C-c c"))
 (global-set-key [(ctrl c) (c)] 'comment-region)
 (global-set-key [(ctrl c) (d)] 'uncomment-region)
 
