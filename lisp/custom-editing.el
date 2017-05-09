@@ -10,6 +10,8 @@
 (require 'flycheck)
 (require 'linum)
 (require 'multiple-cursors)
+(require 'smartparens)
+(require 'rainbow-delimiters)
 
 (defun custom-editing-line-numbers ()
   "Configure line numbers in the Emacs UI."
@@ -38,6 +40,12 @@
 
   ;; keep newline end of file
   (setq require-final-newline t)
+
+  ;; smartparens
+  (smartparens-global-mode t)
+
+  ;; rainbow delimiters
+  (rainbow-delimiters-mode t)
 
   ;; Enable syntax checks
   (global-flycheck-mode)
