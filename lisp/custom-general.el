@@ -125,7 +125,6 @@
 (defun custom-general-misc ()
   "Miscellaneous settings and start up actions."
   (setq default-directory "~/") ;; There's no place like home
-  (server-mode)
 
   ;; Sync package list with Cask file
   (pallet-mode t)
@@ -144,6 +143,8 @@
 (defun custom-general-projectile()
   (projectile-mode)
   (setq projectile-completion-system 'helm)
+  (add-to-list 'projectile-globally-ignored-directories "node_modules")
+
   (helm-projectile-on))
 
 (defun custom-general-flyspell()
