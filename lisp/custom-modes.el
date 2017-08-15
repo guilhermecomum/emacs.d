@@ -44,16 +44,39 @@
 
 (defun custom-modes-js ()
   "Setup javascript mode."
+  ;;(add-to-list 'auto-mode-alist '("components\\/.*\\.js\\'" . rjsx-mode))
   (add-to-list 'auto-mode-alist '("\\.js\\'" . rjsx-mode))
-
   (setq js2-basic-offset 2)
 
   (setq js2-strict-missing-semi-warning nil)
   (setq js2-missing-semi-one-line-override nil)
   (setq js2-strict-trailing-comma-warning nil)
 
-  (eval-after-load 'rjsx-mode
-    '(add-hook 'js2-mode-hook #'add-node-modules-path)))
+  ;; disable auto-indent
+  (add-hook 'js2-mode-hook (lambda () (electric-indent-local-mode -1)))
+
+  ;; disable jshint since we prefer eslint checking
+  (setq-default flycheck-disabled-checkers
+    (append flycheck-disabled-checkers
+      '(javascript-jshint)))
+
+  ;; use eslint with web-mode for jsx files
+  (flycheck-add-mode 'javascript-eslint 'rjsx-mode)
+
+  ;; customize flycheck temp file prefix
+  (setq-default flycheck-temp-prefix ".flycheck")
+
+  ;; disable json-jsonlist checking for json files
+  (setq-default flycheck-disabled-checkers
+    (append flycheck-disabled-checkers
+      '(json-jsonlist)))
+
+  ;; flow auto complete
+  (eval-after-load 'company
+    '(add-to-list 'company-backends 'company-flow))
+
+  (eval-after-load 'web-mode
+    '(add-hook 'web-mode-hook #'add-node-modules-path)))
 
 
 (defun custom-modes ()
