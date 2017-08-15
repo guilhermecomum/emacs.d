@@ -46,6 +46,7 @@
 
   ;; rainbow delimiters
   (rainbow-delimiters-mode t)
+  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
 
   ;; Enable syntax checks
   (global-flycheck-mode)
@@ -56,17 +57,33 @@
   ;; custom paths
   (setq flycheck-emacs-lisp-load-path 'inherit))
 
+(defun custom-magic-edit()
+  (setq ruby-insert-encoding-magic-comment nil))
+
 (defun custom-multiple-cursors()
   (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
   (global-set-key (kbd "C->") 'mc/mark-next-like-this)
   (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
   (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this))
 
+(defun custom-edit-functions ()
+  "Functions make edit easier."
+
+  (defun unfill-paragraph (&optional region)
+    "Takes a multi-line paragraph or (REGION) and make it into a single line of text."
+    (interactive (progn (barf-if-buffer-read-only) '(t)))
+    (let ((fill-column (point-max))
+          ;; This would override `fill-column' if it's an integer.
+          (emacs-lisp-docstring-fill-column t))
+      (fill-paragraph nil region))))
+
 (defun custom-editing ()
   "Call out other editing customization functions."
   (custom-editing-line-numbers)
   (custom-editing-misc)
-  (custom-multiple-cursors))
+  (custom-magic-edit)
+  (custom-multiple-cursors)
+  (custom-edit-functions))
 
 (provide 'custom-editing)
 ;;; custom-editing.el ends here
