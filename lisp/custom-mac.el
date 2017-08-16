@@ -18,6 +18,9 @@
     (setq exec-path-from-shell-variables '("GOPATH" "PATH" "MANPATH"))
     (exec-path-from-shell-initialize)
 
+    ;; Set font
+    (set-frame-font "Monaco 12")
+
     (menu-bar-mode 1)))
 
 (provide 'custom-mac)

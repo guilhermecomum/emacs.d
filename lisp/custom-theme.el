@@ -12,44 +12,40 @@
 (defun custom-theme ()
   "Setup doom theme."
 
-  ;; Enable custom neotree theme
-  (setq doom-neotree-enable-file-icons t)
+  ;; Global settings (defaults)
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+        doom-themes-enable-italic t) ; if nil, italics is universally disabled
 
+  ;; Load the theme (doom-one, doom-molokai, etc); keep in mind that each theme
+  ;; may have their own settings.
   (load-theme 'doom-one t)
 
-  (setq doom-enable-bold t    ; if nil, bolding are universally disabled
-        doom-enable-italic t  ; if nil, italics are universally disabled
+  ;; Enable flashing mode-line on errors
+  (doom-themes-visual-bell-config)
 
-        ;; doom-one specific settings
-        doom-one-brighter-modeline nil
-        doom-one-brighter-comments nil)
+  ;; Enable custom neotree theme
+  (doom-themes-neotree-config)  ; all-the-icons fonts must be installed!
 
-  ;; brighter source buffers
-  (add-hook 'find-file-hook 'solaire-mode)
+  ;; Corrects (and improves) org-mode's native fontification.
+  (doom-themes-org-config)
 
-  ;; brighter minibuffer when active
-  (add-hook 'minibuffer-setup-hook 'solaire-mode)
+  ;; brighten buffers (that represent real files)
+  (add-hook 'after-change-major-mode-hook #'turn-on-solaire-mode)
+  ;; To enable solaire-mode unconditionally for certain modes:
+  (add-hook 'ediff-prepare-buffer-hook #'solaire-mode)
 
-  ;; The temporary buffers ediff spins up aren't dimmed. You can fix this with:
-  (add-hook 'ediff-prepare-buffer-hook 'solaire-mode)
+  ;; ...if you use auto-revert-mode:
+  (add-hook 'after-revert-hook #'turn-on-solaire-mode)
 
-  ;; Set font
-  (set-frame-font "Monaco 12")
+  ;; highlight the minibuffer when it is activated:
+  (add-hook 'minibuffer-setup-hook #'solaire-mode-in-minibuffer)
 
-  ;; ;;; More reliable inter-window border
-  ;; The native border "consumes" a pixel of the fringe on righter-most splits
-  (setq window-divider-default-places t
-        window-divider-default-bottom-width 0
-        window-divider-default-right-width 1)
-  (window-divider-mode +1)
-
-  ;; Enable nlinum line highlighting
-  (doom-themes-nlinum-config)
-
-  ;; Necessary for org-mode
-  (setq org-fontify-whole-heading-line t
-        org-fontify-done-headline t
-        org-fontify-quote-and-verse-blocks t))
-
+  ;; if the bright and dark background colors are the wrong way around, use this
+  ;; to switch the backgrounds of the `default` and `solaire-default-face` faces.
+  ;; This should be used *after* you load the active theme!
+  ;;
+  ;; NOTE: This is necessary for themes in the doom-themes package!
+  (solaire-mode-swap-bg)
+)
 (provide 'custom-theme)
 ;;; custom-theme.el ends here
