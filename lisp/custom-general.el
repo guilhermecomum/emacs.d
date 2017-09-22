@@ -12,7 +12,9 @@
 (require 'neotree)
 (require 'pallet)
 (require 'projectile)
-(require 'spaceline-all-the-icons)
+(require 'ansi-color)
+(require 'eshell)
+(require 'lastpass)
 
 (defun custom-general-utf-8 ()
   "Configure all known coding variables to use `UTF-8'."
@@ -82,12 +84,10 @@
   (setq inhibit-splash-screen t)    ;; No splash screen
   (setq inhibit-startup-screen t)
 
-  ;; Spaceline
-  (spaceline-all-the-icons-theme)
-  (spaceline-toggle-all-the-icons-buffer-size-off)
-  (spaceline-toggle-all-the-icons-battery-status-off)
-  (spaceline-toggle-all-the-icons-hud-off)
-
+  (defun eshell-handle-ansi-color ()
+    (ansi-color-apply-on-region eshell-last-output-start
+                                eshell-last-output-end))
+  (add-to-list 'eshell-output-filter-functions 'eshell-handle-ansi-color)
   ;; window size
   (add-to-list 'default-frame-alist '(fullscreen . maximized)))
 
@@ -172,6 +172,14 @@
   (global-set-key [f8] 'neotree-toggle)
   (setq neo-smart-open t))
 
+(defun custom-general-lastpass()
+  ;; Set lastpass user
+  (setq lastpass-user "guilherme.ga@gmail.com")
+  ;; Enable lastpass custom auth-source
+  (lastpass-auth-source-enable)
+  ;; Multifactor
+  (setq lastpass-multifactor-use-passcode t))
+
 (defun custom-general ()
   "Call out other general customization functions."
   (custom-general-ui)
@@ -182,7 +190,8 @@
   (custom-general-projectile)
   (custom-general-flyspell)
   (custom-general-company)
-  (custom-general-neotree))
+  (custom-general-neotree)
+  (custom-general-lastpass))
 
 (provide 'custom-general)
 ;;; custom-general.el ends here
