@@ -32,6 +32,9 @@
   ;; Complain about trailing white spaces
   (setq show-trailing-whitespace t)
 
+  ;; Cleanup white spaces before save
+  (add-hook 'before-save-hook 'whitespace-cleanup)
+
   ;; Also highlight parenthesis
   (show-paren-mode 1)
 

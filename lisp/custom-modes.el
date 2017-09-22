@@ -34,6 +34,7 @@
       (setq web-mode-markup-indent-offset 2)
       ;; Disable auto-indent after yank
       (setq web-mode-enable-auto-indentation nil)
+      (setq css-indent-offset 2)
 
       (set-face-attribute 'web-mode-doctype-face nil :foreground
                           (face-foreground font-lock-function-name-face))
