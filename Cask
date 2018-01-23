@@ -33,6 +33,7 @@
 (depends-on "package-build")
 (depends-on "pallet")
 (depends-on "pdf-tools")
+(depends-on "prettier-js")
 (depends-on "projectile")
 (depends-on "rainbow-delimiters")
 (depends-on "rainbow-mode")

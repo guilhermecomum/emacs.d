@@ -35,7 +35,8 @@
       ;; Disable auto-indent after yank
       (setq web-mode-enable-auto-indentation nil)
       (setq css-indent-offset 2)
-
+      (enable-minor-mode
+       '("\\.jsx?\\'" . prettier-js-mode))
       (set-face-attribute 'web-mode-doctype-face nil :foreground
                           (face-foreground font-lock-function-name-face))
       (set-face-attribute 'web-mode-html-attr-name-face nil :foreground
