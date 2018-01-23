@@ -12,6 +12,7 @@
 (require 'multiple-cursors)
 (require 'smartparens)
 (require 'rainbow-delimiters)
+(require 'editorconfig)
 
 (defun custom-editing-line-numbers ()
   "Configure line numbers in the Emacs UI."
@@ -80,13 +81,20 @@
           (emacs-lisp-docstring-fill-column t))
       (fill-paragraph nil region))))
 
+(defun custom-editorconfig ()
+  "Functions config editorconfig."
+  (editorconfig-mode 1)
+  )
+
 (defun custom-editing ()
   "Call out other editing customization functions."
   (custom-editing-line-numbers)
   (custom-editing-misc)
   (custom-magic-edit)
   (custom-multiple-cursors)
-  (custom-edit-functions))
+  (custom-edit-functions)
+  (custom-editorconfig))
+
 
 (provide 'custom-editing)
 ;;; custom-editing.el ends here

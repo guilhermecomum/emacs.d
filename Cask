@@ -9,6 +9,7 @@
 (depends-on "cask")
 (depends-on "company")
 (depends-on "doom-themes")
+(depends-on "editorconfig")
 (depends-on "eslint-fix")
 (depends-on "exec-path-from-shell")
 (depends-on "expand-region")
