@@ -15,6 +15,7 @@
 (require 'ansi-color)
 (require 'eshell)
 (require 'lastpass)
+(require 'exec-path-from-shell)
 
 (defun custom-general-utf-8 ()
   "Configure all known coding variables to use `UTF-8'."
@@ -147,6 +148,11 @@
 
   (helm-projectile-on))
 
+(defun custom-general-path()
+  ;;Loads environment variables from the shell.
+  (setq exec-path-from-shell-variables '("GOPATH" "PATH" "MANPATH"))
+  (exec-path-from-shell-initialize))
+
 (defun custom-general-flyspell()
   (setq ispell-program-name "aspell")
 
@@ -190,6 +196,7 @@
   (custom-general-projectile)
   (custom-general-flyspell)
   (custom-general-company)
+  (custom-general-path)
   (custom-general-neotree)
   (custom-general-lastpass))
 

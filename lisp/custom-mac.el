@@ -6,17 +6,12 @@
 ;;
 ;;; Code:
 
-(require 'exec-path-from-shell)
 
 (defun custom-mac ()
   "Mac specific stuff."
   (when (eq system-type 'darwin)
     (setq mac-option-modifier 'nil)
     (setq mac-command-modifier 'meta)
-
-    ;;Loads environment variables from the shell.
-    (setq exec-path-from-shell-variables '("GOPATH" "PATH" "MANPATH"))
-    (exec-path-from-shell-initialize)
 
     ;; Set font
     (set-frame-font "Monaco 12")
