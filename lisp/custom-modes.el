@@ -66,6 +66,9 @@
   ;; disable auto-indent
   (add-hook 'js2-mode-hook (lambda () (electric-indent-local-mode -1)))
 
+  ;; enable prettier on rjsx
+  (add-hook 'rjsx-mode-hook 'prettier-js-mode)
+
   ;; disable jshint since we prefer eslint checking
   (setq-default flycheck-disabled-checkers
     (append flycheck-disabled-checkers
