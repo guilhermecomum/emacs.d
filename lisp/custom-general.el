@@ -119,7 +119,6 @@
   "This function doesn't let you kill scratch by mistake."
   (if (not (equal (buffer-name) "*scratch*"))
       t
-    (message "Not allowed to kill %s, burying instead" (buffer-name))
     (bury-buffer)
     nil))
 
