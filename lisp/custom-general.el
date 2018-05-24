@@ -14,7 +14,7 @@
 (require 'projectile)
 (require 'ansi-color)
 (require 'eshell)
-(require 'lastpass)
+;;(require 'lastpass)
 (require 'exec-path-from-shell)
 
 (defun custom-general-utf-8 ()
@@ -190,13 +190,7 @@
   (global-set-key [f8] 'neotree-project-dir)
   (setq neo-smart-open t))
 
-(defun custom-general-lastpass()
-  ;; Set lastpass user
-  (setq lastpass-user "guilherme.ga@gmail.com")
-  ;; Enable lastpass custom auth-source
-  (lastpass-auth-source-enable)
-  ;; Multifactor
-  (setq lastpass-multifactor-use-passcode t))
+
 
 (defun custom-general ()
   "Call out other general customization functions."
@@ -209,8 +203,7 @@
   (custom-general-flyspell)
   (custom-general-company)
   (custom-general-path)
-  (custom-general-neotree)
-  (custom-general-lastpass))
+  (custom-general-neotree))
 
 (provide 'custom-general)
 ;;; custom-general.el ends here
