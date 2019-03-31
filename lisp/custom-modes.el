@@ -10,6 +10,10 @@
 (require 'yaml-mode)
 (require 'rjsx-mode)
 (require 'prettier-js)
+(require 'auto-virtualenvwrapper)
+(require 'elpy)
+(require 'py-autopep8)
+(require 'importmagic)
 
 (defun custom-modes-yaml ()
   "Configuration for yaml-mode."
@@ -32,6 +36,7 @@
   (add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.mjml?\\'" . web-mode))
   (add-hook
    'web-mode-hook
    '(lambda ()
@@ -92,11 +97,21 @@
   (eval-after-load 'web-mode
     '(add-hook 'web-mode-hook #'add-node-modules-path)))
 
+(defun custom-modes-python ()
+  "Set defaults for Python tools."
+  (elpy-enable)
+  (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+  (add-hook 'elpy-mode-hook 'flycheck-mode)
+  (add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save)
+  (add-hook 'python-mode-hook 'importmagic-mode)
+  (setq python-shell-interpreter "python"
+        python-shell-interpreter-args "-i"))
 
 (defun custom-modes ()
   "Call out all the mode setup functions."
   (custom-modes-yaml)
   (custom-modes-web)
+  ;; (custom-modes-python)
   (custom-modes-js))
 
 (provide 'custom-modes)

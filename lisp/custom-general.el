@@ -14,6 +14,8 @@
 (require 'projectile)
 (require 'ansi-color)
 (require 'eshell)
+(require 'iso-transl)
+;;(require 'better-defaults)
 ;;(require 'lastpass)
 (require 'exec-path-from-shell)
 

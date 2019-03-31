@@ -19,7 +19,10 @@
 
   ;; Set font
   ;;(set-frame-font "Monaco-11")
-  (set-face-attribute 'default nil :font "Roboto Mono 10")
+  (set-face-attribute 'default nil :font "Ubuntu Mono 16")
+
+  ;; Nyan cat
+  (nyan-mode t)
 
   ;; Load the theme (doom-one, doom-molokai, etc); keep in mind that each theme
   ;; may have their own settings.
