@@ -1,4 +1,4 @@
-;;; init.el --- My Emacs Setup
+;;; init.el --- Configuration Themes for Emacs
 ;;
 ;; Author: Guilherme Guerra <guilherme.ga@gmail.com>
 ;;
@@ -24,28 +24,18 @@
 ;;
 ;;; Code:
 
-;; load path so that configs from lisp folder can be required
-(add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
+;; Theme
 
-;; Add `melpa` to `package-archives`.
-(require 'package)
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-(package-initialize)
+(defun gg-theme ()
+  "Setup theme."
 
-(when (not (package-installed-p 'use-package))
-  (package-refresh-contents)
-  (package-install 'use-package))
-
-;; Load all the fun modules
-(require 'gg-general)
-(require 'gg-theme)
-
-;; Initialize all the modules loaded above
-(gg-general)
-(gg-theme)
+  (use-package dracula-theme
+    :ensure t
+    :config
+    (set-face-attribute 'default nil :font "Noto Sans Mono SemiCondensed SemiBold 13")
+    :init
+    (load-theme 'dracula t)))
 
 
-;; file with custom-set-variables
-(setq custom-file "~/.emacs.d/custom.el")
-(load custom-file)
 
+(provide 'gg-theme)
