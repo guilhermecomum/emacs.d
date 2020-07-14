@@ -43,11 +43,75 @@
     :init
     (dimmer-mode t)
     :config
-    (setq dimmer-fraction 0.5)))
+    (setq dimmer-fraction 0.5))
+
+  ;; No bars. Doing this first to avoid showing/hidding delay on start
+  (scroll-bar-mode 0)
+  (menu-bar-mode 0)
+  (tool-bar-mode 0)
+
+  ;; Misc
+  (column-number-mode)              ;; Basic config for columns
+  (setq ring-bell-function 'ignore) ;; No freaking bell
+  (setq inhibit-splash-screen t)    ;; No splash screen
+  (setq inhibit-startup-screen t))
+
+(defun gg/ui/fringe ()
+  "Configure the Fringe area."
+  ;; Custom bitmap to be shown in the fringe area for lines with any
+  ;; sort of linting issues
+  (when (fboundp 'define-fringe-bitmap)
+    (define-fringe-bitmap 'my-flycheck-fringe-indicator
+      (vector #b00000000
+              #b00000000
+              #b00000000
+              #b00000000
+              #b00000000
+              #b00000000
+              #b00000000
+              #b00011100
+              #b00111110
+              #b00111110
+              #b00111110
+              #b00011100
+              #b00000000
+              #b00000000
+              #b00000000
+              #b00000000
+              #b00000000)))
+
+  (flycheck-define-error-level 'error
+    :overlay-category 'flycheck-error-overlay
+    :fringe-bitmap 'my-flycheck-fringe-indicator
+    :fringe-face 'flycheck-fringe-error)
+  (flycheck-define-error-level 'warning
+    :overlay-category 'flycheck-warning-overlay
+    :fringe-bitmap 'my-flycheck-fringe-indicator
+    :fringe-face 'flycheck-fringe-warning)
+  (flycheck-define-error-level 'info
+    :overlay-category 'flycheck-info-overlay
+    :fringe-bitmap 'my-flycheck-fringe-indicator
+    :fringe-face 'flycheck-fringe-info)
+
+  ;;Get rid of the background color in the Fringe area
+  (set-face-attribute 'fringe nil
+                      :foreground (face-foreground 'default)
+                      :background (face-background 'default)))
+
+(defun gg/ui/modeline ()
+  "Configuration for the modeline."
+  (use-package doom-modeline
+    :config
+    (setq doom-modeline-height 25)
+    (setq doom-modeline-bar-width 1)
+    (doom-modeline-mode 1)))
 
 (defun gg/ui ()
   "Entry point of UI configuration."
-  (gg/ui/general))
+  (gg/ui/general)
+  (gg/ui/fringe)
+  (gg/ui/modeline))
 
 (provide 'gg-ui)
-;; gg-theme.el ends here
+
+;;; gg-ui.el ends here

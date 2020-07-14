@@ -1,4 +1,4 @@
-';;; init.el --- General Options
+;;; init.el --- General Options
 ;;
 ;; Author: Guilherme Guerra <guilherme.ga@gmail.com>
 ;;
@@ -36,22 +36,6 @@
   (set-keyboard-coding-system 'utf-8)
   (set-selection-coding-system 'utf-8))
 
-(defun gg/general/ui ()
-  "General UI configuration."
-  ;; No bars. Doing this first to avoid showing/hidding delay on start
-  (scroll-bar-mode 0)
-  (menu-bar-mode 0)
-  (tool-bar-mode 0)
-
-  ;; Misc
-  (column-number-mode)              ;; Basic config fr ocolumns
-  (setq ring-bell-function 'ignore) ;; No freaking bell
-  (setq inhibit-splash-screen t)    ;; No splash screen
-  (setq inhibit-startup-screen t)
-
-  ;; Maximize
-  (add-to-list 'default-frame-alist '(fullscreen . maximized)))
-
 (defun gg/general/keys ()
   "Configure global key bindings."
 
@@ -76,6 +60,9 @@
 (defun gg/general/misc ()
   "Miscellaneous settings and start up actions."
   (setq default-directory "~/") ;; There's no place like home
+
+  ;; Maximize
+  (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
   (defun dont-kill-scratch ()
     "This function doesn't let you kill scratch by mistake."
@@ -116,8 +103,7 @@
 
 (defun gg/general ()
   "Call out other general customization functions."
-  ;;(gg-general-utf-8)
-  (gg/general/ui)
+  (gg/general/utf-8)
   (gg/general/keys)
   (gg/general/misc))
 

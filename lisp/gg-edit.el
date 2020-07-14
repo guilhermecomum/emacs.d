@@ -25,7 +25,7 @@
 ;;; Code:
 
 (defun gg/edit/general ()
-  ;; Misc edit configs
+  "Misc edit configs."
 
   ;; Do not wrap lines
   (setq-default truncate-lines t)
@@ -63,16 +63,18 @@
     (sp-pair "`" nil :actions :rem))
 
   (use-package rainbow-delimiters
+    :hook (prog-mode . rainbow-delimiters-mode))
+
+  (use-package flycheck
+    :init
+    (global-flycheck-mode)
     :config
-    (rainbow-delimiters-mode t)
-    :hook
-    ('web-mode . 'rainbow-delimiters-mode)
-    ('css-mode . 'rainbow-delimiters-mode)
-    ('lisp-mode . 'rainbow-delimiters-mode)))
+    (setq flycheck-emacs-lisp-load-path 'inherit)))
 
 (defun gg/edit()
   "Call out other editing customization function."
   (gg/edit/general))
 
 (provide 'gg-edit)
-;;;; gg-edit.el ends here
+
+;;; gg-edit.el ends here
