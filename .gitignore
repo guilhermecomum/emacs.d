@@ -5,3 +5,4 @@ projectile-bookmarks.eld
 node_modules/
 .mc-lists.el
 oauth2.plstore
+elpa
