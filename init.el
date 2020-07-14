@@ -36,6 +36,14 @@
   (package-refresh-contents)
   (package-install 'use-package))
 
+;; Load all the fun modules
+(require 'gg-general)
+
+;; Initialize all the modules loaded above
+(gg-general)
+
+
 ;; file with custom-set-variables
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file)
+
