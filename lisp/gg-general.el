@@ -97,9 +97,12 @@
   (use-package company
     :config
     (add-hook 'after-init-hook 'global-company-mode)
-    (setq company-idle-delay .3)))
-
-
+    (setq company-idle-delay .3))
+  (use-package neotree
+    :bind (([f8] . neotree-toggle))
+    :config
+    (setq projectile-switch-project-action 'neotree-projectile-action)
+    (setq neo-theme 'arrows)))
 
 (defun gg/general ()
   "Call out other general customization functions."
@@ -108,4 +111,5 @@
   (gg/general/misc))
 
 (provide 'gg-general)
-;; gg-general.el ends here
+
+;;; gg-general.el ends here

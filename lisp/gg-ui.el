@@ -29,6 +29,12 @@
 (defun gg/ui/general ()
   "Setup theme."
 
+  ;; Enable custom neotree theme (all-the-icons must be installed!)
+  (use-package all-the-icons)
+  (use-package doom-themes
+    :config
+    (doom-themes-neotree-config))
+
   (use-package dracula-theme
     :config
     (set-face-attribute 'default nil :font "Noto Sans Mono SemiCondensed SemiBold 13")
