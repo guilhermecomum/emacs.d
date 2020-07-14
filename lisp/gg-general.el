@@ -1,4 +1,4 @@
-;;; init.el --- General Options
+';;; init.el --- General Options
 ;;
 ;; Author: Guilherme Guerra <guilherme.ga@gmail.com>
 ;;
@@ -25,9 +25,9 @@
 ;;; Code:
 
 
-(defun gg-general-utf-8 ()
+(defun gg/general/utf-8 ()
   "Configure all known coding variables to use `UTF-8'."
-  
+
   (prefer-coding-system 'utf-8)
   (setq locale-coding-system 'utf-8)
   (setq current-language-environment "UTF-8")
@@ -36,7 +36,7 @@
   (set-keyboard-coding-system 'utf-8)
   (set-selection-coding-system 'utf-8))
 
-(defun gg-general-ui ()
+(defun gg/general/ui ()
   "General UI configuration."
   ;; No bars. Doing this first to avoid showing/hidding delay on start
   (scroll-bar-mode 0)
@@ -52,7 +52,7 @@
   ;; Maximize
   (add-to-list 'default-frame-alist '(fullscreen . maximized)))
 
-(defun gg-general-keys ()
+(defun gg/general/keys ()
   "Configure global key bindings."
 
   (global-set-key [s-tab] 'next-buffer)
@@ -73,21 +73,20 @@
 
 
 
-(defun gg-general-misc ()
+(defun gg/general/misc ()
   "Miscellaneous settings and start up actions."
   (setq default-directory "~/") ;; There's no place like home
 
   (defun dont-kill-scratch ()
     "This function doesn't let you kill scratch by mistake."
     (if (not (equal (buffer-name) "*scratch*"))
-	t
+        t
       (bury-buffer)
       nil))
 
   (use-package emojify
     :config
     (add-hook 'after-init-hook #'global-emojify-mode))
-
 
   ;; Store auto-save and backup files in a temporary directory
   (setq backup-directory-alist
@@ -100,14 +99,27 @@
   (add-hook 'kill-buffer-query-functions #'dont-kill-scratch)
 
   ;; writing yes or no is length, type y / n instead
-  (defalias 'yes-or-no-p 'y-or-n-p))
+  (defalias 'yes-or-no-p 'y-or-n-p)
+
+  ;; file with custom-set-variables
+  (setq custom-file "~/.emacs.d/custom.el")
+  (load custom-file)
+
+  (use-package magit)
+
+  (use-package company
+    :config
+    (add-hook 'after-init-hook 'global-company-mode)
+    (setq company-idle-delay .3)))
 
 
-(defun gg-general ()
+
+(defun gg/general ()
   "Call out other general customization functions."
-  (gg-general-ui)
-  (gg-general-utf-8)
-  (gg-general-keys)
-  (gg-general-misc))
+  ;;(gg-general-utf-8)
+  (gg/general/ui)
+  (gg/general/keys)
+  (gg/general/misc))
 
 (provide 'gg-general)
+;; gg-general.el ends here

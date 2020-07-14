@@ -26,16 +26,28 @@
 
 ;; Theme
 
-(defun gg-theme ()
+(defun gg/ui/general ()
   "Setup theme."
 
   (use-package dracula-theme
-    :ensure t
     :config
     (set-face-attribute 'default nil :font "Noto Sans Mono SemiCondensed SemiBold 13")
     :init
-    (load-theme 'dracula t)))
+    (load-theme 'dracula t))
 
+  (use-package nyan-mode
+    :init
+    (nyan-mode t))
 
+  (use-package dimmer
+    :init
+    (dimmer-mode t)
+    :config
+    (setq dimmer-fraction 0.5)))
 
-(provide 'gg-theme)
+(defun gg/ui ()
+  "Entry point of UI configuration."
+  (gg/ui/general))
+
+(provide 'gg-ui)
+;; gg-theme.el ends here

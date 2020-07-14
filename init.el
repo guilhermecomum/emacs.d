@@ -24,9 +24,6 @@
 ;;
 ;;; Code:
 
-;; load path so that configs from lisp folder can be required
-(add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
-
 ;; Add `melpa` to `package-archives`.
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
@@ -34,18 +31,28 @@
 
 (when (not (package-installed-p 'use-package))
   (package-refresh-contents)
-  (package-install 'use-package))
+  (package-install 'use-package)
+  )
+
+(require 'use-package)
+(setq use-package-always-ensure t)
+
+;; load path so that configs from lisp folder can be required
+(add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 
 ;; Load all the fun modules
 (require 'gg-general)
-(require 'gg-theme)
+(require 'gg-edit)
+(require 'gg-ui)
+
 
 ;; Initialize all the modules loaded above
-(gg-general)
-(gg-theme)
+(gg/ui)
+(gg/general)
+(gg/edit)
+
+;;; init.el ends here
 
 
-;; file with custom-set-variables
-(setq custom-file "~/.emacs.d/custom.el")
-(load custom-file)
+
 
