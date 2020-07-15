@@ -108,7 +108,7 @@
   "Configuration for the modeline."
   (use-package doom-modeline
     :config
-    (setq doom-modeline-height 25)
+    (setq doom-modeline-height 35)
     (setq doom-modeline-bar-width 1)
     (doom-modeline-mode 1)))
 

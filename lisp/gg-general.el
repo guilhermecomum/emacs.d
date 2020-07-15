@@ -104,13 +104,14 @@
     :config
     (setq company-idle-delay .3))
 
+  (use-package helm-projectile)
   (use-package projectile
     :bind-keymap ("C-c p" . projectile-command-map)
     :config
     (setq projectile-indexing-method 'alien)
     (setq projectile-completion-system 'helm)
-    (projectile-mode)
-    (helm-projectile-on))
+    (helm-projectile-on)
+    (projectile-mode))
 
   ;; use with neotree
   (use-package neotree
