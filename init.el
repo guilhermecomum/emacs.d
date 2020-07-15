@@ -41,18 +41,15 @@
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 
 ;; Load all the fun modules
+(require 'gg-ui)
 (require 'gg-general)
 (require 'gg-edit)
-(require 'gg-ui)
-
+(require 'gg-modes)
 
 ;; Initialize all the modules loaded above
 (gg/ui)
 (gg/general)
 (gg/edit)
+(gg/modes)
 
 ;;; init.el ends here
-
-
-
-
