@@ -24,7 +24,7 @@
 ;;
 ;;; Code:
 
-;; Theme
+;; UI
 
 (defun gg/ui/general ()
   "Setup theme."

@@ -61,6 +61,11 @@
   "Miscellaneous settings and start up actions."
   (setq default-directory "~/") ;; There's no place like home
 
+  (use-package tramp
+    :config
+    (setq tramp-auto-save-directory "/tmp")
+    (defvar disable-tramp-backups '(all)))
+
   ;; Maximize
   (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
@@ -95,14 +100,24 @@
   (use-package magit)
 
   (use-package company
+    :hook (after-init . global-company-mode)
     :config
-    (add-hook 'after-init-hook 'global-company-mode)
     (setq company-idle-delay .3))
-  (use-package neotree
-    :bind (([f8] . neotree-toggle))
+
+  (use-package projectile
+    :bind-keymap ("C-c p" . projectile-command-map)
     :config
-    (setq projectile-switch-project-action 'neotree-projectile-action)
-    (setq neo-theme 'arrows)))
+    (setq projectile-indexing-method 'alien)
+    (setq projectile-completion-system 'helm)
+    (projectile-mode)
+    (helm-projectile-on))
+
+  ;; use with neotree
+  (use-package neotree
+    :bind ([f8] . neotree-toggle)
+    :config
+    (setq neo-autorefresh nil)
+    (setq neo-smart-open t)))
 
 (defun gg/general ()
   "Call out other general customization functions."

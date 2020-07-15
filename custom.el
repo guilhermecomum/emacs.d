@@ -5,7 +5,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (doom-themes doom-modeline flycheck flychheck magit neotree multiple-cursors rainbow-delimiters smartparens dimmer nyan-mode dracula-theme company emojify use-package))))
+    (rjsx-mode todoist web-mode emmet-mode helm-projectile helm-ag helm ag counsel-projectile projectile doom-themes doom-modeline flycheck flychheck magit neotree multiple-cursors rainbow-delimiters smartparens dimmer nyan-mode dracula-theme company emojify use-package))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
