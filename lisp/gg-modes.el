@@ -47,15 +47,15 @@
 (defun gg/modes/prettier ()
   (use-package prettier-js
     :init
+    (add-hook 'js-mode-hook  'prettier-js-mode)
     (add-hook 'js2-mode-hook 'prettier-js-mode)
     (add-hook 'web-mode-hook 'prettier-js-mode)
     (add-hook 'typescript-mode-hook 'prettier-js-mode)
     (add-hook 'web-mode-hook 'prettier-js-mode)))
 
-
-
 (defun gg/modes/javascript ()
   "Setup javascript mode."
+  (use-package add-node-modules-path)
   (use-package ng2-mode)
   (use-package tide)
   (defun setup-tide-mode ()
@@ -80,10 +80,15 @@
               (when (string-equal "tsx" (file-name-extension buffer-file-name))
                 (setup-tide-mode))))
   (flycheck-add-mode 'typescript-tslint 'web-mode)
-  (setq js2-basic-offset 2)
-  (setq js2-strict-missing-semi-warning nil)
-  (setq js2-missing-semi-one-line-override nil)
-  (setq js2-strict-trailing-comma-warning nil))
+  (setq js-indent-level 2)
+  (setq-default flycheck-disabled-checkers
+                (append flycheck-disabled-checkers
+                        '(javascript-jshint json-jsonlist)))
+
+  (add-hook 'flycheck-mode-hook 'add-node-modules-path)
+  (flycheck-add-mode 'javascript-eslint 'javascript-mode)
+  (add-hook 'after-init-hook #'global-flycheck-mode)
+  (add-hook 'javascript-mode-hook  'emmet-mode))
 
 (defun gg/modes ()
   (gg/modes/web)
