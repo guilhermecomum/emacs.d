@@ -90,9 +90,13 @@
   (add-hook 'after-init-hook #'global-flycheck-mode)
   (add-hook 'javascript-mode-hook  'emmet-mode))
 
+(defun gg/modes/org ()
+  (add-hook 'org-mode-hook 'turn-on-flyspell))
+
 (defun gg/modes ()
   (gg/modes/web)
   (gg/modes/prettier)
-  (gg/modes/javascript))
+  (gg/modes/javascript)
+  (gg/modes/org))
 
 (provide 'gg-modes)
