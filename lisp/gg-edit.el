@@ -27,6 +27,14 @@
 (defun gg/edit/general ()
   "Misc edit configs."
 
+  (use-package linum
+    :hook
+    (conf-mode-hook . linum-on)
+    (prog-mode-hook . linum-on)
+    (text-mode-hook . linum-on))
+
+  (setq linum-format "%d ")
+
   ;; Do not wrap lines
   (setq-default truncate-lines t)
 
@@ -38,9 +46,11 @@
 
   ;; Cleanup white spaces before save
   (add-hook 'before-save-hook 'whitespace-cleanup)
-
   ;; Also highlight parenthesis
-  (show-paren-mode 1)
+  ;;(show-paren-mode 1)
+
+  ;; keep newline end of file
+  (setq require-final-newline t)
 
   (use-package multiple-cursors
     :bind (("C-S-c C-S-c" . mc/edit-lines)
@@ -48,19 +58,8 @@
            ("C-<" . mc/mark-previous-like-this)
            ("C-c C-<" . mc/mark-all-like-this)))
 
-  (use-package smartparens
-    :init
-    (bind-key "C-M-f" #'sp-forward-sexp smartparens-mode-map)
-    (bind-key "C-M-b" #'sp-backward-sexp smartparens-mode-map)
-    (bind-key "C-S-s" #'sp-splice-sexp)
-    (bind-key "C-M-<backspace>" #'backward-kill-sexp)
-    (bind-key "C-M-S-<SPC>" (lambda () (interactive) (mark-sexp -1)))
-
-    :config
-    (smartparens-global-mode t)
-
-    (sp-pair "'" nil :actions :rem)
-    (sp-pair "`" nil :actions :rem))
+  (use-package smartparens)
+  (smartparens-global-mode t)
 
   (use-package rainbow-delimiters
     :hook (prog-mode . rainbow-delimiters-mode))
@@ -69,11 +68,36 @@
     :init
     (global-flycheck-mode)
     :config
-    (setq flycheck-emacs-lisp-load-path 'inherit)))
+    (setq flycheck-emacs-lisp-load-path 'inherit))
+
+  (use-package editorconfig
+    :config
+    (editorconfig-mode 1)))
+
+(defun gg/edit/auto-complete ()
+  (use-package auto-complete)
+  (global-auto-complete-mode t)
+  (setq ac-dwim 2)
+  (ac-config-default)
+  (define-key ac-complete-mode-map "\C-n" 'ac-next)
+  (define-key ac-complete-mode-map "\C-p" 'ac-previous))
+
+
+(defun gg/edit/functions ()
+  "Functions make edit easier."
+
+  (defun unfill-paragraph (&optional region)
+    "Takes a multi-line paragraph or (REGION) and make it into a single line of text."
+    (interactive (progn (barf-if-buffer-read-only) '(t)))
+    (let ((fill-column (point-max))
+          ;; This would override `fill-column' if it's an integer.
+          (emacs-lisp-docstring-fill-column t))
+      (fill-paragraph nil region))))
 
 (defun gg/edit()
   "Call out other editing customization function."
-  (gg/edit/general))
+  (gg/edit/general)
+  (gg/edit/functions))
 
 (provide 'gg-edit)
 
