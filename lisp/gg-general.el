@@ -53,7 +53,8 @@
   (global-set-key (kbd "C-c s") 'sort-lines)
 
   ;;; change window
-  (global-set-key [(C-tab)] 'other-window))
+  (global-set-key [(C-tab)] 'other-window)
+  (global-set-key [(C-M-tab)] 'other-window))
 
 
 
