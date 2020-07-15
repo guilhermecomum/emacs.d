@@ -119,11 +119,19 @@
     (setq neo-autorefresh nil)
     (setq neo-smart-open t)))
 
+(defun gg/general/path ()
+  ;;Loads environment variables from the shell.
+  (use-package exec-path-from-shell)
+  (setq exec-path-from-shell-variables '("GOPATH" "PATH" "MANPATH"))
+  (exec-path-from-shell-initialize))
+
+
 (defun gg/general ()
   "Call out other general customization functions."
   (gg/general/utf-8)
   (gg/general/keys)
-  (gg/general/misc))
+  (gg/general/misc)
+  (gg/general/path))
 
 (provide 'gg-general)
 

@@ -20,7 +20,7 @@
 ;;; Commentary:
 ;;
 ;; Editing setup includes setting up line Numbers, Tabs vs Spaces,
-;; Auto Complete, Code Snippets, etc.
+;; Code Snippets, etc.
 ;;
 ;;; Code:
 
@@ -73,15 +73,6 @@
   (use-package editorconfig
     :config
     (editorconfig-mode 1)))
-
-(defun gg/edit/auto-complete ()
-  (use-package auto-complete)
-  (global-auto-complete-mode t)
-  (setq ac-dwim 2)
-  (ac-config-default)
-  (define-key ac-complete-mode-map "\C-n" 'ac-next)
-  (define-key ac-complete-mode-map "\C-p" 'ac-previous))
-
 
 (defun gg/edit/functions ()
   "Functions make edit easier."
