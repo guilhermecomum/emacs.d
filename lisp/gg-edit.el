@@ -28,12 +28,9 @@
   "Misc edit configs."
 
   (use-package linum
-    :hook
-    (conf-mode-hook . linum-on)
-    (prog-mode-hook . linum-on)
-    (text-mode-hook . linum-on))
-
-  (setq linum-format "%d ")
+    :config
+    (global-linum-mode 1)
+    (setq linum-format "%d "))
 
   ;; Do not wrap lines
   (setq-default truncate-lines t)
@@ -46,8 +43,10 @@
 
   ;; Cleanup white spaces before save
   (add-hook 'before-save-hook 'whitespace-cleanup)
+
   ;; Also highlight parenthesis
-  ;;(show-paren-mode 1)
+  (show-paren-mode 1)
+  (setq show-paren-style 'parenthesis)
 
   ;; keep newline end of file
   (setq require-final-newline t)
