@@ -45,11 +45,12 @@
 (require 'gg-general)
 (require 'gg-edit)
 (require 'gg-modes)
-
+(require 'gg-tools)
 ;; Initialize all the modules loaded above
 (gg/ui)
 (gg/general)
 (gg/edit)
 (gg/modes)
+(gg/tools)
 
 ;;; init.el ends here
