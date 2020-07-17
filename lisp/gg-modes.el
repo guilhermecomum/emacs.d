@@ -93,10 +93,16 @@
 (defun gg/modes/org ()
   (add-hook 'org-mode-hook 'turn-on-flyspell))
 
+(defun gg/modes/misc ()
+  (use-package yaml-mode)
+  (use-package docker)
+  (use-package docker-compose-mode))
+
 (defun gg/modes ()
   (gg/modes/web)
   (gg/modes/prettier)
   (gg/modes/javascript)
-  (gg/modes/org))
+  (gg/modes/org)
+  (gg/modes/misc))
 
 (provide 'gg-modes)
