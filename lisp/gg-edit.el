@@ -45,8 +45,10 @@
   (add-hook 'before-save-hook 'whitespace-cleanup)
 
   ;; Also highlight parenthesis
-  (show-paren-mode 1)
+  (use-package paren)
   (setq show-paren-style 'parenthesis)
+  (show-paren-mode +1)
+  (setq show-paren-delay 0)
 
   ;; keep newline end of file
   (setq require-final-newline t)
