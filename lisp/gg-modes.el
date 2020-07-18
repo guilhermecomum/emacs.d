@@ -40,9 +40,13 @@
       (setq web-mode-enable-current-column-highlight t)
       (setq web-mode-enable-current-element-highlight t)
       (setq web-mode-markup-indent-offset 2)
+      ;; On for angular, svelte projects emmet use class
+      (setq-mode-local web-mode emmet-expand-jsx-className? nil)
       ;; Disable auto-indent after yank
       (setq web-mode-enable-auto-indentation nil)
-      (setq css-indent-offset 2))))
+      (setq css-indent-offset 2)))
+  (add-hook 'web-mode-hook  'auto-rename-tag-mode)
+  (add-hook 'web-mode-hook 'flyspell-mode))
 
 (defun gg/modes/prettier ()
   (use-package prettier-js
@@ -71,24 +75,34 @@
   ;; aligns annotation to the right hand side
   (setq company-tooltip-align-annotations t)
   (add-hook 'typescript-mode-hook 'setup-tide-mode)
-  (add-hook 'typescript-mode-hook 'prettier-js-mode)
   (add-hook 'typescript-mode-hook 'company-mode)
+  (add-hook 'typescript-mode-hook 'flyspell-mode)
   (flycheck-add-next-checker 'javascript-eslint 'javascript-tide 'append)
   (add-to-list 'auto-mode-alist '("\\.tsx\\'" . web-mode))
   (add-hook 'web-mode-hook
             (lambda ()
               (when (string-equal "tsx" (file-name-extension buffer-file-name))
-                (setup-tide-mode))))
+                ;; On react projects with typescript emmet use className
+                (setq-mode-local web-mode emmet-expand-jsx-className? t)
+                (setup-tide-mode)
+                )))
   (flycheck-add-mode 'typescript-tslint 'web-mode)
   (setq js-indent-level 2)
   (setq-default flycheck-disabled-checkers
                 (append flycheck-disabled-checkers
                         '(javascript-jshint json-jsonlist)))
 
-  (add-hook 'flycheck-mode-hook 'add-node-modules-path)
   (flycheck-add-mode 'javascript-eslint 'javascript-mode)
-  (add-hook 'after-init-hook #'global-flycheck-mode)
-  (add-hook 'javascript-mode-hook  'emmet-mode))
+  (add-hook 'flycheck-mode-hook 'add-node-modules-path)
+  (add-hook 'after-init-hook 'global-flycheck-mode)
+  (add-hook 'js-mode-hook  'emmet-mode)
+  (add-hook 'js-mode-hook  'auto-rename-tag-mode)
+  (add-hook 'js-mode-hook 'flyspell-mode)
+  ;; On react projects emmet use className
+  (add-hook
+   'js-mode-hook
+   '(lambda ()
+      (setq emmet-expand-jsx-className? t))))
 
 (defun gg/modes/org ()
   (add-hook 'org-mode-hook 'turn-on-flyspell))
@@ -99,9 +113,9 @@
   (use-package docker-compose-mode))
 
 (defun gg/modes ()
+  (gg/modes/javascript)
   (gg/modes/web)
   (gg/modes/prettier)
-  (gg/modes/javascript)
   (gg/modes/org)
   (gg/modes/misc))
 

@@ -73,7 +73,25 @@
 
   (use-package editorconfig
     :config
-    (editorconfig-mode 1)))
+    (editorconfig-mode 1))
+  (use-package auto-rename-tag)
+  (auto-rename-tag-mode t))
+
+(defun gg/edit/flyspell ()
+  (use-package flyspell-correct-popup)
+  (use-package flyspell)
+  (setq ispell-program-name "aspell")
+  (ispell-change-dictionary "english")
+
+  (defun fd-switch-dictionary()
+    (interactive)
+    (let* ((dic ispell-current-dictionary)
+           (change (if (string= dic "pt_BR") "english" "pt_BR")))
+      (ispell-change-dictionary change)
+      (message "Dictionary switched from %s to %s" dic change)))
+
+  (global-set-key (kbd "<f5>") 'fd-switch-dictionary)
+  (define-key flyspell-mode-map (kbd "C-;") 'flyspell-correct-wrapper))
 
 (defun gg/edit/functions ()
   "Functions make edit easier."
@@ -89,7 +107,8 @@
 (defun gg/edit()
   "Call out other editing customization function."
   (gg/edit/general)
-  (gg/edit/functions))
+  (gg/edit/functions)
+  (gg/edit/flyspell))
 
 (provide 'gg-edit)
 

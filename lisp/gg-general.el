@@ -89,6 +89,9 @@
   (setq auto-save-file-name-transforms
         `((".*" ,temporary-file-directory t)))
 
+  ;; Disable lockfiles
+  (setq create-lockfiles nil)
+
   (add-hook 'kill-buffer-query-functions #'dont-kill-scratch)
 
   ;; writing yes or no is length, type y / n instead
@@ -127,29 +130,13 @@
   (setq exec-path-from-shell-variables '("GOPATH" "PATH" "MANPATH"))
   (exec-path-from-shell-initialize))
 
-
-(defun gg/general/flyspell ()
-  (use-package helm-flyspell)
-  (use-package flyspell)
-  (setq ispell-program-name "aspell")
-
-  (defun fd-switch-dictionary()
-    (interactive)
-    (let* ((dic ispell-current-dictionary)
-           (change (if (string= dic "pt_BR") "english" "pt_BR")))
-      (ispell-change-dictionary change)
-      (message "Dictionary switched from %s to %s" dic change)))
-
-  (global-set-key (kbd "<f5>") 'fd-switch-dictionary)
-  (global-set-key (kbd "C-;") 'helm-flyspell-correct))
-
 (defun gg/general ()
   "Call out other general customization functions."
   (gg/general/utf-8)
   (gg/general/keys)
   (gg/general/misc)
-  (gg/general/path)
-  (gg/general/flyspell))
+  (gg/general/path))
+
 
 (provide 'gg-general)
 
