@@ -104,11 +104,21 @@
           (emacs-lisp-docstring-fill-column t))
       (fill-paragraph nil region))))
 
+(defun gg/edit/yasnippet ()
+  "Configuration for yasnippets."
+  (use-package yasnippet
+    :init
+    :config
+    (yas-load-directory "~/.emacs.d/snippets")
+    (yas-global-mode 1)))
+
 (defun gg/edit()
   "Call out other editing customization function."
   (gg/edit/general)
   (gg/edit/functions)
-  (gg/edit/flyspell))
+  (gg/edit/flyspell)
+  (gg/edit/general)
+  (gg/edit/yasnippet))
 
 (provide 'gg-edit)
 
