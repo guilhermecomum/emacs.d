@@ -27,6 +27,12 @@
   (use-package elquery)
   (use-package hackernews)
   (use-package restclient)
-  )
+
+  ;; inhibit startup message
+  (setq inhibit-startup-message t)
+
+  (use-package fortune-cookie
+    :config
+    (fortune-cookie-mode)))
 
 (provide 'gg-tools)
