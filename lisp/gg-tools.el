@@ -23,6 +23,23 @@
 ;;
 ;;; Code:
 
+(defun gg/tools/lpass ()
+  "Configure Lastpass."
+  (use-package lastpass
+  :config
+  ;; Set lastpass user
+  (setq lastpass-user "guilherme.ga@gmail.com")
+  (setq lastpass-multifactor-use-passcode t)
+
+  ;; Enable lastpass custom auth-source
+  (lastpass-auth-source-enable)))
+
+(defun gg/tools/todoist ()
+  "Configure todoist."
+  (use-package todoist
+    :config
+    (setq todoist-token (lastpass-getpass "todoist-api"))))
+
 (defun gg/tools ()
   (use-package elquery)
   (use-package hackernews)
@@ -33,6 +50,8 @@
 
   (use-package fortune-cookie
     :config
-    (fortune-cookie-mode)))
+    (fortune-cookie-mode))
+  (gg/tools/lpass)
+  (gg/tools/todoist))
 
 (provide 'gg-tools)
