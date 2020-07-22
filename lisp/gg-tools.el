@@ -26,19 +26,23 @@
 (defun gg/tools/lpass ()
   "Configure Lastpass."
   (use-package lastpass
-  :config
-  ;; Set lastpass user
-  (setq lastpass-user "guilherme.ga@gmail.com")
-  (setq lastpass-multifactor-use-passcode t)
+    :config
+    ;; Set lastpass user
+    (setq lastpass-user "guilherme.ga@gmail.com")
+    (setq lastpass-multifactor-use-passcode t)
 
-  ;; Enable lastpass custom auth-source
-  (lastpass-auth-source-enable)))
+    ;; Enable lastpass custom auth-source
+    (lastpass-auth-source-enable)
+    (if (string-match (regexp-quote "Not") (lastpass-status))
+      (lastpass-login))))
 
 (defun gg/tools/todoist ()
   "Configure todoist."
-  (use-package todoist
-    :config
-    (setq todoist-token (lastpass-getpass "todoist-api"))))
+  (use-package todoist)
+  (add-hook 'lastpass-logged-in-hook
+            (lambda ()
+              (setq todoist-token (lastpass-getpass "todoist-api")))))
+
 
 (defun gg/tools ()
   (use-package elquery)
