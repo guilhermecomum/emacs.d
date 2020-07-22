@@ -46,7 +46,7 @@
       (setq web-mode-enable-auto-indentation nil)
       (setq css-indent-offset 2)))
   (add-hook 'web-mode-hook  'auto-rename-tag-mode)
-  (add-hook 'web-mode-hook 'flyspell-mode))
+  (add-hook 'web-mode-hook 'flyspell-prog-mode))
 
 (defun gg/modes/prettier ()
   (use-package prettier-js
@@ -76,7 +76,7 @@
   (setq company-tooltip-align-annotations t)
   (add-hook 'typescript-mode-hook 'setup-tide-mode)
   (add-hook 'typescript-mode-hook 'company-mode)
-  (add-hook 'typescript-mode-hook 'flyspell-mode)
+  (add-hook 'typescript-mode-hook 'flyspell-prog-mode)
   (flycheck-add-next-checker 'javascript-eslint 'javascript-tide 'append)
   (add-to-list 'auto-mode-alist '("\\.tsx\\'" . web-mode))
   (add-hook 'web-mode-hook
@@ -97,7 +97,7 @@
   (add-hook 'after-init-hook 'global-flycheck-mode)
   (add-hook 'js-mode-hook  'emmet-mode)
   (add-hook 'js-mode-hook  'auto-rename-tag-mode)
-  (add-hook 'js-mode-hook 'flyspell-mode)
+  (add-hook 'js-mode-hook 'flyspell-prog-mode)
   ;; On react projects emmet use className
   (add-hook
    'js-mode-hook
