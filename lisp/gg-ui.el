@@ -35,6 +35,9 @@
     :config
     (doom-themes-neotree-config))
 
+  (defun text-scale-twice ()(interactive)(progn(text-scale-adjust 0)(text-scale-decrease 2)))
+  (add-hook 'neo-after-create-hook (lambda (_)(call-interactively 'text-scale-twice)))
+
   (use-package dracula-theme
     :config
     (set-face-attribute 'default nil :font "Noto Sans Mono SemiCondensed SemiBold 13")
