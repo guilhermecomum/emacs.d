@@ -52,6 +52,11 @@
   ;;; Sort
   (global-set-key (kbd "C-c s") 'sort-lines)
 
+  ;;; Helm mini
+  (global-set-key (kbd "C-x b") 'helm-mini)
+  (setq helm-buffers-fuzzy-matching t
+        helm-recentf-fuzzy-match    t)
+
   ;;; change window
   (global-set-key [(C-tab)] 'other-window)
   (global-set-key [(C-M-tab)] 'other-window))
