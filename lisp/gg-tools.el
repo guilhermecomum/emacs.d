@@ -33,8 +33,10 @@
 
     ;; Enable lastpass custom auth-source
     (lastpass-auth-source-enable)
-    (if (string-match (regexp-quote "Not") (lastpass-status))
-      (lastpass-login))))
+    (defun start-lastpass ()
+      "Start lastpass on startup only if user want."
+      (progn (if (string-match (regexp-quote "Not") (lastpass-status)) (lastpass-login)))))
+  (start-lastpass))
 
 (defun gg/tools/todoist ()
   "Configure todoist."
@@ -43,6 +45,29 @@
             (lambda ()
               (setq todoist-token (lastpass-getpass "todoist-api")))))
 
+(defun gg/tools/slack ()
+  "Setup slack."
+  (add-to-list 'load-path (expand-file-name "site-lisp/helm-slack" user-emacs-directory))
+  (require 'helm-slack)
+  (use-package slack
+    :commands (slack-start)
+    :init
+    (setq slack-buffer-emojify t) ;; if you want to enable emoji, default nil
+    (setq slack-prefer-current-team t)
+    :config
+    (slack-register-team
+     :name "ilera-slack"
+     :default t
+     :token (lastpass-getpass "slack-ilegra-api")
+     :subscribed-channels '(tr-onvio-accounting)
+     :full-and-display-names t)
+    (global-set-key (kbd "C-c k") 'helm-slack)
+    (global-set-key (kbd "C-c C-k u") 'helm-slack-unreads))
+
+  (use-package alert
+    :commands (alert)
+    :init
+    (setq alert-default-style 'notifications)))
 
 (defun gg/tools ()
   (use-package elquery)
@@ -56,6 +81,7 @@
     :config
     (fortune-cookie-mode))
   (gg/tools/lpass)
+  (gg/tools/slack)
   (gg/tools/todoist))
 
 (provide 'gg-tools)
