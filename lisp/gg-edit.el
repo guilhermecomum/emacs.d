@@ -30,7 +30,7 @@
   (use-package linum
     :config
     (global-linum-mode 1)
-    (setq linum-format "%d "))
+    (custom-set-variables '(linum-format 'dynamic)))
 
   ;; Do not wrap lines
   (setq-default truncate-lines t)

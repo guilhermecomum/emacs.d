@@ -105,7 +105,8 @@
   ;;Get rid of the background color in the Fringe area
   (set-face-attribute 'fringe nil
                       :foreground (face-foreground 'default)
-                      :background (face-background 'default)))
+                      :background (face-background 'default))
+  (fringe-mode 15))
 
 (defun gg/ui/modeline ()
   "Configuration for the modeline."
