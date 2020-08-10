@@ -71,6 +71,14 @@
     :init
     (setq alert-default-style 'notifications)))
 
+(defun gg/tools/google-translate ()
+  "Setup Google Translate."
+  (use-package google-translate)
+  (global-set-key "\C-ct" 'google-translate-at-point)
+  (setq google-translate-default-source-language "English")
+  (setq google-translate-default-target-language "pt-br"))
+
+
 (defun gg/tools ()
   (use-package elquery)
   (use-package hackernews)
@@ -84,6 +92,7 @@
     (fortune-cookie-mode))
 
   (gg/tools/lpass)
+  (gg/tools/google-translate)
   (gg/tools/todoist))
 
 (provide 'gg-tools)
