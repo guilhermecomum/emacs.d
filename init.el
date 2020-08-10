@@ -41,17 +41,15 @@
 
 ;; Load all the fun modules
 (require 'gg-ui)
-(require 'gg-general)
-(require 'gg-edit)
-(require 'gg-modes)
-(require 'gg-tools)
-(require 'gg-org)
-;; Initialize all the modules loaded above
 (gg/ui)
+(require 'gg-general)
 (gg/general)
+(require 'gg-edit)
 (gg/edit)
+(require 'gg-modes)
 (gg/modes)
-(gg/tools)
+(require 'gg-org)
 (gg/org)
-
+(require 'gg-tools)
+(gg/tools)
 ;;; init.el ends here
