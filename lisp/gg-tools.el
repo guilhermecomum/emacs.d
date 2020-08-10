@@ -35,11 +35,11 @@
     (lastpass-auth-source-enable)
     (defun start-lastpass ()
       "Start lastpass on startup only if user want."
-      (progn (if (string-match (regexp-quote "Not") (lastpass-status)) (lastpass-login)))))
-  (start-lastpass))
+      (progn (if (string-match (regexp-quote "Not") (lastpass-status)) (lastpass-login))))))
 
 (defun gg/tools/todoist ()
   "Configure todoist."
+  (start-lastpass)
   (use-package todoist)
   (add-hook 'lastpass-logged-in-hook
             (lambda ()
@@ -47,22 +47,24 @@
 
 (defun gg/tools/slack ()
   "Setup slack."
+  (start-lastpass)
   (add-to-list 'load-path (expand-file-name "site-lisp/helm-slack" user-emacs-directory))
   (require 'helm-slack)
   (use-package slack
-    :commands (slack-start)
     :init
     (setq slack-buffer-emojify t) ;; if you want to enable emoji, default nil
-    (setq slack-prefer-current-team t)
-    :config
-    (slack-register-team
-     :name "ilera-slack"
-     :default t
-     :token (lastpass-getpass "slack-ilegra-api")
-     :subscribed-channels '(tr-onvio-accounting)
-     :full-and-display-names t)
-    (global-set-key (kbd "C-c k") 'helm-slack)
-    (global-set-key (kbd "C-c C-k u") 'helm-slack-unreads))
+    (setq slack-prefer-current-team t))
+  (slack-register-team
+   :name "ilera-slack"
+   :default t
+   :token (lastpass-getpass "slack-ilegra-api")
+   :subscribed-channels '(tr-onvio-accounting)
+   :full-and-display-names t)
+  (slack-start)
+  (global-set-key (kbd "C-c k") 'helm-slack)
+  (global-set-key (kbd "C-c C-k u") 'helm-slack-unreads)
+  (global-set-key (kbd "C-c C-k m") 'slack-message-embed-mention)
+  (global-set-key (kbd "C-c C-k t") 'slack-thread-show-or-create)
 
   (use-package alert
     :commands (alert)
@@ -80,8 +82,8 @@
   (use-package fortune-cookie
     :config
     (fortune-cookie-mode))
+
   (gg/tools/lpass)
-  (gg/tools/slack)
   (gg/tools/todoist))
 
 (provide 'gg-tools)
