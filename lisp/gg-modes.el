@@ -23,100 +23,107 @@
 ;;
 ;;; Code:
 
+(defun setup-tide ()
+  (tide-setup)
+  (flycheck-mode 1)
+  (eldoc-mode +1)
+  (company-mode 1))
+
 (defun gg/modes/web ()
   (use-package emmet-mode)
   (use-package svelte-mode)
+  (use-package mode-local)
   (use-package web-mode
-    :mode
-    ("\\.html\\'" "\\.svelte\\'")
+    :mode (("\\.html?\\'" . web-mode)
+           ("\\.tsx\\'" . web-mode)
+           ("\\.svelte\\'" . web-mode))
     :hook
-    (web-mode . emmet-mode))
-  (add-hook
-   'web-mode-hook
-   '(lambda ()
-      (setq web-mode-attr-indent-offset 2)
-      (setq web-mode-code-indent-offset 2)
-      (setq web-mode-css-indent-offset 2)
-      (setq web-mode-enable-current-column-highlight t)
-      (setq web-mode-enable-current-element-highlight t)
-      (setq web-mode-markup-indent-offset 2)
-      ;; On for angular, svelte projects emmet use class
-      (setq-mode-local web-mode emmet-expand-jsx-className? nil)
-      ;; Disable auto-indent after yank
-      (setq web-mode-enable-auto-indentation nil)
-      (setq css-indent-offset 2)))
-  (add-hook 'web-mode-hook  'auto-rename-tag-mode)
+    (web-mode . emmet-mode)
+    :config
+    (setq web-mode-markup-indent-offset 2
+        web-mode-css-indent-offset 2
+        web-mode-code-indent-offset 2
+        web-mode-block-padding 2
+        web-mode-comment-style 2
+        web-mode-enable-css-colorization t
+        web-mode-enable-auto-pairing t
+        web-mode-enable-comment-keywords t
+        web-mode-enable-current-element-highlight t
+        web-mode-enable-current-column-highlight t
+        web-mode-enable-auto-indentation nil))
+
+  (add-hook 'web-mode-hook
+            (lambda ()
+              (when (string-equal "tsx" (file-name-extension buffer-file-name))
+                (setq-mode-local web-mode emmet-expand-jsx-className? t)
+                (setup-tide))))
+
+  (setq-mode-local web-mode emmet-expand-jsx-className? nil)
+  (flycheck-add-mode 'typescript-tslint 'web-mode)
   (add-hook 'web-mode-hook 'flyspell-prog-mode))
 
 (defun gg/modes/prettier ()
   (use-package prettier-js
     :init
     (add-hook 'js-mode-hook  'prettier-js-mode)
-    (add-hook 'js2-mode-hook 'prettier-js-mode)
-    (add-hook 'web-mode-hook 'prettier-js-mode)
-    (add-hook 'typescript-mode-hook 'prettier-js-mode)
-    (add-hook 'web-mode-hook 'prettier-js-mode)))
+    (add-hook 'typescript-mode-hook 'prettier-js-mode)))
+
+(defun gg/modes/react ()
+  "Setup to work in react projects"
+  (use-package rjsx-mode)
+  (add-to-list 'auto-mode-alist '("\\.jsx?$" . rjsx-mode))
+  (add-hook 'rjsx-mode-hook  'emmet-mode)
+  (add-hook 'rjsx-mode-hook  'auto-rename-tag-mode)
+  (add-hook 'rjsx-mode-hook 'flyspell-prog-mode)
+
+  (add-hook
+   'rjsx-mode-hook
+   '(lambda ()
+      (setq emmet-expand-jsx-className? t)))
+  (flycheck-add-mode 'typescript-tslint 'web-mode))
+
+(defun gg/modes/angular ()
+  "Setup to work in Angular projects"
+  (use-package ng2-mode
+    :ensure t
+    :mode ("\\component.html$" . ng2-mode))
+    (add-hook 'typescript-mode-hook #'setup-tide))
+
 
 (defun gg/modes/javascript ()
-  "Setup javascript mode."
+  "Setup javascript and typescript."
+  (use-package js-comint)
   (use-package add-node-modules-path)
-  (use-package ng2-mode)
-  (use-package tide)
-  (defun setup-tide-mode ()
-    (interactive)
-    (tide-setup)
-    (flycheck-mode +1)
-    (setq flycheck-check-syntax-automatically '(save mode-enabled))
-    (eldoc-mode +1)
-    (tide-hl-identifier-mode +1)
-    (setq typescript-indent-level 2)
-    (company-mode +1))
-
-  ;; aligns annotation to the right hand side
-  (setq company-tooltip-align-annotations t)
-  (add-hook 'typescript-mode-hook 'setup-tide-mode)
-  (add-hook 'typescript-mode-hook 'company-mode)
-  (add-hook 'typescript-mode-hook 'flyspell-prog-mode)
-  (flycheck-add-next-checker 'javascript-eslint 'javascript-tide 'append)
-  (add-to-list 'auto-mode-alist '("\\.tsx\\'" . web-mode))
-  (add-hook 'web-mode-hook
-            (lambda ()
-              (when (string-equal "tsx" (file-name-extension buffer-file-name))
-                ;; On react projects with typescript emmet use className
-                (setq-mode-local web-mode emmet-expand-jsx-className? t)
-                (setup-tide-mode)
-                )))
-  (flycheck-add-mode 'typescript-tslint 'web-mode)
+  (use-package xref-js2)
+  (use-package tide
+    :init
+    :after (typescript-mode company flycheck)
+    :hook ((typescript-mode . setup-tide)
+           (web-mode . setup-tide)))
+  (define-key js-mode-map (kbd "M-.") nil)
+  (add-hook 'js-mode-hook (lambda ()
+  (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t)))
   (setq js-indent-level 2)
   (setq-default flycheck-disabled-checkers
                 (append flycheck-disabled-checkers
                         '(javascript-jshint json-jsonlist)))
-
   (flycheck-add-mode 'javascript-eslint 'javascript-mode)
   (add-hook 'flycheck-mode-hook 'add-node-modules-path)
   (add-hook 'after-init-hook 'global-flycheck-mode)
-  (add-hook 'js-mode-hook  'emmet-mode)
-  (add-hook 'js-mode-hook  'auto-rename-tag-mode)
-  (add-hook 'js-mode-hook 'flyspell-prog-mode)
-  ;; On react projects emmet use className
-  (add-hook
-   'js-mode-hook
-   '(lambda ()
-      (setq emmet-expand-jsx-className? t))))
 
-(defun gg/modes/org ()
-  (add-hook 'org-mode-hook 'turn-on-flyspell))
+  ;; aligns annotation to the right hand side
+  (setq company-tooltip-align-annotations t))
 
 (defun gg/modes/misc ()
   (use-package yaml-mode)
-  (use-package docker)
   (use-package docker-compose-mode))
 
 (defun gg/modes ()
   (gg/modes/javascript)
   (gg/modes/web)
   (gg/modes/prettier)
-  (gg/modes/org)
-  (gg/modes/misc))
+  (gg/modes/misc)
+  (gg/modes/react)
+  (gg/modes/angular))
 
 (provide 'gg-modes)
