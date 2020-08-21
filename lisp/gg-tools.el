@@ -35,7 +35,7 @@
     (lastpass-auth-source-enable)
     (defun start-lastpass ()
       "Start lastpass on startup only if user want."
-      (progn (if (string-match (regexp-quote "Not") (lastpass-status)) (lastpass-login))))))
+       (if (string-match (regexp-quote "Not") (lastpass-status)) (lastpass-login)))))
 
 (defun gg/tools/todoist ()
   "Configure todoist."
@@ -65,6 +65,8 @@
   (global-set-key (kbd "C-c C-k u") 'helm-slack-unreads)
   (global-set-key (kbd "C-c C-k m") 'slack-message-embed-mention)
   (global-set-key (kbd "C-c C-k t") 'slack-thread-show-or-create)
+  (global-set-key (kbd "C-c C-k e") 'slack-message-edit)
+  (global-set-key (kbd "C-c C-k f") 'slack-file-upload)
 
   (use-package alert
     :commands (alert)
@@ -92,7 +94,6 @@
     (fortune-cookie-mode))
 
   (gg/tools/lpass)
-  (gg/tools/google-translate)
-  (gg/tools/todoist))
+  (gg/tools/google-translate))
 
 (provide 'gg-tools)

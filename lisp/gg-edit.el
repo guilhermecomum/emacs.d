@@ -53,6 +53,8 @@
   ;; keep newline end of file
   (setq require-final-newline t)
 
+  (use-package lorem-ipsum)
+
   (use-package multiple-cursors
     :bind (("C-S-c C-S-c" . mc/edit-lines)
            ("C->" . mc/mark-next-like-this)
@@ -76,6 +78,12 @@
     (editorconfig-mode 1))
   (use-package auto-rename-tag)
   (auto-rename-tag-mode t))
+
+
+(use-package move-text)
+
+(global-set-key [(control shift up)]  'move-text-up)
+(global-set-key [(control shift down)]  'move-text-down)
 
 (defun gg/edit/flyspell ()
   (use-package flyspell-correct-popup)
