@@ -42,6 +42,11 @@
   (global-set-key (kbd "C-c C-x C v")
                   'do-org-show-all-inline-images)
 
+  (use-package ox-clip
+    :config
+    (global-set-key (kbd "s-c")
+                  'ox-clip-formatted-copy))
+
   ;; Setup olivetti mode
   (use-package olivetti
     :config
