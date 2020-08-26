@@ -1,0 +1,6 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: Logs property with name
+# key: clo
+# uuid: clo
+# --
+console.log('${1:object}', $1)`(if (eolp) (js-react-redux-yasnippets-semicolon))`

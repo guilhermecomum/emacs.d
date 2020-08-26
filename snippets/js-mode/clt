@@ -1,0 +1,6 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: Displays a message in the console
+# key: clt
+# uuid: clt
+# --
+console.table({$0})
