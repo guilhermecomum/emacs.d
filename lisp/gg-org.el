@@ -26,8 +26,8 @@
 (defun gg/org/init ()
   "Initial 'org-mode' configuration."
   (add-hook 'org-mode-hook 'turn-on-flyspell)
-  (global-set-key (kbd "C-c o")
-                  (lambda () (interactive) (find-file "~/org/inbox.org")))
+  (global-set-key (kbd "C-c i")
+                  (lambda () (interactive) (find-file "~/org/index.org")))
 
   (use-package org-bullets
     :config

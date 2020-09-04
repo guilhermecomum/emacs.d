@@ -57,9 +57,9 @@
 
   (use-package multiple-cursors
     :bind (("C-S-c C-S-c" . mc/edit-lines)
-           ("C->" . mc/mark-next-like-this)
-           ("C-<" . mc/mark-previous-like-this)
-           ("C-c C-<" . mc/mark-all-like-this)))
+           ("s-." . mc/mark-next-like-this)
+           ("s-," . mc/mark-previous-like-this)
+           ("s->" . mc/mark-all-like-this)))
 
   (use-package smartparens)
   (smartparens-global-mode t)
@@ -77,13 +77,13 @@
     :config
     (editorconfig-mode 1))
   (use-package auto-rename-tag)
-  (auto-rename-tag-mode t))
+  (auto-rename-tag-mode t)
 
 
 (use-package move-text)
 
 (global-set-key [(control shift up)]  'move-text-up)
-(global-set-key [(control shift down)]  'move-text-down)
+(global-set-key [(control shift down)]  'move-text-down))
 
 (defun gg/edit/flyspell ()
   (use-package flyspell-correct-popup)

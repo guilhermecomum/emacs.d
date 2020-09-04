@@ -85,7 +85,7 @@
   (use-package elquery)
   (use-package hackernews)
   (use-package restclient)
-
+  (use-package pocket-reader)
   ;; inhibit startup message
   (setq inhibit-startup-message t)
 

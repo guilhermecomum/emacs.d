@@ -7,3 +7,4 @@ oauth2.plstore
 elpa
 emojis
 transient
+session.*
