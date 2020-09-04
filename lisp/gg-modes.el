@@ -31,12 +31,10 @@
 
 (defun gg/modes/web ()
   (use-package emmet-mode)
-  (use-package svelte-mode)
   (use-package mode-local)
   (use-package web-mode
     :mode (("\\.html?\\'" . web-mode)
-           ("\\.tsx\\'" . web-mode)
-           ("\\.svelte\\'" . web-mode))
+           ("\\.tsx\\'" . web-mode))
     :hook
     (web-mode . emmet-mode)
     :config
@@ -66,7 +64,8 @@
   (use-package prettier-js
     :init
     (add-hook 'js-mode-hook  'prettier-js-mode)
-    (add-hook 'typescript-mode-hook 'prettier-js-mode)))
+    (add-hook 'typescript-mode-hook 'prettier-js-mode)
+    (add-hook 'svelte-mode-hook 'prettier-js-mode)))
 
 (defun gg/modes/react ()
   "Setup to work in react projects"
@@ -114,6 +113,13 @@
   ;; aligns annotation to the right hand side
   (setq company-tooltip-align-annotations t))
 
+
+(defun gg/modes/svelte ()
+  "Svelte config"
+  (use-package svelte-mode)
+  (use-package lsp-mode)
+  (add-hook 'svelte-mode-hook #'lsp))
+
 (defun gg/modes/misc ()
   (use-package yaml-mode)
   (use-package docker-compose-mode))
@@ -124,6 +130,7 @@
   (gg/modes/prettier)
   (gg/modes/misc)
   (gg/modes/react)
+  (gg/modes/svelte)
   (gg/modes/angular))
 
 (provide 'gg-modes)
