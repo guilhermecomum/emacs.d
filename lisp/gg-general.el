@@ -127,11 +127,12 @@
 
   ;; use with neotree
   (use-package neotree
-    :bind(([f8] . neotree-toggle)
-          ("C-c h" . neotree-hidden-file-toggle))
+    :bind([f8] . neotree-toggle)
     :config
     (setq neo-autorefresh nil)
-    (setq neo-smart-open t)))
+    (setq neo-smart-open t)
+    (with-eval-after-load 'neotree
+      (define-key neotree-mode-map (kbd "h") 'neotree-hidden-file-toggle))))
 
 (defun gg/general/path ()
   ;;Loads environment variables from the shell.
