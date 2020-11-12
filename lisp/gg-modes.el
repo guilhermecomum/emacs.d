@@ -23,49 +23,60 @@
 ;;
 ;;; Code:
 
-(defun setup-tide ()
-  (tide-setup)
-  (flycheck-mode 1)
-  (eldoc-mode +1)
-  (company-mode 1))
-
-(defun gg/modes/web ()
+(defun gg/modes/tools ()
+  "Useful tools for modes"
   (use-package emmet-mode)
   (use-package mode-local)
+  (use-package js-comint)
+  (use-package add-node-modules-path)
+  (use-package yaml-mode)
+  (use-package docker-compose-mode)
+  (use-package gradle-mode)
+  (use-package sass-mode)
+  (use-package prettier-js
+    :init
+    (add-hook 'js-mode-hook  'prettier-js-mode)
+    (add-hook 'typescript-mode-hook 'prettier-js-mode)
+    (add-hook 'svelte-mode-hook 'prettier-js-mode))
+  (use-package eglot
+    :ensure t
+    :hook ((js-mode . eglot-ensure)
+           (typescript-mode . eglot-ensure)
+           (go-mode . eglot-ensure))
+    :config
+    (define-key eglot-mode-map (kbd "C-c .") 'eglot-code-actions)
+    (define-key eglot-mode-map (kbd "<f6>") 'xref-find-definitions)
+    (add-to-list 'eglot-server-programs '(svelte-mode . ("svelteserver" "--stdio")))
+    (add-to-list 'eglot-server-programs '((js-mode rjsx-mode ng2-ts-mode ng2-mode typescript-mode) . ("typescript-language-server" "--stdio")))))
+
+(defun gg/modes/web ()
   (use-package web-mode
     :mode (("\\.html?\\'" . web-mode)
            ("\\.tsx\\'" . web-mode))
     :hook
     (web-mode . emmet-mode)
+    (web-mode . auto-rename-tag-mode)
     :config
     (setq web-mode-markup-indent-offset 2
-        web-mode-css-indent-offset 2
-        web-mode-code-indent-offset 2
-        web-mode-block-padding 2
-        web-mode-comment-style 2
-        web-mode-enable-css-colorization t
-        web-mode-enable-auto-pairing t
-        web-mode-enable-comment-keywords t
-        web-mode-enable-current-element-highlight t
-        web-mode-enable-current-column-highlight t
-        web-mode-enable-auto-indentation nil))
+          web-mode-css-indent-offset 2
+          web-mode-code-indent-offset 2
+          web-mode-block-padding 2
+          web-mode-comment-style 2
+          web-mode-enable-css-colorization t
+          web-mode-enable-auto-pairing t
+          web-mode-enable-comment-keywords t
+          web-mode-enable-current-element-highlight t
+          web-mode-enable-current-column-highlight t
+          web-mode-enable-auto-indentation nil)
 
+  ;; Configure emmet to use className when use react with typescript
   (add-hook 'web-mode-hook
             (lambda ()
               (when (string-equal "tsx" (file-name-extension buffer-file-name))
-                (setq-mode-local web-mode emmet-expand-jsx-className? t)
-                (setup-tide))))
-
+                (setq-mode-local web-mode emmet-expand-jsx-className? t))))
   (setq-mode-local web-mode emmet-expand-jsx-className? nil)
   (flycheck-add-mode 'typescript-tslint 'web-mode)
-  (add-hook 'web-mode-hook 'flyspell-prog-mode))
-
-(defun gg/modes/prettier ()
-  (use-package prettier-js
-    :init
-    (add-hook 'js-mode-hook  'prettier-js-mode)
-    (add-hook 'typescript-mode-hook 'prettier-js-mode)
-    (add-hook 'svelte-mode-hook 'prettier-js-mode)))
+  (add-hook 'web-mode-hook 'flyspell-prog-mode)))
 
 (defun gg/modes/react ()
   "Setup to work in react projects"
@@ -75,34 +86,19 @@
   (add-hook 'rjsx-mode-hook  'auto-rename-tag-mode)
   (add-hook 'rjsx-mode-hook 'flyspell-prog-mode)
 
+  ;; Configure emmet to use className when use react
   (add-hook
    'rjsx-mode-hook
    '(lambda ()
       (setq emmet-expand-jsx-className? t)))
   (flycheck-add-mode 'typescript-tslint 'web-mode))
 
-(defun gg/modes/angular ()
-  "Setup to work in Angular projects"
-  (use-package ng2-mode
-    :ensure t
-    :mode ("\\component.html$" . ng2-mode))
-    (add-hook 'typescript-mode-hook #'setup-tide))
-
-
 (defun gg/modes/javascript ()
   "Setup javascript and typescript."
-  (use-package js-comint)
-  (use-package add-node-modules-path)
-  (use-package xref-js2)
-  (use-package tide
-    :init
-    :after (typescript-mode company flycheck)
-    :hook ((typescript-mode . setup-tide)
-           (web-mode . setup-tide)))
-  (define-key js-mode-map (kbd "M-.") nil)
-  (add-hook 'js-mode-hook (lambda ()
-  (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t)))
+
   (setq js-indent-level 2)
+
+  ;; Disable jshint
   (setq-default flycheck-disabled-checkers
                 (append flycheck-disabled-checkers
                         '(javascript-jshint json-jsonlist)))
@@ -116,21 +112,25 @@
 
 (defun gg/modes/svelte ()
   "Svelte config"
-  (use-package svelte-mode)
-  (use-package lsp-mode)
-  (add-hook 'svelte-mode-hook #'lsp))
+  (use-package svelte-mode
+    :hook (svelte-mode . emmet-mode)))
 
-(defun gg/modes/misc ()
-  (use-package yaml-mode)
-  (use-package docker-compose-mode))
+(defun gg/modes/go ()
+  (use-package go-mode
+    :config
+    (add-hook 'go-mode-hook
+              (lambda ()
+                (add-hook 'before-save-hook 'gofmt-before-save)
+                (setq tab-width 2)
+                (setq indent-tabs-mode nil)))))
+
 
 (defun gg/modes ()
+  (gg/modes/tools)
   (gg/modes/javascript)
   (gg/modes/web)
-  (gg/modes/prettier)
-  (gg/modes/misc)
   (gg/modes/react)
   (gg/modes/svelte)
-  (gg/modes/angular))
+  (gg/modes/go))
 
 (provide 'gg-modes)

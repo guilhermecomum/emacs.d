@@ -67,12 +67,6 @@
   (use-package rainbow-delimiters
     :hook (prog-mode . rainbow-delimiters-mode))
 
-  (use-package flycheck
-    :init
-    (global-flycheck-mode)
-    :config
-    (setq flycheck-emacs-lisp-load-path 'inherit))
-
   (use-package editorconfig
     :config
     (editorconfig-mode 1))
