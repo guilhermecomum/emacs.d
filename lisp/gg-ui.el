@@ -33,16 +33,13 @@
   (use-package all-the-icons)
   (use-package doom-themes
     :config
-    (doom-themes-neotree-config))
+    (doom-themes-neotree-config)
+    (set-face-attribute 'default nil :font "Noto Sans Mono SemiCondensed SemiBold 13")
+    :init
+    (load-theme 'doom-material t))
 
   (defun text-scale-twice ()(interactive)(progn(text-scale-adjust 0)(text-scale-decrease 2)))
   (add-hook 'neo-after-create-hook (lambda (_)(call-interactively 'text-scale-twice)))
-
-  (use-package dracula-theme
-    :config
-    (set-face-attribute 'default nil :font "Noto Sans Mono SemiCondensed SemiBold 13")
-    :init
-    (load-theme 'dracula t))
 
   (use-package nyan-mode
     :init
@@ -67,6 +64,12 @@
 
 (defun gg/ui/fringe ()
   "Configure the Fringe area."
+
+  (use-package flycheck
+    :init
+    (global-flycheck-mode)
+    :config
+    (setq flycheck-emacs-lisp-load-path 'inherit))
   ;; Custom bitmap to be shown in the fringe area for lines with any
   ;; sort of linting issues
   (when (fboundp 'define-fringe-bitmap)
@@ -116,28 +119,11 @@
     (setq doom-modeline-bar-width 1)
     (doom-modeline-mode 1)))
 
-(defun gg/ui/org-mode ()
-  (lambda () (progn
-               (setq left-margin-width 2)
-               (setq right-margin-width 2)
-               (set-window-buffer nil (current-buffer))))
-  (setq org-startup-indented t
-        org-bullets-bullet-list '("› ")
-        org-pretty-entities t
-        org-hide-emphasis-markers t
-        org-agenda-block-separator ""
-        org-fontify-whole-heading-line t
-        org-fontify-done-headline t
-        org-fontify-quote-and-verse-blocks t
-        org-catch-invisible-edits 'show-and-error
-        org-cycle-separator-lines 0))
-
 (defun gg/ui ()
   "Entry point of UI configuration."
   (gg/ui/general)
   (gg/ui/fringe)
-  (gg/ui/modeline)
-  (gg/ui/org-mode))
+  (gg/ui/modeline))
 
 (provide 'gg-ui)
 

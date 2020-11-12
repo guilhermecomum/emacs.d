@@ -35,7 +35,7 @@
 
 (defun gg/org/misc ()
   "General org stuffs."
-
+  (require 'org-inlinetask)
   (defun do-org-show-images ()
     (interactive)
     (org-display-inline-images t t))
@@ -47,9 +47,23 @@
     (global-set-key (kbd "s-c")
                   'ox-clip-formatted-copy))
 
-  ;; Setup olivetti mode
+  (custom-set-variables '(org-bullets-bullet-list (quote ("*" "*" ))))
+  (setq left-margin-width 2)
+  (setq right-margin-width 2)
+  (setq org-startup-indented t
+        org-pretty-entities t
+        org-hide-emphasis-markers t
+        org-agenda-block-separator ""
+        org-fontify-whole-heading-line t
+        org-fontify-done-headline t
+        org-fontify-quote-and-verse-blocks t
+        org-catch-invisible-edits 'show-and-error
+        org-cycle-separator-lines 0)
+
+  ;;Setup olivetti mode
   (use-package olivetti
     :config
+    (add-hook 'markdown-mode-hook (lambda () (olivetti-mode)))
     (add-hook 'org-mode-hook (lambda () (olivetti-mode)))))
 
 (defun gg/org/utf-8-bullet ()
