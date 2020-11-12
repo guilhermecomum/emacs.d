@@ -127,7 +127,8 @@
 
   ;; use with neotree
   (use-package neotree
-    :bind ([f8] . neotree-toggle)
+    :bind(([f8] . neotree-toggle)
+          ("C-c h" . neotree-hidden-file-toggle))
     :config
     (setq neo-autorefresh nil)
     (setq neo-smart-open t)))

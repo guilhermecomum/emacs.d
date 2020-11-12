@@ -3,4 +3,4 @@
 # key: clo
 # uuid: clo
 # --
-console.log('${1:object}', $1)`(if (eolp) (js-react-redux-yasnippets-semicolon))`
+console.log('${1:object}', $1)
