@@ -120,6 +120,7 @@
     :config
     (setq projectile-indexing-method 'alien)
     (setq projectile-completion-system 'helm)
+    (setq helm-ag-command-option "--hidden")
     (add-to-list 'projectile-globally-ignored-directories "node_modules")
     (add-to-list 'projectile-globally-ignored-files "yarn.lock")
     (helm-projectile-on)
