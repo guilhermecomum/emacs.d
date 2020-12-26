@@ -29,7 +29,8 @@
 
   (use-package linum
     :config
-    (global-linum-mode 1)
+    (add-hook 'prog-mode-hook
+          'display-line-numbers-mode)
     (custom-set-variables '(linum-format 'dynamic)))
 
   ;; Do not wrap lines
