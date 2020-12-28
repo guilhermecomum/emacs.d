@@ -29,6 +29,11 @@
 (defun gg/ui/general ()
   "Setup theme."
 
+  ;; Improve theme loading; from reddit (https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_you_currently_using/d43c5cw)
+  (defadvice load-theme (before clear-previous-themes activate)
+    "Clear existing theme settings instead of layering them"
+    (mapc #'disable-theme custom-enabled-themes))
+
   ;; Enable custom neotree theme (all-the-icons must be installed!)
   (use-package all-the-icons)
   (use-package doom-themes
