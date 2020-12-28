@@ -36,6 +36,11 @@
 
   ;; Enable custom neotree theme (all-the-icons must be installed!)
   (use-package all-the-icons)
+
+  ;;Enable icons on dired
+  (use-package all-the-icons-dired
+    :config
+    (add-hook 'dired-mode-hook 'all-the-icons-dired-mode))
   (use-package doom-themes
     :config
     (doom-themes-neotree-config)
