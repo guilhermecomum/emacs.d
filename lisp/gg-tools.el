@@ -38,34 +38,6 @@
        (if (string-match (regexp-quote "Not") (lastpass-status)) (lastpass-login)))))
 
 
-(defun gg/tools/slack ()
-  "Setup slack."
-  (start-lastpass)
-  (add-to-list 'load-path (expand-file-name "site-lisp/helm-slack" user-emacs-directory))
-  (require 'helm-slack)
-  (use-package slack
-    :init
-    (setq slack-buffer-emojify t) ;; if you want to enable emoji, default nil
-    (setq slack-prefer-current-team t))
-  (slack-register-team
-   :name "ilera-slack"
-   :default t
-   :token (lastpass-getpass "slack-ilegra-api")
-   :subscribed-channels '(tr-onvio-accounting)
-   :full-and-display-names t)
-  (slack-start)
-  (global-set-key (kbd "C-c k") 'helm-slack)
-  (global-set-key (kbd "C-c C-k u") 'helm-slack-unreads)
-  (global-set-key (kbd "C-c C-k m") 'slack-message-embed-mention)
-  (global-set-key (kbd "C-c C-k t") 'slack-thread-show-or-create)
-  (global-set-key (kbd "C-c C-k e") 'slack-message-edit)
-  (global-set-key (kbd "C-c C-k f") 'slack-file-upload)
-
-  (use-package alert
-    :commands (alert)
-    :init
-    (setq alert-default-style 'notifications)))
-
 (defun gg/tools/google-translate ()
   "Setup Google Translate."
   (use-package google-translate)
