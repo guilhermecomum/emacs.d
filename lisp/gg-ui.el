@@ -126,6 +126,7 @@
   (use-package doom-modeline
     :config
     (setq doom-modeline-height 35)
+    ;;(set-face-background 'doom-modeline-bar (face-background 'mode-line))
     (setq doom-modeline-bar-width 1)
     (doom-modeline-mode 1)))
 
