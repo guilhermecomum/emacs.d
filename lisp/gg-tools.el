@@ -30,13 +30,10 @@
     ;; Set lastpass user
     (setq lastpass-user "guilherme.ga@gmail.com")
     (setq lastpass-multifactor-use-passcode t)
-
-    ;; Enable lastpass custom auth-source
-    (lastpass-auth-source-enable)
+    (setq lastpass-trust-login t)
     (defun start-lastpass ()
       "Start lastpass on startup only if user want."
        (if (string-match (regexp-quote "Not") (lastpass-status)) (lastpass-login)))))
-
 
 (defun gg/tools/google-translate ()
   "Setup Google Translate."
@@ -47,13 +44,9 @@
 
 
 (defun gg/tools ()
-  (use-package elquery)
   (use-package hackernews)
   (use-package restclient)
   (use-package pocket-reader)
-  ;; inhibit startup message
-  (setq inhibit-startup-message t)
-
   (use-package fortune-cookie
     :config
     (fortune-cookie-mode))
