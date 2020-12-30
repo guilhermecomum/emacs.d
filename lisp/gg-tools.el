@@ -37,13 +37,6 @@
       "Start lastpass on startup only if user want."
        (if (string-match (regexp-quote "Not") (lastpass-status)) (lastpass-login)))))
 
-(defun gg/tools/todoist ()
-  "Configure todoist."
-  (start-lastpass)
-  (use-package todoist)
-  (add-hook 'lastpass-logged-in-hook
-            (lambda ()
-              (setq todoist-token (lastpass-getpass "todoist-api")))))
 
 (defun gg/tools/slack ()
   "Setup slack."
