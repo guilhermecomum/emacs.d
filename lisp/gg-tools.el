@@ -38,6 +38,12 @@
 (defun gg/tools/google-translate ()
   "Setup Google Translate."
   (use-package google-translate)
+(use-package google-translate
+  :ensure t
+  :custom
+  (google-translate-backend-method 'curl)
+  :config
+   (defun google-translate--search-tkk () "Search TKK." (list 430675 2721866130)))
   (global-set-key "\C-ct" 'google-translate-at-point)
   (setq google-translate-default-source-language "English")
   (setq google-translate-default-target-language "pt-br"))
