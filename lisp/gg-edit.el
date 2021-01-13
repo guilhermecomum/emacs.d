@@ -84,7 +84,7 @@
   (use-package flyspell-correct-popup)
   (use-package flyspell)
   (setq ispell-program-name "aspell")
-  (ispell-change-dictionary "english")
+  (ispell-change-dictionary "pt_BR")
 
   (defun fd-switch-dictionary()
     (interactive)
