@@ -67,6 +67,8 @@
   "Miscellaneous settings and start up actions."
   (setq default-directory "~/") ;; There's no place like home
 
+  ;; Start emacs server
+  (server-start)
   (use-package tramp
     :config
     (setq tramp-auto-save-directory "/tmp")
