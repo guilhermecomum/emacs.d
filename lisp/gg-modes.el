@@ -34,12 +34,13 @@
   (use-package gradle-mode)
   (use-package sass-mode)
   (use-package prettier-js
+    ;; Don't forget to install prettier `npm i -g prettier`
     :init
     (add-hook 'js-mode-hook  'prettier-js-mode)
     (add-hook 'typescript-mode-hook 'prettier-js-mode)
     (add-hook 'svelte-mode-hook 'prettier-js-mode))
   (use-package eglot
-    :ensure t
+    ;; Don't forget to install typescript and typescript-language-server `npm i -g typescript typescript-language-server`
     :hook ((js-mode . eglot-ensure)
            (typescript-mode . eglot-ensure)
            (go-mode . eglot-ensure))
@@ -47,7 +48,7 @@
     (define-key eglot-mode-map (kbd "C-c .") 'eglot-code-actions)
     (define-key eglot-mode-map (kbd "<f6>") 'xref-find-definitions)
     (add-to-list 'eglot-server-programs '(svelte-mode . ("svelteserver" "--stdio")))
-    (add-to-list 'eglot-server-programs '((js-mode rjsx-mode ng2-ts-mode ng2-mode typescript-mode) . ("typescript-language-server" "--stdio")))))
+    (add-to-list 'eglot-server-programs '((js-mode js2-mode rjsx-mode ng2-ts-mode ng2-mode typescript-mode) . ("typescript-language-server" "--stdio")))))
 
 (defun gg/modes/web ()
   (use-package web-mode
@@ -73,15 +74,16 @@
   (add-hook 'web-mode-hook
             (lambda ()
               (when (string-equal "tsx" (file-name-extension buffer-file-name))
+                (flycheck-add-mode 'typescript-tslint 'web-mode)
                 (setq-mode-local web-mode emmet-expand-jsx-className? t))))
   (setq-mode-local web-mode emmet-expand-jsx-className? nil)
-  (flycheck-add-mode 'typescript-tslint 'web-mode)
+  (flycheck-add-mode 'javascript-eslint 'web-mode)
   (add-hook 'web-mode-hook 'flyspell-prog-mode)))
 
 (defun gg/modes/react ()
   "Setup to work in react projects"
   (use-package rjsx-mode)
-  (add-to-list 'auto-mode-alist '("\\.jsx?$" . rjsx-mode))
+  ;;(add-to-list 'auto-mode-alist '("\\.jsx?$" . rjsx-mode))
   (add-hook 'rjsx-mode-hook  'emmet-mode)
   (add-hook 'rjsx-mode-hook  'auto-rename-tag-mode)
   (add-hook 'rjsx-mode-hook 'flyspell-prog-mode)
@@ -105,6 +107,9 @@
   (flycheck-add-mode 'javascript-eslint 'javascript-mode)
   (add-hook 'flycheck-mode-hook 'add-node-modules-path)
   (add-hook 'after-init-hook 'global-flycheck-mode)
+
+  ;; js-commint
+  (global-set-key (kbd "<f12>") 'js-comint-repl)
 
   ;; aligns annotation to the right hand side
   (setq company-tooltip-align-annotations t))
