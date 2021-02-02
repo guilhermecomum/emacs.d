@@ -45,6 +45,8 @@
     :config
     (doom-themes-neotree-config)
     (set-face-attribute 'default nil :font "Noto Sans Mono SemiCondensed SemiBold 13")
+    (set-face-attribute 'region nil :background "#000" :foreground "#ffffff")
+
     :init
     (load-theme 'doom-material t))
 
@@ -126,7 +128,7 @@
   (use-package doom-modeline
     :config
     (setq doom-modeline-height 35)
-    ;;(set-face-background 'doom-modeline-bar (face-background 'mode-line))
+    (set-face-background 'doom-modeline-bar (face-background 'mode-line))
     (setq doom-modeline-bar-width 1)
     (doom-modeline-mode 1)))
 
