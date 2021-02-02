@@ -26,12 +26,8 @@
 
 (defun gg/edit/general ()
   "Misc edit configs."
-
-  (use-package linum
-    :config
-    (add-hook 'prog-mode-hook
-          'display-line-numbers-mode)
-    (custom-set-variables '(linum-format 'dynamic)))
+  (add-hook 'prog-mode-hook #'display-line-numbers-mode)
+  (add-hook 'conf-mode-hook #'display-line-numbers-mode)
 
   ;; Do not wrap lines
   (setq-default truncate-lines t)
