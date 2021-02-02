@@ -36,6 +36,10 @@
 (require 'use-package)
 (setq use-package-always-ensure t)
 
+(use-package auto-package-update)
+(auto-package-update-maybe)
+
+
 ;; load path so that configs from lisp folder can be required
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 
