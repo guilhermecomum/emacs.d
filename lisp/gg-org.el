@@ -66,7 +66,7 @@
   (use-package org-journal
     :config
     (setq org-journal-enable-agenda-integration t)
-    (setq org-journal-dir "/gdrive:guilherme.ga@gmail.com:/org/journal/")
+    (setq org-journal-dir "~/org/journal/")
     (setq org-journal-file-type 'yearly)
     (setq org-journal-time-format "")
     (setq org-journal-date-format "%A, %d %B %Y"))
