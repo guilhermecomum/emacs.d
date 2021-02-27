@@ -48,7 +48,17 @@
     (set-face-attribute 'region nil :background "#000" :foreground "#ffffff")
 
     :init
-    (load-theme 'doom-material t))
+    (load-theme 'doom-material t)
+    (setq selected-theme "doom-material")
+
+    (defun gg-switch-theme()
+      (interactive)
+      (let* ((theme selected-theme)
+             (change (if (string= theme "doom-material") "doom-solarized-light" "doom-material")))
+        (load-theme (intern change) t)
+        (setq selected-theme change)
+        (message "Theme switched from %s to %s" theme change)))
+    (global-set-key (kbd "<f9>") 'gg-switch-theme))
 
   (defun text-scale-twice ()(interactive)(progn(text-scale-adjust 0)(text-scale-decrease 2)))
   (add-hook 'neo-after-create-hook (lambda (_)(call-interactively 'text-scale-twice)))
