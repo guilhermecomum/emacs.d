@@ -83,32 +83,10 @@
                                  "** %(format-time-string org-journal-time-format)%^{Title}\n%i%?"
                                  :jump-to-captured t :immediate-finish t))))
 
-(defun gg/org/gcal ()
-  "Setup google calendar."
-  (global-set-key (kbd "C-c C-o c") 'cfw:open-org-calendar)
-  (use-package calfw-org)
-  (use-package org-gcal
-    :init
-    (start-lastpass)
-    (setq org-gcal-client-id (lastpass-getfield "org-gcal-client-id" "ilegra-google"))
-    (setq org-gcal-client-secret (lastpass-getfield "org-gcal-client-secret" "ilegra-google"))
-
-    :config
-    (setq org-gcal-recurring-events-mode 'nested)
-
-    ;; Once that file is created open it C-x C-f </path/to/file> ` and then `M-x org-agenda-file-to-front`. This command will include the new file.
-    ;; source: https://kabads.monkeez.org/sysadmin/emacs/2018/03/18/sync-google-calendar-with-org-agenda.html
-    (setq org-gcal-fetch-file-alist '(("guilherme.guerra@ilegra.com" .  "~/org/calendar.org"))))
-  (setq org-agenda-prefix-format '((agenda  . "  • ")))
-  (add-hook 'org-agenda-mode-hook (lambda () (org-gcal-fetch))))
-
-
-
 (defun gg/org ()
   "Call out other org customization functions."
   (gg/org/init)
   (gg/org/misc)
-  (gg/org/gcal)
   (gg/org/journal))
 
 (provide 'gg-org)
