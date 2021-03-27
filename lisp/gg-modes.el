@@ -37,18 +37,20 @@
     ;; Don't forget to install prettier `npm i -g prettier`
     :init
     (add-hook 'js-mode-hook  'prettier-js-mode)
+    (add-hook 'js-mode-hook  'emmet-mode)
     (add-hook 'typescript-mode-hook 'prettier-js-mode)
     (add-hook 'svelte-mode-hook 'prettier-js-mode))
   (use-package eglot
     ;; Don't forget to install typescript and typescript-language-server `npm i -g typescript typescript-language-server`
     :hook ((js-mode . eglot-ensure)
            (typescript-mode . eglot-ensure)
-           (go-mode . eglot-ensure))
+           (go-mode . eglot-ensure)
+           (web-mode . eglot-ensure))
     :config
     (define-key eglot-mode-map (kbd "C-c .") 'eglot-code-actions)
     (define-key eglot-mode-map (kbd "<f6>") 'xref-find-definitions)
     (add-to-list 'eglot-server-programs '(svelte-mode . ("svelteserver" "--stdio")))
-    (add-to-list 'eglot-server-programs '((js-mode js2-mode rjsx-mode ng2-ts-mode ng2-mode typescript-mode) . ("typescript-language-server" "--stdio")))))
+    (add-to-list 'eglot-server-programs '((js-mode js2-mode rjsx-mode ng2-ts-mode ng2-mode typescript-mode web-mode) . ("typescript-language-server" "--stdio")))))
 
 (defun gg/modes/web ()
   (use-package web-mode

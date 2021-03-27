@@ -44,12 +44,12 @@
   (use-package doom-themes
     :config
     (doom-themes-neotree-config)
-    (set-face-attribute 'default nil :font "Noto Sans Mono SemiCondensed SemiBold 13")
+    (set-face-attribute 'default nil :font "Noto Sans Mono 13")
     (set-face-attribute 'region nil :background "#000" :foreground "#ffffff")
 
     :init
-    (load-theme 'doom-material t)
     (setq selected-theme "doom-material")
+    (load-theme (intern selected-theme) t)
 
     (defun gg-switch-theme()
       (interactive)

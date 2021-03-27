@@ -116,6 +116,9 @@
     (setq company-minimum-prefix-length 1)
     (setq company-idle-delay .3))
 
+(use-package company-box
+  :hook (company-mode . company-box-mode))
+
   (use-package helm-projectile)
   (use-package projectile
     :bind-keymap ("C-c p" . projectile-command-map)
