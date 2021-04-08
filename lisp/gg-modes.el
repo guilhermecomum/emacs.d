@@ -131,6 +131,16 @@
                 (setq tab-width 2)
                 (setq indent-tabs-mode nil)))))
 
+(defun gg/modes/compile ()
+  "Setup compile mode."
+  (setq compilation-scroll-output t)
+  (require 'ansi-color)
+
+  (defun colorize-compilation-buffer ()
+    (let ((inhibit-read-only t))
+      (ansi-color-apply-on-region (point-min) (point-max))))
+
+  (add-hook 'compilation-filter-hook 'colorize-compilation-buffer))
 
 (defun gg/modes/markdown ()
   "Setup markdown mode"
@@ -148,6 +158,7 @@
   (gg/modes/web)
   (gg/modes/react)
   (gg/modes/svelte)
+  (gg/modes/compile)
   (gg/modes/go)
   (gg/modes/markdown))
 
