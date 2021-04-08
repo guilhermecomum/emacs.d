@@ -132,12 +132,23 @@
                 (setq indent-tabs-mode nil)))))
 
 
+(defun gg/modes/markdown ()
+  "Setup markdown mode"
+  (use-package markdown-mode
+    :ensure t
+    :commands (markdown-mode gfm-mode)
+    :mode (("README\\.md\\'" . gfm-mode)
+           ("\\.md\\'" . markdown-mode)
+           ("\\.markdown\\'" . markdown-mode))
+    :init (setq markdown-command "multimarkdown")))
+
 (defun gg/modes ()
   (gg/modes/tools)
   (gg/modes/javascript)
   (gg/modes/web)
   (gg/modes/react)
   (gg/modes/svelte)
-  (gg/modes/go))
+  (gg/modes/go)
+  (gg/modes/markdown))
 
 (provide 'gg-modes)
