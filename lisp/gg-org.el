@@ -36,6 +36,7 @@
 (defun gg/org/misc ()
   "General org stuffs."
   (require 'org-inlinetask)
+  (require 'org-tempo)
   (defun do-org-show-images ()
     (interactive)
     (org-display-inline-images t t))
@@ -50,6 +51,9 @@
     :config
     (global-set-key (kbd "s-c")
                     'ox-clip-formatted-copy))
+
+  ;;Reveal
+  (use-package ox-reveal)
 
   ;;Clean bullets
   (setq org-indent-indentation-per-level 1)
