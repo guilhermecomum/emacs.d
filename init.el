@@ -37,8 +37,9 @@
 (setq use-package-always-ensure t)
 
 (use-package auto-package-update)
-(auto-package-update-maybe)
-
+(defun shouldUpdate ()
+  (if (y-or-n-p "Quer atualziar os pacotes do emacs?") (auto-package-update-now)))
+(shouldUpdate)
 
 ;; load path so that configs from lisp folder can be required
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
