@@ -25,6 +25,7 @@
 
 (defun gg/org/init ()
   "Initial 'org-mode' configuration."
+  (setq org-startup-indented t)
   (add-hook 'org-mode-hook 'turn-on-flyspell)
   (global-set-key (kbd "C-c j") 'org-journal-open-current-journal-file)
   (global-set-key (kbd "C-c a")
@@ -56,7 +57,6 @@
   (use-package ox-reveal)
 
   ;;Clean bullets
-  (setq org-indent-indentation-per-level 1)
   (setq org-hide-leading-stars 't)
 
   ;;Setup olivetti mode
