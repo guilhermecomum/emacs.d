@@ -39,6 +39,7 @@
   (setq show-trailing-whitespace t)
 
   ;; Cleanup white spaces before save
+  (setq whitespace-style '(face trailing lines tabs big-indent))
   (add-hook 'before-save-hook 'whitespace-cleanup)
 
   ;; Also highlight parenthesis
