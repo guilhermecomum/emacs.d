@@ -47,8 +47,12 @@
            (go-mode . eglot-ensure)
            (web-mode . eglot-ensure))
     :config
+    (setq lsp-log-io nil)
+    (define-key eglot-mode-map (kbd "C-c r") 'eglot-rename)
+    (define-key eglot-mode-map (kbd "C-c o") 'eglot-code-action-organize-imports)
+    (define-key eglot-mode-map (kbd "C-c h") 'eldoc)
+    (define-key eglot-mode-map (kbd "M-.") 'xref-find-definitions)
     (define-key eglot-mode-map (kbd "C-c .") 'eglot-code-actions)
-    (define-key eglot-mode-map (kbd "<f6>") 'xref-find-definitions)
     (add-to-list 'eglot-server-programs '(svelte-mode . ("svelteserver" "--stdio")))
     (add-to-list 'eglot-server-programs '((js-mode js2-mode rjsx-mode ng2-ts-mode ng2-mode typescript-mode web-mode) . ("typescript-language-server" "--stdio")))))
 
