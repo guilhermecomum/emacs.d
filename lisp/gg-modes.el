@@ -93,7 +93,7 @@
   (add-hook 'rjsx-mode-hook  'emmet-mode)
   (add-hook 'rjsx-mode-hook  'auto-rename-tag-mode)
   (add-hook 'rjsx-mode-hook 'flyspell-prog-mode)
-
+  (add-hook 'jsx-mode-hook  'auto-rename-tag-mode)
   ;; Configure emmet to use className when use react
   (add-hook
    'rjsx-mode-hook
