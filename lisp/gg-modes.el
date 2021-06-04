@@ -147,7 +147,7 @@
   (add-hook 'compilation-filter-hook 'colorize-compilation-buffer))
 
 (defun gg/modes/markdown ()
-  "Setup markdown mode"
+  "Setup markdown mode."
   (use-package markdown-mode
     :ensure t
     :commands (markdown-mode gfm-mode)
@@ -155,6 +155,15 @@
            ("\\.md\\'" . markdown-mode)
            ("\\.markdown\\'" . markdown-mode))
     :init (setq markdown-command "multimarkdown")))
+
+(defun gg/modes/python ()
+  "Setup python mode."
+  (use-package jedi)
+  (add-hook 'python-mode-hook 'eglot-ensure))
+
+(defun gg/modes/ruby ()
+  "Setup ruby mode."
+  (add-hook 'ruby-mode-hook 'eglot-ensure))
 
 (defun gg/modes ()
   (gg/modes/tools)
@@ -164,6 +173,8 @@
   (gg/modes/svelte)
   (gg/modes/compile)
   (gg/modes/go)
+  (gg/modes/python)
+  (gg/modes/ruby)
   (gg/modes/markdown))
 
 (provide 'gg-modes)
