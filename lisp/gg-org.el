@@ -38,6 +38,11 @@
   "General org stuffs."
   (require 'org-inlinetask)
   (require 'org-tempo)
+
+  (add-to-list 'org-modules 'org-habit t)
+  (setq org-treat-insert-todo-heading-as-state-change t)
+  (setq org-log-into-drawer t)
+
   (defun do-org-show-images ()
     (interactive)
     (org-display-inline-images t t))
