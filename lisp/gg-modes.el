@@ -163,6 +163,9 @@
 
 (defun gg/modes/ruby ()
   "Setup ruby mode."
+  (use-package robe
+    :after ruby-mode
+    :functions (robe-start))
   (add-hook 'ruby-mode-hook 'eglot-ensure))
 
 (defun gg/modes ()
