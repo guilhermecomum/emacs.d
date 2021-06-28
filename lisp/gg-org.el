@@ -25,13 +25,14 @@
 
 (defun gg/org/init ()
   "Initial 'org-mode' configuration."
+  (setq org-tag-alist '(("work" . ?w) ("personal" . ?p) ("emacsLove" . ?l) ("read" . ?r)))
   (setq org-startup-indented t)
   (add-hook 'org-mode-hook 'turn-on-flyspell)
   (global-set-key (kbd "C-c j") 'org-journal-open-current-journal-file)
   (global-set-key (kbd "C-c a")
                   (lambda ()
                     (interactive)
-                    (org-agenda nil "c")))
+                    (org-agenda nil "z")))
   (global-set-key (kbd "C-c /") 'org-capture))
 
 (defun gg/org/misc ()
@@ -110,10 +111,47 @@
                                  "** %(format-time-string org-journal-time-format)%^{Title}\n%i%?"
                                  :jump-to-captured t :immediate-finish t))))
 
+(defun gg/org/super-agenda ()
+  "Setup super-agenda"
+  (org-super-agenda-mode t)
+  (setq org-agenda-custom-commands
+        '(("z" "Super zaen view"
+           ((agenda "" ((org-agenda-span 'day)
+                        (org-super-agenda-groups
+                         '((:name "Today"
+                                  :time-grid t
+                                  :date today
+                                  :todo "TODAY"
+                                  :scheduled today
+                                  :order 1)))))
+            (alltodo "" ((org-agenda-overriding-header "")
+                         (org-super-agenda-groups
+                          '((:name "Next to do"
+                                   :todo "NEXT"
+                                   :order 1)
+                            (:name "Due Today"
+                                   :deadline today
+                                   :order 2)
+                            (:name "Due Soon"
+                                   :deadline future
+                                   :order 8)
+                            (:name "To read"
+                                   :tag "read"
+                                   :order 30)
+                            (:name "Personal"
+                                   :tag "personal"
+                                   :order 30)
+                            (:name "Work"
+                                   :tag "work"
+                                   :order 31)
+
+                            (:discard (:tag ("Chore" "Routine" "Daily"))))))))))))
+
 (defun gg/org ()
   "Call out other org customization functions."
   (gg/org/init)
   (gg/org/misc)
+  (gg/org/super-agenda)
   (gg/org/journal))
 
 (provide 'gg-org)
