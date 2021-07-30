@@ -25,9 +25,12 @@
 
 (defun gg/org/init ()
   "Initial 'org-mode' configuration."
-  (setq org-tag-alist '(("work" . ?w) ("personal" . ?p) ("emacsLove" . ?l) ("read" . ?r)))
+  (setq org-directory "~/Projects/org-files")
+  (setq org-tag-alist '(("work" . ?w) ("personal" . ?p) ("cto" . ?c) ("emacsLove" . ?l) ("read" . ?r) ("quotes" . ?q)))
   (setq org-startup-indented t)
   (add-hook 'org-mode-hook 'turn-on-flyspell)
+  (setq gac-automatically-push-p t)
+  (add-hook 'org-journal-after-save-hook 'git-auto-commit-mode)
   (global-set-key (kbd "C-c j") 'org-journal-open-current-journal-file)
   (global-set-key (kbd "C-c a")
                   (lambda ()
@@ -94,9 +97,10 @@
   (use-package org-journal
     :config
     (setq org-journal-enable-agenda-integration t)
-    (setq org-journal-dir "~/Dropbox/org/journal/")
+    (setq org-journal-dir "~/Projects/org-files/journal/")
     (setq org-journal-file-type 'yearly)
     (setq org-journal-time-format "")
+    (setq org-journal-file-format "%Y.org")
     (setq org-journal-date-format "%A, %d %B %Y"))
 
   (defun org-journal-find-location ()
@@ -144,7 +148,9 @@
                             (:name "Work"
                                    :tag "work"
                                    :order 31)
-
+                            (:name "CTO"
+                                   :tag "CTO"
+                                   :order 32)
                             (:discard (:tag ("Chore" "Routine" "Daily"))))))))))))
 
 (defun gg/org ()
