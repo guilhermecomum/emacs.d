@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# contributor: Guilherme Guerra <guerrinha@comum.org>
+# name: reveal
+# key: reveal
+# --
+#+REVEAL_ROOT: https://cdn.jsdelivr.net/npm/reveal.js
+#+OPTIONS: toc:nil num:nil reveal_title_slide:nil

@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# contributor: Guilherme Guerra <guerrinha@comum.org>
+# name: reveal fragment
+# key: wait
+# --
+#+ATTR_REVEAL: :frag roll-in
