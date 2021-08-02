@@ -26,7 +26,7 @@
 (defun gg/org/init ()
   "Initial 'org-mode' configuration."
   (setq org-directory "~/Projects/org-files")
-  (setq org-tag-alist '(("work" . ?w) ("personal" . ?p) ("cto" . ?c) ("emacsLove" . ?l) ("read" . ?r) ("quotes" . ?q)))
+  (setq org-tag-alist '(("work" . ?w) ("personal" . ?p) ("cto" . ?c) ("emacsLove" . ?l) ("read" . ?r) ("quotes" . ?q) ("finances" . ?f)))
   (setq org-startup-indented t)
   (add-hook 'org-mode-hook 'turn-on-flyspell)
   (setq gac-automatically-push-p t)
