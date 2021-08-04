@@ -57,7 +57,6 @@
   (add-hook 'neo-after-create-hook (lambda (_)(call-interactively 'text-scale-twice)))
 
   ;; No bars. Doing this first to avoid showing/hidding delay on start
-  (scroll-bar-mode 0)
   (menu-bar-mode 0)
   (tool-bar-mode 0)
 
