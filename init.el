@@ -51,10 +51,6 @@
 (gg/general)
 (require 'gg-edit)
 (gg/edit)
-(require 'gg-modes)
-(gg/modes)
 (require 'gg-org)
 (gg/org)
-(require 'gg-tools)
-(gg/tools)
 ;;; init.el ends here

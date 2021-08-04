@@ -51,8 +51,6 @@
   ;; keep newline end of file
   (setq require-final-newline t)
 
-  (use-package lorem-ipsum)
-
   (use-package multiple-cursors
     :bind (("C-S-c C-S-c" . mc/edit-lines)
            ("s-." . mc/mark-next-like-this)
@@ -65,33 +63,10 @@
   (use-package rainbow-delimiters
     :hook (prog-mode . rainbow-delimiters-mode))
 
-  (use-package editorconfig
-    :config
-    (editorconfig-mode 1))
-  (use-package auto-rename-tag)
-  (auto-rename-tag-mode t)
-
-
 (use-package move-text)
 
 (global-set-key [(control shift up)]  'move-text-up)
 (global-set-key [(control shift down)]  'move-text-down))
-
-(defun gg/edit/flyspell ()
-  (use-package flyspell-correct-popup)
-  (use-package flyspell)
-  (setq ispell-program-name "aspell")
-  (ispell-change-dictionary "pt_BR")
-
-  (defun fd-switch-dictionary()
-    (interactive)
-    (let* ((dic ispell-current-dictionary)
-           (change (if (string= dic "pt_BR") "english" "pt_BR")))
-      (ispell-change-dictionary change)
-      (message "Dictionary switched from %s to %s" dic change)))
-
-  (global-set-key (kbd "<f5>") 'fd-switch-dictionary)
-  (define-key flyspell-mode-map (kbd "C-;") 'flyspell-correct-wrapper))
 
 (defun gg/edit/functions ()
   "Functions make edit easier."
@@ -116,7 +91,6 @@
   "Call out other editing customization function."
   (gg/edit/general)
   (gg/edit/functions)
-  (gg/edit/flyspell)
   (gg/edit/general)
   (gg/edit/yasnippet))
 

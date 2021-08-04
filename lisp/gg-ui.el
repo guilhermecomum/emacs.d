@@ -34,17 +34,10 @@
     "Clear existing theme settings instead of layering them"
     (mapc #'disable-theme custom-enabled-themes))
 
-  ;; Enable custom neotree theme (all-the-icons must be installed!)
-  (use-package all-the-icons)
-
-  ;;Enable icons on dired
-  (use-package all-the-icons-dired
-    :config
-    (add-hook 'dired-mode-hook 'all-the-icons-dired-mode))
   (use-package doom-themes
     :config
     (doom-themes-neotree-config)
-    (set-face-attribute 'default nil :font "Noto Sans Mono 13")
+    (set-face-attribute 'default nil :font "Noto Sans Mono 14")
     (set-face-attribute 'region nil :background "#000" :foreground "#ffffff")
 
     :init
@@ -63,16 +56,6 @@
   (defun text-scale-twice ()(interactive)(progn(text-scale-adjust 0)(text-scale-decrease 2)))
   (add-hook 'neo-after-create-hook (lambda (_)(call-interactively 'text-scale-twice)))
 
-  (use-package nyan-mode
-    :init
-    (nyan-mode t))
-
-  (use-package dimmer
-    :init
-    (dimmer-mode t)
-    :config
-    (setq dimmer-fraction 0.5))
-
   ;; No bars. Doing this first to avoid showing/hidding delay on start
   (scroll-bar-mode 0)
   (menu-bar-mode 0)
@@ -84,54 +67,6 @@
   (setq inhibit-splash-screen t)    ;; No splash screen
   (setq inhibit-startup-screen t))
 
-(defun gg/ui/fringe ()
-  "Configure the Fringe area."
-
-  (use-package flycheck
-    :init
-    (global-flycheck-mode)
-    :config
-    (setq flycheck-emacs-lisp-load-path 'inherit))
-  ;; Custom bitmap to be shown in the fringe area for lines with any
-  ;; sort of linting issues
-  (when (fboundp 'define-fringe-bitmap)
-    (define-fringe-bitmap 'my-flycheck-fringe-indicator
-      (vector #b00000000
-              #b00000000
-              #b00000000
-              #b00000000
-              #b00000000
-              #b00000000
-              #b00000000
-              #b00011100
-              #b00111110
-              #b00111110
-              #b00111110
-              #b00011100
-              #b00000000
-              #b00000000
-              #b00000000
-              #b00000000
-              #b00000000)))
-
-  (flycheck-define-error-level 'error
-    :overlay-category 'flycheck-error-overlay
-    :fringe-bitmap 'my-flycheck-fringe-indicator
-    :fringe-face 'flycheck-fringe-error)
-  (flycheck-define-error-level 'warning
-    :overlay-category 'flycheck-warning-overlay
-    :fringe-bitmap 'my-flycheck-fringe-indicator
-    :fringe-face 'flycheck-fringe-warning)
-  (flycheck-define-error-level 'info
-    :overlay-category 'flycheck-info-overlay
-    :fringe-bitmap 'my-flycheck-fringe-indicator
-    :fringe-face 'flycheck-fringe-info)
-
-  ;;Get rid of the background color in the Fringe area
-  (set-face-attribute 'fringe nil
-                      :foreground (face-foreground 'default)
-                      :background (face-background 'default))
-  (fringe-mode 15))
 
 (defun gg/ui/modeline ()
   "Configuration for the modeline."
@@ -145,7 +80,6 @@
 (defun gg/ui ()
   "Entry point of UI configuration."
   (gg/ui/general)
-  (gg/ui/fringe)
   (gg/ui/modeline))
 
 (provide 'gg-ui)

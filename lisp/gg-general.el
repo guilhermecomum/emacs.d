@@ -84,10 +84,6 @@
       (bury-buffer)
       nil))
 
-  (use-package emojify
-    :config
-    (add-hook 'after-init-hook #'global-emojify-mode))
-
   ;; Store auto-save and backup files in a temporary directory
   (setq backup-directory-alist
         `(("." . ,(concat user-emacs-directory "backups"))))
@@ -108,50 +104,13 @@
   (setq custom-file "~/.emacs.d/custom.el")
   (load custom-file)
 
-  (use-package magit)
-
-  (use-package company
-    :hook (after-init . global-company-mode)
-    :config
-    (setq company-minimum-prefix-length 1)
-    (setq company-idle-delay .3))
-
-(use-package company-box
-  :hook (company-mode . company-box-mode))
-
-  (use-package helm-projectile)
-  (use-package projectile
-    :bind-keymap ("C-c p" . projectile-command-map)
-    :config
-    (setq projectile-indexing-method 'alien)
-    (setq projectile-completion-system 'helm)
-    (setq helm-ag-command-option "--hidden")
-    (add-to-list 'projectile-globally-ignored-directories "node_modules")
-    (add-to-list 'projectile-globally-ignored-files "yarn.lock")
-    (helm-projectile-on)
-    (projectile-mode))
-
-  ;; use with neotree
-  (use-package neotree
-    :bind([f8] . neotree-toggle)
-    :config
-    (setq neo-autorefresh nil)
-    (setq neo-smart-open t)
-    (with-eval-after-load 'neotree
-      (define-key neotree-mode-map (kbd "h") 'neotree-hidden-file-toggle))))
-
-(defun gg/general/path ()
-  ;;Loads environment variables from the shell.
-  (use-package exec-path-from-shell)
-  (setq exec-path-from-shell-variables '("GOPATH" "PATH" "MANPATH"))
-  (exec-path-from-shell-initialize))
+  (use-package magit))
 
 (defun gg/general ()
   "Call out other general customization functions."
   (gg/general/utf-8)
   (gg/general/keys)
-  (gg/general/misc)
-  (gg/general/path))
+  (gg/general/misc))
 
 
 (provide 'gg-general)

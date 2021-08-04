@@ -27,7 +27,7 @@
   "Initial 'org-mode' configuration."
   (use-package org-contrib)
   (setq org-directory "~/Projects/org-files")
-  (setq org-tag-alist '(("work" . ?w) ("personal" . ?p) ("cto" . ?c) ("emacsLove" . ?l) ("read" . ?r) ("quotes" . ?q) ("finances" . ?f)))
+  (setq org-tag-alist '(("work" . ?w) ("personal" . ?p) ("delivery" . ?d) ("emacsLove" . ?l) ("read" . ?r) ("quotes" . ?q) ("finances" . ?f)))
   (setq org-startup-indented t)
   (add-hook 'org-mode-hook 'turn-on-flyspell)
   (setq gac-automatically-push-p t)
