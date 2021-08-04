@@ -119,6 +119,7 @@
 
 (defun gg/org/super-agenda ()
   "Setup super-agenda"
+  (use-package org-super-agenda)
   (org-super-agenda-mode t)
   (setq org-agenda-custom-commands
         '(("z" "Super zaen view"
