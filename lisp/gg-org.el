@@ -25,6 +25,7 @@
 
 (defun gg/org/init ()
   "Initial 'org-mode' configuration."
+  (use-package org-contrib)
   (setq org-directory "~/Projects/org-files")
   (setq org-tag-alist '(("work" . ?w) ("personal" . ?p) ("cto" . ?c) ("emacsLove" . ?l) ("read" . ?r) ("quotes" . ?q) ("finances" . ?f)))
   (setq org-startup-indented t)
@@ -42,6 +43,7 @@
   "General org stuffs."
   (require 'org-inlinetask)
   (require 'org-tempo)
+  (require 'org-collector)
 
   (add-to-list 'org-modules 'org-habit t)
   (setq org-treat-insert-todo-heading-as-state-change t)
