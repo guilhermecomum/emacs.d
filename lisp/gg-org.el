@@ -26,6 +26,7 @@
 (defun gg/org/init ()
   "Initial 'org-mode' configuration."
   (use-package org-contrib)
+  (use-package git-auto-commit-mode)
   (setq org-directory "~/Projects/org-files")
   (setq org-tag-alist '(("work" . ?w) ("personal" . ?p) ("cto" . ?c) ("emacsLove" . ?l) ("read" . ?r) ("quotes" . ?q) ("finances" . ?f)))
   (setq org-startup-indented t)
@@ -119,7 +120,9 @@
 
 (defun gg/org/super-agenda ()
   "Setup super-agenda"
+  (use-package org-super-agenda)
   (org-super-agenda-mode t)
+
   (setq org-agenda-custom-commands
         '(("z" "Super zaen view"
            ((agenda "" ((org-agenda-span 'day)
@@ -135,25 +138,19 @@
                           '((:name "Next to do"
                                    :todo "NEXT"
                                    :order 1)
-                            (:name "Due Today"
-                                   :deadline today
-                                   :order 2)
                             (:name "Due Soon"
+                                   :discard (:tag ("finances"))
                                    :deadline future
                                    :order 8)
-                            (:name "To read"
-                                   :tag "read"
-                                   :order 30)
                             (:name "Personal"
                                    :tag "personal"
                                    :order 30)
                             (:name "Work"
                                    :tag "work"
                                    :order 31)
-                            (:name "CTO"
-                                   :tag "CTO"
-                                   :order 32)
-                            (:discard (:tag ("Chore" "Routine" "Daily"))))))))))))
+                            (:discard (:tag ("Routine" "Daily")))))))))))
+  (org-agenda nil "z")
+  (delete-other-windows))
 
 (defun gg/org ()
   "Call out other org customization functions."
