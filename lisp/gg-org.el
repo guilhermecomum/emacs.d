@@ -153,6 +153,10 @@
                             (:discard (:tag ("Routine" "Daily")))))))))))
   (org-agenda nil "z")
   (delete-other-windows))
+  (defun is-paid? (time)
+    "Check if a billing is paid based on the date"
+    (if (eq (string-to-number (format-time-string "%m")) (nth 4 (org-parse-time-string time)))
+        "-" "pago")))
 
 (defun gg/org ()
   "Call out other org customization functions."
