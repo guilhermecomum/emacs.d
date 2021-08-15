@@ -99,12 +99,14 @@
   "Setup org-journal."
   (use-package org-journal
     :config
-    (setq org-journal-enable-agenda-integration t)
-    (setq org-journal-dir "~/Projects/org-files/journal/")
-    (setq org-journal-file-type 'yearly)
-    (setq org-journal-time-format "")
-    (setq org-journal-file-format "%Y.org")
-    (setq org-journal-date-format "%A, %d %B %Y"))
+    (setq org-journal-enable-agenda-integration t
+     org-journal-dir "~/Projects/org-files/journal/"
+     org-journal-file-type 'yearly
+     org-journal-time-format ""
+     org-journal-file-format "%Y.org"
+     org-journal-date-format "%A, %d %B %Y")
+    :bind
+      :bind* ("C-c C-j" . org-journal-new-entry))
 
   (defun org-journal-find-location ()
     ;; Open today's journal, but specify a non-nil prefix argument in order to
