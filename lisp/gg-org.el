@@ -30,6 +30,8 @@
   (setq org-directory "~/Projects/org-files")
   (setq org-tag-alist '(("work" . ?w) ("personal" . ?p) ("cto" . ?c) ("emacsLove" . ?l) ("read" . ?r) ("quotes" . ?q) ("finances" . ?f)))
   (setq org-startup-indented t)
+  (setq org-export-with-toc nil)
+  (setq org-export-with-section-numbers nil)
   (add-hook 'org-mode-hook 'turn-on-flyspell)
   (setq gac-automatically-push-p t)
   (add-hook 'org-journal-after-save-hook 'git-auto-commit-mode)
@@ -67,6 +69,12 @@
 
   ;;Reveal
   (use-package ox-reveal)
+  (setq org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js")
+  (setq org-reveal-title-slide nil)
+  (setq org-reveal-mathjax t)
+
+  (use-package htmlize
+    :ensure t)
 
   ;;Clean bullets
   (setq org-hide-leading-stars 't)
@@ -152,7 +160,8 @@
                                    :order 31)
                             (:discard (:tag ("Routine" "Daily")))))))))))
   (org-agenda nil "z")
-  (delete-other-windows))
+  (delete-other-windows)
+
   (defun is-paid? (time)
     "Check if a billing is paid based on the date"
     (if (eq (string-to-number (format-time-string "%m")) (nth 4 (org-parse-time-string time)))
