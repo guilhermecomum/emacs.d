@@ -23,18 +23,6 @@
 ;;
 ;;; Code:
 
-(defun gg/tools/lpass ()
-  "Configure Lastpass."
-  (use-package lastpass
-    :config
-    ;; Set lastpass user
-    (setq lastpass-user "guilherme.ga@gmail.com")
-    (setq lastpass-multifactor-use-passcode t)
-    (setq lastpass-trust-login t)
-    (defun start-lastpass ()
-      "Start lastpass on startup only if user want."
-       (if (string-match (regexp-quote "Not") (lastpass-status)) (lastpass-login)))))
-
 (defun gg/tools/google-translate ()
   "Setup Google Translate."
   (use-package google-translate)
