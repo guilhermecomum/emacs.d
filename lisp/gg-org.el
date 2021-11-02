@@ -28,7 +28,7 @@
   (use-package org-contrib)
   (use-package git-auto-commit-mode)
   (setq org-directory "~/Projects/org-files")
-  (setq org-tag-alist '(("work" . ?w) ("personal" . ?p) ("cto" . ?c) ("emacsLove" . ?l) ("read" . ?r) ("quotes" . ?q) ("finances" . ?f)))
+  (setq org-tag-alist '(("work" . ?w) ("personal" . ?p) ("cto" . ?c) ("emacsLove" . ?l) ("quotes" . ?q) ("finances" . ?f)))
   (setq org-startup-indented t)
   (setq org-export-with-toc nil)
   (setq org-export-with-section-numbers nil)
@@ -136,7 +136,8 @@
 
   (setq org-agenda-custom-commands
         '(("z" "Super zaen view"
-           ((agenda "" ((org-agenda-span 'day)
+           ((tags "cto" ((org-agenda-overriding-header "Objetivos do ciclo")))
+            (agenda "" ((org-agenda-span 'day)
                         (org-super-agenda-groups
                          '((:name "Today"
                                   :time-grid t
@@ -159,7 +160,8 @@
                             (:name "Work"
                                    :tag "work"
                                    :order 31)
-                            (:discard (:tag ("Routine" "Daily")))))))))))
+                            (:discard (:tag ("Routine" "Daily" "cto" "finances")))))))
+            ))))
   (org-agenda nil "z")
   (delete-other-windows)
 
