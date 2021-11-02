@@ -40,12 +40,11 @@
 (defun gg/tools ()
   (use-package hackernews)
   (use-package restclient)
+  (use-package pass)
   (use-package pocket-reader)
   (use-package fortune-cookie
     :config
     (fortune-cookie-mode))
-
-  (gg/tools/lpass)
   (gg/tools/google-translate))
 
 (provide 'gg-tools)
