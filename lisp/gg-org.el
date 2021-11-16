@@ -27,6 +27,7 @@
   "Initial 'org-mode' configuration."
   (use-package org-contrib)
   (use-package git-auto-commit-mode)
+  (use-package ox-slack)
   (setq org-directory "~/Projects/org-files")
   (setq org-tag-alist '(("work" . ?w) ("personal" . ?p) ("cto" . ?c) ("emacsLove" . ?l) ("quotes" . ?q) ("finances" . ?f)))
   (setq org-startup-indented t)
