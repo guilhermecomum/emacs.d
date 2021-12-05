@@ -44,7 +44,7 @@
   (use-package doom-themes
     :config
     (doom-themes-neotree-config)
-    (set-face-attribute 'default nil :font "Noto Sans Mono 13")
+    (set-face-attribute 'default nil :font "FiraCode 15")
     (set-face-attribute 'region nil :background "#000" :foreground "#ffffff")
 
     :init
@@ -83,6 +83,31 @@
   (setq ring-bell-function 'ignore) ;; No freaking bell
   (setq inhibit-splash-screen t)    ;; No splash screen
   (setq inhibit-startup-screen t))
+
+(defun gg/ui/ligature ()
+  "Setup ligature"
+  (use-package ligature
+  :load-path "~/Projects/ligature.el"
+  :config
+  ;; Enable traditional ligature support in eww-mode, if the
+  ;; `variable-pitch' face supports it
+  ;; Enable all Cascadia Code ligatures in programming modes
+  (ligature-set-ligatures 'prog-mode '("|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
+                                       ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
+                                       "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
+                                       "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
+                                       "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
+                                       "..." "+++" "/==" "///" "_|_" "www" "&&" "^=" "~~" "~@" "~="
+                                       "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|=" "|>" "|-" "{|"
+                                       "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
+                                       ">=" ">>" ">-" "-~" "-|" "->" "--" "-<" "<~" "<*" "<|" "<:"
+                                       "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
+                                       "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
+                                       "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
+                                       "\\\\" "://"))
+  ;; Enables ligature checks globally in all buffers. You can also do it
+  ;; per mode with `ligature-mode'.
+  ))
 
 (defun gg/ui/fringe ()
   "Configure the Fringe area."
@@ -144,9 +169,10 @@
 
 (defun gg/ui ()
   "Entry point of UI configuration."
-  (gg/ui/general)
-  (gg/ui/fringe)
-  (gg/ui/modeline))
+   (gg/ui/general)
+   (gg/ui/fringe)
+   (gg/ui/ligature)
+   (gg/ui/modeline))
 
 (provide 'gg-ui)
 
