@@ -59,7 +59,8 @@
 (defun gg/modes/web ()
   (use-package web-mode
     :mode (("\\.html?\\'" . web-mode)
-           ("\\.tsx\\'" . web-mode))
+           ("\\.tsx\\'" . web-mode)
+           ("\\.ts\\'" . web-mode))
     :hook
     (web-mode . emmet-mode)
     (web-mode . auto-rename-tag-mode)

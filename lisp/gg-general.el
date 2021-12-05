@@ -84,10 +84,6 @@
       (bury-buffer)
       nil))
 
-  (use-package emojify
-    :config
-    (add-hook 'after-init-hook #'global-emojify-mode))
-
   ;; Store auto-save and backup files in a temporary directory
   (setq backup-directory-alist
         `(("." . ,(concat user-emacs-directory "backups"))))
