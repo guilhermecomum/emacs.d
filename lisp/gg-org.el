@@ -25,9 +25,11 @@
 
 (defun gg/org/init ()
   "Initial 'org-mode' configuration."
+
   (use-package org-contrib)
   (use-package git-auto-commit-mode)
   (use-package ox-slack)
+  (setq org-export-coding-system 'utf-8)
   (setq org-directory "~/Projects/org-files")
   (setq org-tag-alist '(("work" . ?w) ("personal" . ?p) ("cto" . ?c) ("emacsLove" . ?l) ("quotes" . ?q) ("finances" . ?f)))
   (setq org-startup-indented t)
@@ -35,8 +37,6 @@
   (setq org-export-with-section-numbers nil)
   (add-hook 'org-mode-hook 'turn-on-flyspell)
   (setq gac-automatically-push-p t)
-  (add-hook 'org-journal-after-save-hook 'git-auto-commit-mode)
-  (global-set-key (kbd "C-c j") 'org-journal-open-current-journal-file)
   (global-set-key (kbd "C-c a")
                   (lambda ()
                     (interactive)
@@ -109,6 +109,8 @@
   "Setup org-journal."
   (use-package org-journal
     :config
+    (add-hook 'org-journal-after-save-hook 'git-auto-commit-mode)
+    (global-set-key (kbd "C-c j") 'org-journal-open-current-journal-file)
     (setq org-journal-enable-agenda-integration t
      org-journal-dir "~/Projects/org-files/journal/"
      org-journal-file-type 'yearly
@@ -126,8 +128,8 @@
       (org-narrow-to-subtree))
     (goto-char (point-max)))
 
-  (setq org-capture-templates '(("j" "Journal entry" plain (function org-journal-find-location)
-                                 "** %(format-time-string org-journal-time-format)%^{Title}\n%i%?"
+  (setq org-capture-templates '(("d" "Daily questions" plain (function org-journal-find-location)
+                                 (file "~/.emacs.d/templates/daily.org")
                                  :jump-to-captured t :immediate-finish t))))
 
 (defun gg/org/super-agenda ()
