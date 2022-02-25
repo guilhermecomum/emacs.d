@@ -1,7 +1,7 @@
 * My Emacs config
-** Starting the engine
+** Bootstrap
 *** Native Comp
-#+begin_src emacs-lisp
+#+begin_src elisp
   (when (fboundp 'native-compile-async)
     (setq comp-deferred-compilation t))
 
@@ -11,7 +11,7 @@
 #+end_src
 
 *** Packages
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC elisp
   (require 'package)
   (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
   (add-to-list 'package-archives '("nongnu" . "https://elpa.nongnu.org/nongnu/") t)
@@ -25,9 +25,12 @@
   (setq use-package-always-ensure t)
   (use-package auto-package-update)
 #+END_SRC
-
+**** restclient
+#+begin_src elisp
+(use-package restclient)
+#+end_src
 *** Enconding
-#+begin_src emacs-lisp
+#+begin_src elisp
   (prefer-coding-system 'utf-8)
   (setq locale-coding-system 'utf-8)
   (setq current-language-environment "UTF-8")
@@ -37,17 +40,58 @@
   (set-selection-coding-system 'utf-8)
 #+end_src
 
+*** Misc
+#+begin_src elisp
+  (setq default-directory "~/")
+
+  (use-package tramp
+    :config
+    (setq tramp-auto-save-directory "/tmp")
+    (defvar disable-tramp-backups '(all)))
+
+  (add-to-list 'default-frame-alist '(fullscreen . maximized))
+  (defun dont-kill-scratch ()
+    "This function doesn't let you kill scratch by mistake."
+    (if (not (equal (buffer-name) "*scratch*"))
+	t
+      (bury-buffer)
+      nil))
+  (add-hook 'kill-buffer-query-functions #'dont-kill-scratch)
+
+  (setq create-lockfiles nil)
+
+  ;; writing yes or no is length, type y / n instead
+  (defalias 'yes-or-no-p 'y-or-n-p)
+
+  (setq custom-file "~/.emacs.d/custom.el")
+  (load custom-file)
+
+  (use-package magit)
+
+  (use-package neotree
+    :bind([f8] . neotree-toggle)
+    :config
+    (setq neo-autorefresh nil)
+    (setq neo-smart-open t)
+    (with-eval-after-load 'neotree
+      (define-key neotree-mode-map (kbd "h") 'neotree-hidden-file-toggle)))
+  (use-package exec-path-from-shell)
+  (setq exec-path-from-shell-variables '("GOPATH" "PATH" "MANPATH"))
+  (exec-path-from-shell-initialize)
+
+#+end_src
+
 ** UI
 *** Improve theme loading
 Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_you_currently_using/d43c5cw][Reddit]]
-#+begin_src emacs-lisp
+#+begin_src elisp
   (defadvice load-theme (before clear-previous-themes activate)
     "Clear existing theme settings instead of layering them"
     (mapc #'disable-theme custom-enabled-themes))
 #+end_src
 
 *** Icons
-#+begin_src emacs-lisp
+#+begin_src elisp
   (use-package all-the-icons)
   (use-package all-the-icons-dired
     :config
@@ -55,7 +99,7 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
 #+end_src
 
 *** Doom Theme
-#+begin_src emacs-lisp
+#+begin_src elisp
   (use-package doom-themes
     :config
     (doom-themes-neotree-config)
@@ -80,14 +124,14 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
 #+end_src
 
 *** Nyan cat
-#+begin_src emacs-lisp
+#+begin_src elisp
   (use-package nyan-mode
     :init
     (nyan-mode t))
 #+end_src
 
 *** Dimmer
-#+begin_src emacs-lisp
+#+begin_src elisp
   (use-package dimmer
       :init
       (dimmer-mode t)
@@ -96,7 +140,7 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
 #+end_src
 
 *** Emacs interface
-#+begin_src emacs-lisp
+#+begin_src elisp
   (scroll-bar-mode 0)
   (menu-bar-mode 0)
   (tool-bar-mode 0)
@@ -107,7 +151,7 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
 #+end_src
 
 *** Fringe
-#+begin_src emacs-lisp
+#+begin_src elisp
   (when (fboundp 'define-fringe-bitmap)
     (define-fringe-bitmap 'my-flycheck-fringe-indicator
       (vector #b00000000
@@ -136,7 +180,7 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
 #+end_src
 
 *** Doom modeline
-#+begin_src emacs-lisp
+#+begin_src elisp
   (use-package doom-modeline
     :config
     (setq doom-modeline-height 35)
@@ -146,38 +190,75 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
 #+end_src
 
 ** Keys
-#+begin_src emacs-lisp
+*** Org-mode
+#+begin_src elisp
+  (global-set-key (kbd "C-c a")
+                  (lambda ()
+                    (interactive)
+                    (org-agenda nil "z")))
+  (global-set-key (kbd "C-c /") 'org-capture)
+  (global-set-key (kbd "C-c C-j") 'org-journal-new-entry)
+#+end_src
+*** Buffer/Window
+#+begin_src elisp
   (global-set-key [s-tab] 'next-buffer)
   (global-set-key [S-s-iso-lefttab] 'previous-buffer)
 
-  ;;; comments
-  (global-set-key [(ctrl c) (c)] 'comment-region)
-  (global-set-key [(ctrl c) (d)] 'uncomment-region)
-
-  ;;; Navegation
-  (global-set-key (kbd "M-g") 'goto-line)
-
-  ;;; Sort
-  (global-set-key (kbd "C-c s") 'sort-lines)
-
-  ;;; Helm mini
-  (global-set-key (kbd "C-x b") 'helm-mini)
-  (setq helm-buffers-fuzzy-matching t
-        helm-recentf-fuzzy-match    t)
-
   ;;; change window
   (global-set-key [(C-tab)] 'other-window)
-  (global-set-key [(C-M-tab)] 'other-window))
+  (global-set-key [(C-M-tab)] 'other-window)
 #+end_src
+*** Code navigation
+#+begin_src elisp
+  (global-set-key (kbd "M-g") 'goto-line)
+  (global-set-key (kbd "C-c s") 'sort-lines)
+  (global-set-key (kbd "C-x b") 'helm-mini)
 
-** Modes
+#+end_src
+** Editing
+*** Display line numbers
+#+begin_src elisp
+  (add-hook 'prog-mode-hook #'display-line-numbers-mode)
+  (add-hook 'conf-mode-hook #'display-line-numbers-mode)
+#+end_src
+*** Misc
+#+begin_src elisp
+  ;; Do not wrap lines
+  (setq-default truncate-lines t)
+
+  ;; spaces instead of tabs
+  (setq-default indent-tabs-mode nil)
+
+  ;; Complain about trailing white spaces
+  (setq show-trailing-whitespace t)
+
+  ;; Cleanup white spaces before save
+  (setq whitespace-style '(face trailing lines tabs big-indent))
+  (add-hook 'before-save-hook 'whitespace-cleanup)
+
+  (use-package smartparens)
+  (smartparens-global-mode t)
+
+  (use-package rainbow-delimiters
+    :hook (prog-mode . rainbow-delimiters-mode))
+
+#+end_src
+*** Multiple cursor
+#+begin_src elisp
+  (use-package multiple-cursors
+    :bind (("C-S-c C-S-c" . mc/edit-lines)
+	   ("s-." . mc/mark-next-like-this)
+	   ("s-," . mc/mark-previous-like-this)
+	   ("s->" . mc/mark-all-like-this)))
+#+end_src
+** Misc
 *** Flycheck
-#+begin_src emacs-lisp
+#+begin_src elisp
   (use-package flycheck
     :init
     (global-flycheck-mode)
     :config
-    (setq flycheck-emacs-lisp-load-path 'inherit)
+    (setq flycheck-elisp-load-path 'inherit)
     (flycheck-define-error-level 'error
 				 :overlay-category 'flycheck-error-overlay
 				 :fringe-bitmap 'my-flycheck-fringe-indicator
@@ -190,4 +271,144 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
 				 :overlay-category 'flycheck-info-overlay
 				 :fringe-bitmap 'my-flycheck-fringe-indicator
 				 :fringe-face 'flycheck-fringe-info))
+#+end_src
+*** Flyspell
+#+begin_src elisp
+  (use-package flyspell)
+  (setq ispell-program-name "aspell")
+  (ispell-change-dictionary "pt_BR")
+
+  (defun fd-switch-dictionary()
+    (interactive)
+    (let* ((dic ispell-current-dictionary)
+           (change (if (string= dic "pt_BR") "english" "pt_BR")))
+      (ispell-change-dictionary change)
+      (message "Dictionary switched from %s to %s" dic change)))
+
+  (global-set-key (kbd "<f5>") 'fd-switch-dictionary)
+  (define-key flyspell-mode-map (kbd "C-;") 'flyspell-correct-wrapper)
+#+end_src
+*** Yasnippet
+#+begin_src elisp
+  (use-package yasnippet
+    :init
+    :config
+    (yas-load-directory "~/.emacs.d/snippets")
+    (yas-global-mode 1))
+#+end_src
+*** Helm
+#+begin_src elisp
+  (setq helm-buffers-fuzzy-matching t)
+	(setq helm-recentf-fuzzy-match    t)
+#+end_src
+*** Code Folding
+#+begin_src elisp
+  (use-package yafolding)
+#+end_src
+* Org
+*** Bootstrap
+#+begin_src elisp
+  (use-package org-contrib)
+  (use-package git-auto-commit-mode)
+  (use-package ox-slack)
+  (require 'org-inlinetask)
+  (require 'org-tempo)
+  (require 'org-collector)
+  (setq org-export-coding-system 'utf-8)
+  (setq org-directory "~/Projects/org-files")
+  (setq org-tag-alist '(("work" . ?w) ("personal" . ?p) ("cto" . ?c) ("emacsLove" . ?l) ("quotes" . ?q) ("finances" . ?f)))
+  (setq org-startup-indented t)
+  (setq org-export-with-toc nil)
+  (setq org-export-with-section-numbers nil)
+  (setq gac-automatically-push-p t)
+  (setq org-agenda-custom-commands
+        '(("c" "Simple agenda view"
+           ((agenda "")
+            (alltodo "")))))
+  (add-to-list 'org-modules 'org-habit t)
+  (add-hook 'org-mode-hook 'turn-on-flyspell)
+#+end_src
+*** Reveal
+#+begin_src elisp
+  (use-package ox-reveal)
+  (setq org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js")
+  (setq org-reveal-title-slide nil)
+  (setq org-reveal-mathjax t)
+
+  (use-package htmlize
+    :ensure t)
+#+end_src
+*** UI
+#+begin_src elisp
+  ;;Clean bullets
+  (setq org-hide-leading-stars 't)
+
+  ;;Setup olivetti mode
+  (use-package olivetti
+    :config
+    (setq olivetti-body-width 200)
+    (add-hook 'markdown-mode-hook (lambda () (olivetti-mode)))
+    (add-hook 'org-mode-hook (lambda () (olivetti-mode))))
+ #+end_src
+*** Journal
+#+begin_src elisp
+  (use-package org-journal
+    :config
+    (add-hook 'org-journal-after-save-hook 'git-auto-commit-mode)
+
+    (setq org-journal-enable-agenda-integration t
+          org-journal-dir "~/Projects/org-files/journal/"
+          org-journal-file-type 'yearly
+          org-journal-time-format ""
+          org-journal-file-format "%Y.org"
+          org-journal-date-format "%A, %d %B %Y"))
+
+
+  (defun org-journal-find-location ()
+    ;; Open today's journal, but specify a non-nil prefix argument in order to
+    ;; inhibit inserting the heading; org-capture will insert the heading.
+    (org-journal-new-entry t)
+    (unless (eq org-journal-file-type 'daily)
+      (org-narrow-to-subtree))
+    (goto-char (point-max)))
+
+  (setq org-capture-templates '(("d" "Daily questions" plain (function org-journal-find-location)
+                                 (file "~/.emacs.d/templates/daily.org")
+                                 :jump-to-captured t :immediate-finish t)))
+#+end_src
+*** Super-agenda
+#+begin_src elisp
+  (use-package org-super-agenda)
+  (org-super-agenda-mode t)
+
+  (setq org-agenda-custom-commands
+        '(("z" "Super zaen view"
+           ((tags "cto" ((org-agenda-overriding-header "Objetivos do ciclo")))
+            (agenda "" ((org-agenda-span 'day)
+                        (org-super-agenda-groups
+                         '((:name "Today"
+                                  :time-grid t
+                                  :date today
+                                  :todo "TODAY"
+                                  :scheduled today
+                                  :order 1)))))
+            (alltodo "" ((org-agenda-overriding-header "")
+                         (org-super-agenda-groups
+                          '((:name "Next to do"
+                                   :todo "NEXT"
+                                   :order 1)
+                            (:name "Due Soon"
+                                   :discard (:tag ("finances"))
+                                   :deadline future
+                                   :order 8)
+                            (:name "Personal"
+                                   :tag "personal"
+                                   :order 30)
+                            (:name "Work"
+                                   :tag "work"
+                                   :order 31)
+                             (:discard (:tag ("Routine" "Daily" "cto" "finances")))))))
+             ))))
+  (org-agenda nil "z")
+  (delete-other-windows)
 #+end_src
