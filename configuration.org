@@ -1,0 +1,193 @@
+* My Emacs config
+** Starting the engine
+*** Native Comp
+#+begin_src emacs-lisp
+  (when (fboundp 'native-compile-async)
+    (setq comp-deferred-compilation t))
+
+;;  (when (file-directory-p "~/.emacs.d/elpa")
+;;    (native-compile-async "~/.emacs.d/elpa" 6 t))
+
+#+end_src
+
+*** Packages
+#+BEGIN_SRC emacs-lisp
+  (require 'package)
+  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+  (add-to-list 'package-archives '("nongnu" . "https://elpa.nongnu.org/nongnu/") t)
+  (package-initialize)
+
+  (when (not (package-installed-p 'use-package))
+    (package-refresh-contents)
+    (package-install 'use-package))
+
+  (require 'use-package)
+  (setq use-package-always-ensure t)
+  (use-package auto-package-update)
+#+END_SRC
+
+*** Enconding
+#+begin_src emacs-lisp
+  (prefer-coding-system 'utf-8)
+  (setq locale-coding-system 'utf-8)
+  (setq current-language-environment "UTF-8")
+  (set-default-coding-systems 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (set-selection-coding-system 'utf-8)
+#+end_src
+
+** UI
+*** Improve theme loading
+Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_you_currently_using/d43c5cw][Reddit]]
+#+begin_src emacs-lisp
+  (defadvice load-theme (before clear-previous-themes activate)
+    "Clear existing theme settings instead of layering them"
+    (mapc #'disable-theme custom-enabled-themes))
+#+end_src
+
+*** Icons
+#+begin_src emacs-lisp
+  (use-package all-the-icons)
+  (use-package all-the-icons-dired
+    :config
+    (add-hook 'dired-mode-hook 'all-the-icons-dired-mode))
+#+end_src
+
+*** Doom Theme
+#+begin_src emacs-lisp
+  (use-package doom-themes
+    :config
+    (doom-themes-neotree-config)
+    (set-face-attribute 'default nil :font "FiraCode 15")
+    (set-face-attribute 'region nil :background "#000" :foreground "#ffffff")
+
+    :init
+    (setq selected-theme "doom-material")
+    (load-theme (intern selected-theme) t)
+
+    (defun gg-switch-theme()
+      (interactive)
+      (let* ((theme selected-theme)
+             (change (if (string= theme "doom-material") "doom-solarized-light" "doom-material")))
+        (load-theme (intern change) t)
+        (setq selected-theme change)
+        (message "Theme switched from %s to %s" theme change)))
+    (global-set-key (kbd "<f9>") 'gg-switch-theme))
+
+  (defun text-scale-twice ()(interactive)(progn(text-scale-adjust 0)(text-scale-decrease 2)))
+  (add-hook 'neo-after-create-hook (lambda (_)(call-interactively 'text-scale-twice)))
+#+end_src
+
+*** Nyan cat
+#+begin_src emacs-lisp
+  (use-package nyan-mode
+    :init
+    (nyan-mode t))
+#+end_src
+
+*** Dimmer
+#+begin_src emacs-lisp
+  (use-package dimmer
+      :init
+      (dimmer-mode t)
+      :config
+      (setq dimmer-fraction 0.5))
+#+end_src
+
+*** Emacs interface
+#+begin_src emacs-lisp
+  (scroll-bar-mode 0)
+  (menu-bar-mode 0)
+  (tool-bar-mode 0)
+  (column-number-mode)
+  (setq ring-bell-function 'ignore)
+  (setq inhibit-splash-screen t)
+  (setq inhibit-startup-screen t)
+#+end_src
+
+*** Fringe
+#+begin_src emacs-lisp
+  (when (fboundp 'define-fringe-bitmap)
+    (define-fringe-bitmap 'my-flycheck-fringe-indicator
+      (vector #b00000000
+	      #b00000000
+	      #b00000000
+	      #b00000000
+	      #b00000000
+	      #b00000000
+	      #b00000000
+	      #b00011100
+	      #b00111110
+	      #b00111110
+	      #b00111110
+	      #b00011100
+	      #b00000000
+	      #b00000000
+	      #b00000000
+	      #b00000000
+	      #b00000000)))
+
+  ;;Get rid of the background color in the Fringe area
+  (set-face-attribute 'fringe nil
+		      :foreground (face-foreground 'default)
+		      :background (face-background 'default))
+  (fringe-mode 15)
+#+end_src
+
+*** Doom modeline
+#+begin_src emacs-lisp
+  (use-package doom-modeline
+    :config
+    (setq doom-modeline-height 35)
+    (set-face-background 'doom-modeline-bar (face-background 'mode-line))
+    (setq doom-modeline-bar-width 1)
+    (doom-modeline-mode 1))
+#+end_src
+
+** Keys
+#+begin_src emacs-lisp
+  (global-set-key [s-tab] 'next-buffer)
+  (global-set-key [S-s-iso-lefttab] 'previous-buffer)
+
+  ;;; comments
+  (global-set-key [(ctrl c) (c)] 'comment-region)
+  (global-set-key [(ctrl c) (d)] 'uncomment-region)
+
+  ;;; Navegation
+  (global-set-key (kbd "M-g") 'goto-line)
+
+  ;;; Sort
+  (global-set-key (kbd "C-c s") 'sort-lines)
+
+  ;;; Helm mini
+  (global-set-key (kbd "C-x b") 'helm-mini)
+  (setq helm-buffers-fuzzy-matching t
+        helm-recentf-fuzzy-match    t)
+
+  ;;; change window
+  (global-set-key [(C-tab)] 'other-window)
+  (global-set-key [(C-M-tab)] 'other-window))
+#+end_src
+
+** Modes
+*** Flycheck
+#+begin_src emacs-lisp
+  (use-package flycheck
+    :init
+    (global-flycheck-mode)
+    :config
+    (setq flycheck-emacs-lisp-load-path 'inherit)
+    (flycheck-define-error-level 'error
+				 :overlay-category 'flycheck-error-overlay
+				 :fringe-bitmap 'my-flycheck-fringe-indicator
+				 :fringe-face 'flycheck-fringe-error)
+    (flycheck-define-error-level 'warning
+				 :overlay-category 'flycheck-warning-overlay
+				 :fringe-bitmap 'my-flycheck-fringe-indicator
+				 :fringe-face 'flycheck-fringe-warning)
+    (flycheck-define-error-level 'info
+				 :overlay-category 'flycheck-info-overlay
+				 :fringe-bitmap 'my-flycheck-fringe-indicator
+				 :fringe-face 'flycheck-fringe-info))
+#+end_src
