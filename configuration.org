@@ -5,9 +5,11 @@
   (when (fboundp 'native-compile-async)
     (setq comp-deferred-compilation t))
 
-;;  (when (file-directory-p "~/.emacs.d/elpa")
-;;    (native-compile-async "~/.emacs.d/elpa" 6 t))
+  (when (file-directory-p "~/.emacs.d/elpa")
+    (native-compile-async "~/.emacs.d/elpa" 8 t))
 
+  (setq native-comp-async-report-warnings-errors nil)
+  (setq warning-minimum-level :error)
 #+end_src
 
 *** Packages
@@ -25,10 +27,7 @@
   (setq use-package-always-ensure t)
   (use-package auto-package-update)
 #+END_SRC
-**** restclient
-#+begin_src elisp
-(use-package restclient)
-#+end_src
+
 *** Enconding
 #+begin_src elisp
   (prefer-coding-system 'utf-8)
@@ -53,11 +52,18 @@
   (defun dont-kill-scratch ()
     "This function doesn't let you kill scratch by mistake."
     (if (not (equal (buffer-name) "*scratch*"))
-	t
+        t
       (bury-buffer)
       nil))
   (add-hook 'kill-buffer-query-functions #'dont-kill-scratch)
 
+  ;; Store auto-save and backup files in a temporary directory
+  (setq backup-directory-alist
+        `(("." . ,(concat user-emacs-directory "backups"))))
+  (setq backup-directory-alist
+        `((".*" . ,temporary-file-directory)))
+  (setq auto-save-file-name-transforms
+        `((".*" ,temporary-file-directory t)))
   (setq create-lockfiles nil)
 
   ;; writing yes or no is length, type y / n instead
@@ -75,6 +81,7 @@
     (setq neo-smart-open t)
     (with-eval-after-load 'neotree
       (define-key neotree-mode-map (kbd "h") 'neotree-hidden-file-toggle)))
+
   (use-package exec-path-from-shell)
   (setq exec-path-from-shell-variables '("GOPATH" "PATH" "MANPATH"))
   (exec-path-from-shell-initialize)
@@ -103,7 +110,7 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
   (use-package doom-themes
     :config
     (doom-themes-neotree-config)
-    (set-face-attribute 'default nil :font "FiraCode 15")
+    (set-face-attribute 'default nil :font "FiraCode 11")
     (set-face-attribute 'region nil :background "#000" :foreground "#ffffff")
 
     :init
@@ -119,7 +126,9 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
         (message "Theme switched from %s to %s" theme change)))
     (global-set-key (kbd "<f9>") 'gg-switch-theme))
 
-  (defun text-scale-twice ()(interactive)(progn(text-scale-adjust 0)(text-scale-decrease 2)))
+  (defun text-scale-twice ()
+    (interactive)
+    (progn(text-scale-adjust 0)(text-scale-decrease 2)))
   (add-hook 'neo-after-create-hook (lambda (_)(call-interactively 'text-scale-twice)))
 #+end_src
 
@@ -150,35 +159,6 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
   (setq inhibit-startup-screen t)
 #+end_src
 
-*** Fringe
-#+begin_src elisp
-  (when (fboundp 'define-fringe-bitmap)
-    (define-fringe-bitmap 'my-flycheck-fringe-indicator
-      (vector #b00000000
-	      #b00000000
-	      #b00000000
-	      #b00000000
-	      #b00000000
-	      #b00000000
-	      #b00000000
-	      #b00011100
-	      #b00111110
-	      #b00111110
-	      #b00111110
-	      #b00011100
-	      #b00000000
-	      #b00000000
-	      #b00000000
-	      #b00000000
-	      #b00000000)))
-
-  ;;Get rid of the background color in the Fringe area
-  (set-face-attribute 'fringe nil
-		      :foreground (face-foreground 'default)
-		      :background (face-background 'default))
-  (fringe-mode 15)
-#+end_src
-
 *** Doom modeline
 #+begin_src elisp
   (use-package doom-modeline
@@ -188,8 +168,8 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
     (setq doom-modeline-bar-width 1)
     (doom-modeline-mode 1))
 #+end_src
-
 ** Keys
+
 *** Org-mode
 #+begin_src elisp
   (global-set-key (kbd "C-c a")
@@ -213,8 +193,14 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
   (global-set-key (kbd "M-g") 'goto-line)
   (global-set-key (kbd "C-c s") 'sort-lines)
   (global-set-key (kbd "C-x b") 'helm-mini)
-
+  (global-set-key (kbd "<C-return>") #'yafolding-toggle-element)
 #+end_src
+*** Editing
+#+begin_src elisp
+  (global-set-key (kbd "C-c c") 'comment-region)
+  (global-set-key (kbd "C-c d") 'uncomment-region)
+#+end_src
+
 ** Editing
 *** Display line numbers
 #+begin_src elisp
@@ -242,6 +228,16 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
   (use-package rainbow-delimiters
     :hook (prog-mode . rainbow-delimiters-mode))
 
+  (use-package company
+    :hook (after-init . global-company-mode)
+    :config
+    (setq company-tooltip-align-annotations t)
+    (setq company-minimum-prefix-length 1)
+    (setq company-idle-delay .3))
+
+  (use-package company-box
+    :hook (company-mode . company-box-mode))
+
 #+end_src
 *** Multiple cursor
 #+begin_src elisp
@@ -254,23 +250,58 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
 ** Misc
 *** Flycheck
 #+begin_src elisp
+  (use-package add-node-modules-path)
   (use-package flycheck
     :init
     (global-flycheck-mode)
     :config
-    (setq flycheck-elisp-load-path 'inherit)
+    (setq-default flycheck-highlighting-mode 'lines)
+    (when (fboundp 'define-fringe-bitmap)
+      (define-fringe-bitmap 'my-flycheck-fringe-indicator
+        (vector #b00000000
+                #b00000000
+                #b00000000
+                #b00000000
+                #b00000000
+                #b00000000
+                #b00000000
+                #b00011100
+                #b00111110
+                #b00111110
+                #b00111110
+                #b00011100
+                #b00000000
+                #b00000000
+                #b00000000
+                #b00000000
+                #b00000000)))
+
     (flycheck-define-error-level 'error
-				 :overlay-category 'flycheck-error-overlay
-				 :fringe-bitmap 'my-flycheck-fringe-indicator
-				 :fringe-face 'flycheck-fringe-error)
+      :severity 2
+      :overlay-category 'flycheck-error-overlay
+      :fringe-bitmap 'my-flycheck-fringe-indicator
+      :fringe-face 'flycheck-fringe-error)
     (flycheck-define-error-level 'warning
-				 :overlay-category 'flycheck-warning-overlay
-				 :fringe-bitmap 'my-flycheck-fringe-indicator
-				 :fringe-face 'flycheck-fringe-warning)
+      :severity 1
+      :overlay-category 'flycheck-warning-overlay
+      :fringe-bitmap 'my-flycheck-fringe-indicator
+      :fringe-face 'flycheck-fringe-warning)
     (flycheck-define-error-level 'info
-				 :overlay-category 'flycheck-info-overlay
-				 :fringe-bitmap 'my-flycheck-fringe-indicator
-				 :fringe-face 'flycheck-fringe-info))
+      :severity
+      :overlay-category 'flycheck-info-overlay
+      :fringe-bitmap 'my-flycheck-fringe-indicator
+      :fringe-face 'flycheck-fringe-info)
+    (setq-default flycheck-disabled-checkers
+                  (append flycheck-disabled-checkers
+                          '(javascript-jshint json-jsonlist)))
+
+    ;;Get rid of the background color in the Fringe area
+    (set-face-attribute 'fringe nil
+                        :foreground (face-foreground 'default)
+                        :background (face-background 'default))
+    (fringe-mode 15)
+
+    (add-hook 'flycheck-mode-hook 'add-node-modules-path))
 #+end_src
 *** Flyspell
 #+begin_src elisp
@@ -305,7 +336,26 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
 #+begin_src elisp
   (use-package yafolding)
 #+end_src
-* Org
+*** Restclient
+#+begin_src elisp
+(use-package restclient)
+#+end_src
+*** Projectile
+#+begin_src elisp
+  (use-package helm-projectile)
+  (use-package helm-ag)
+  (use-package projectile
+    :bind-keymap ("C-c p" . projectile-command-map)
+    :config
+    (setq projectile-indexing-method 'alien)
+    (setq projectile-completion-system 'helm)
+    (setq helm-ag-command-option "--hidden")
+    (add-to-list 'projectile-globally-ignored-directories "node_modules")
+    (add-to-list 'projectile-globally-ignored-files "yarn.lock")
+    (helm-projectile-on)
+    (projectile-mode))
+#+end_src
+** Org
 *** Bootstrap
 #+begin_src elisp
   (use-package org-contrib)
@@ -346,7 +396,6 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
   ;;Setup olivetti mode
   (use-package olivetti
     :config
-    (setq olivetti-body-width 200)
     (add-hook 'markdown-mode-hook (lambda () (olivetti-mode)))
     (add-hook 'org-mode-hook (lambda () (olivetti-mode))))
  #+end_src
@@ -409,6 +458,52 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
                                    :order 31)
                              (:discard (:tag ("Routine" "Daily" "cto" "finances")))))))
              ))))
-  (org-agenda nil "z")
-  (delete-other-windows)
+  ;;(org-agenda nil "z")
+  ;;(delete-other-windows)
 #+end_src
+** Javascript
+#+begin_src elisp
+  (setq js-indent-level 2)
+#+end_src
+*** rjsx
+#+begin_src elisp
+  (use-package rjsx-mode
+    :config
+    (add-to-list 'auto-mode-alist '("\\.js\\'" . rjsx-mode))
+    (setq js2-strict-missing-semi-warning nil)
+    (add-hook 'rjsx-mode-hook 'add-node-modules-path))
+#+end_src
+*** tide
+#+begin_src elisp
+  (defun tide-setup-hook ()
+    (interactive)
+    (tide-setup)
+    (flycheck-mode +1)
+    (setq flycheck-check-syntax-automatically '(save mode-enabled))
+    (tide-hl-identifier-mode +1)
+    (company-mode +1))
+
+  (use-package tide
+    :after (rjsx-mode company flycheck)
+    :hook ((rjsx-mode . tide-setup-hook)))
+#+end_src
+*** prettier
+#+begin_src elisp
+  (use-package prettier-js
+    :after (rjsx-mode)
+    :hook (rjsx-mode . prettier-js-mode))
+#+end_src
+*** eglot
+#+begin_src elisp :tangle no
+  (use-package eglot
+    :hook (rjsx-mode . eglot-ensure)
+    :config
+    (setq lsp-log-io nil)
+    (define-key eglot-mode-map (kbd "C-c r") 'eglot-rename)
+    (define-key eglot-mode-map (kbd "C-c o") 'eglot-code-action-organize-imports)
+    (define-key eglot-mode-map (kbd "C-c h") 'eldoc)
+    (define-key eglot-mode-map (kbd "M-.") 'xref-find-definitions)
+    (define-key eglot-mode-map (kbd "C-c .") 'eglot-code-actions)
+    (add-to-list 'eglot-server-programs '((rjsx-mode typescript-mode web-mode) . ("typescript-language-server" "--stdio"))))
+#+end_src
+
