@@ -1,0 +1,509 @@
+* My Emacs config
+** Bootstrap
+*** Native Comp
+#+begin_src elisp
+  (when (fboundp 'native-compile-async)
+    (setq comp-deferred-compilation t))
+
+  (when (file-directory-p "~/.emacs.d/elpa")
+    (native-compile-async "~/.emacs.d/elpa" 8 t))
+
+  (setq native-comp-async-report-warnings-errors nil)
+  (setq warning-minimum-level :error)
+#+end_src
+
+*** Packages
+#+BEGIN_SRC elisp
+  (require 'package)
+  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+  (add-to-list 'package-archives '("nongnu" . "https://elpa.nongnu.org/nongnu/") t)
+  (package-initialize)
+
+  (when (not (package-installed-p 'use-package))
+    (package-refresh-contents)
+    (package-install 'use-package))
+
+  (require 'use-package)
+  (setq use-package-always-ensure t)
+  (use-package auto-package-update)
+#+END_SRC
+
+*** Enconding
+#+begin_src elisp
+  (prefer-coding-system 'utf-8)
+  (setq locale-coding-system 'utf-8)
+  (setq current-language-environment "UTF-8")
+  (set-default-coding-systems 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (set-selection-coding-system 'utf-8)
+#+end_src
+
+*** Misc
+#+begin_src elisp
+  (setq default-directory "~/")
+
+  (use-package tramp
+    :config
+    (setq tramp-auto-save-directory "/tmp")
+    (defvar disable-tramp-backups '(all)))
+
+  (add-to-list 'default-frame-alist '(fullscreen . maximized))
+  (defun dont-kill-scratch ()
+    "This function doesn't let you kill scratch by mistake."
+    (if (not (equal (buffer-name) "*scratch*"))
+        t
+      (bury-buffer)
+      nil))
+  (add-hook 'kill-buffer-query-functions #'dont-kill-scratch)
+
+  ;; Store auto-save and backup files in a temporary directory
+  (setq backup-directory-alist
+        `(("." . ,(concat user-emacs-directory "backups"))))
+  (setq backup-directory-alist
+        `((".*" . ,temporary-file-directory)))
+  (setq auto-save-file-name-transforms
+        `((".*" ,temporary-file-directory t)))
+  (setq create-lockfiles nil)
+
+  ;; writing yes or no is length, type y / n instead
+  (defalias 'yes-or-no-p 'y-or-n-p)
+
+  (setq custom-file "~/.emacs.d/custom.el")
+  (load custom-file)
+
+  (use-package magit)
+
+  (use-package neotree
+    :bind([f8] . neotree-toggle)
+    :config
+    (setq neo-autorefresh nil)
+    (setq neo-smart-open t)
+    (with-eval-after-load 'neotree
+      (define-key neotree-mode-map (kbd "h") 'neotree-hidden-file-toggle)))
+
+  (use-package exec-path-from-shell)
+  (setq exec-path-from-shell-variables '("GOPATH" "PATH" "MANPATH"))
+  (exec-path-from-shell-initialize)
+
+#+end_src
+
+** UI
+*** Improve theme loading
+Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_you_currently_using/d43c5cw][Reddit]]
+#+begin_src elisp
+  (defadvice load-theme (before clear-previous-themes activate)
+    "Clear existing theme settings instead of layering them"
+    (mapc #'disable-theme custom-enabled-themes))
+#+end_src
+
+*** Icons
+#+begin_src elisp
+  (use-package all-the-icons)
+  (use-package all-the-icons-dired
+    :config
+    (add-hook 'dired-mode-hook 'all-the-icons-dired-mode))
+#+end_src
+
+*** Doom Theme
+#+begin_src elisp
+  (use-package doom-themes
+    :config
+    (doom-themes-neotree-config)
+    (set-face-attribute 'default nil :font "FiraCode 11")
+    (set-face-attribute 'region nil :background "#000" :foreground "#ffffff")
+
+    :init
+    (setq selected-theme "doom-material")
+    (load-theme (intern selected-theme) t)
+
+    (defun gg-switch-theme()
+      (interactive)
+      (let* ((theme selected-theme)
+             (change (if (string= theme "doom-material") "doom-solarized-light" "doom-material")))
+        (load-theme (intern change) t)
+        (setq selected-theme change)
+        (message "Theme switched from %s to %s" theme change)))
+    (global-set-key (kbd "<f9>") 'gg-switch-theme))
+
+  (defun text-scale-twice ()
+    (interactive)
+    (progn(text-scale-adjust 0)(text-scale-decrease 2)))
+  (add-hook 'neo-after-create-hook (lambda (_)(call-interactively 'text-scale-twice)))
+#+end_src
+
+*** Nyan cat
+#+begin_src elisp
+  (use-package nyan-mode
+    :init
+    (nyan-mode t))
+#+end_src
+
+*** Dimmer
+#+begin_src elisp
+  (use-package dimmer
+      :init
+      (dimmer-mode t)
+      :config
+      (setq dimmer-fraction 0.5))
+#+end_src
+
+*** Emacs interface
+#+begin_src elisp
+  (scroll-bar-mode 0)
+  (menu-bar-mode 0)
+  (tool-bar-mode 0)
+  (column-number-mode)
+  (setq ring-bell-function 'ignore)
+  (setq inhibit-splash-screen t)
+  (setq inhibit-startup-screen t)
+#+end_src
+
+*** Doom modeline
+#+begin_src elisp
+  (use-package doom-modeline
+    :config
+    (setq doom-modeline-height 35)
+    (set-face-background 'doom-modeline-bar (face-background 'mode-line))
+    (setq doom-modeline-bar-width 1)
+    (doom-modeline-mode 1))
+#+end_src
+** Keys
+
+*** Org-mode
+#+begin_src elisp
+  (global-set-key (kbd "C-c a")
+                  (lambda ()
+                    (interactive)
+                    (org-agenda nil "z")))
+  (global-set-key (kbd "C-c /") 'org-capture)
+  (global-set-key (kbd "C-c C-j") 'org-journal-new-entry)
+#+end_src
+*** Buffer/Window
+#+begin_src elisp
+  (global-set-key [s-tab] 'next-buffer)
+  (global-set-key [S-s-iso-lefttab] 'previous-buffer)
+
+  ;;; change window
+  (global-set-key [(C-tab)] 'other-window)
+  (global-set-key [(C-M-tab)] 'other-window)
+#+end_src
+*** Code navigation
+#+begin_src elisp
+  (global-set-key (kbd "M-g") 'goto-line)
+  (global-set-key (kbd "C-c s") 'sort-lines)
+  (global-set-key (kbd "C-x b") 'helm-mini)
+  (global-set-key (kbd "<C-return>") #'yafolding-toggle-element)
+#+end_src
+*** Editing
+#+begin_src elisp
+  (global-set-key (kbd "C-c c") 'comment-region)
+  (global-set-key (kbd "C-c d") 'uncomment-region)
+#+end_src
+
+** Editing
+*** Display line numbers
+#+begin_src elisp
+  (add-hook 'prog-mode-hook #'display-line-numbers-mode)
+  (add-hook 'conf-mode-hook #'display-line-numbers-mode)
+#+end_src
+*** Misc
+#+begin_src elisp
+  ;; Do not wrap lines
+  (setq-default truncate-lines t)
+
+  ;; spaces instead of tabs
+  (setq-default indent-tabs-mode nil)
+
+  ;; Complain about trailing white spaces
+  (setq show-trailing-whitespace t)
+
+  ;; Cleanup white spaces before save
+  (setq whitespace-style '(face trailing lines tabs big-indent))
+  (add-hook 'before-save-hook 'whitespace-cleanup)
+
+  (use-package smartparens)
+  (smartparens-global-mode t)
+
+  (use-package rainbow-delimiters
+    :hook (prog-mode . rainbow-delimiters-mode))
+
+  (use-package company
+    :hook (after-init . global-company-mode)
+    :config
+    (setq company-tooltip-align-annotations t)
+    (setq company-minimum-prefix-length 1)
+    (setq company-idle-delay .3))
+
+  (use-package company-box
+    :hook (company-mode . company-box-mode))
+
+#+end_src
+*** Multiple cursor
+#+begin_src elisp
+  (use-package multiple-cursors
+    :bind (("C-S-c C-S-c" . mc/edit-lines)
+	   ("s-." . mc/mark-next-like-this)
+	   ("s-," . mc/mark-previous-like-this)
+	   ("s->" . mc/mark-all-like-this)))
+#+end_src
+** Misc
+*** Flycheck
+#+begin_src elisp
+  (use-package add-node-modules-path)
+  (use-package flycheck
+    :init
+    (global-flycheck-mode)
+    :config
+    (setq-default flycheck-highlighting-mode 'lines)
+    (when (fboundp 'define-fringe-bitmap)
+      (define-fringe-bitmap 'my-flycheck-fringe-indicator
+        (vector #b00000000
+                #b00000000
+                #b00000000
+                #b00000000
+                #b00000000
+                #b00000000
+                #b00000000
+                #b00011100
+                #b00111110
+                #b00111110
+                #b00111110
+                #b00011100
+                #b00000000
+                #b00000000
+                #b00000000
+                #b00000000
+                #b00000000)))
+
+    (flycheck-define-error-level 'error
+      :severity 2
+      :overlay-category 'flycheck-error-overlay
+      :fringe-bitmap 'my-flycheck-fringe-indicator
+      :fringe-face 'flycheck-fringe-error)
+    (flycheck-define-error-level 'warning
+      :severity 1
+      :overlay-category 'flycheck-warning-overlay
+      :fringe-bitmap 'my-flycheck-fringe-indicator
+      :fringe-face 'flycheck-fringe-warning)
+    (flycheck-define-error-level 'info
+      :severity
+      :overlay-category 'flycheck-info-overlay
+      :fringe-bitmap 'my-flycheck-fringe-indicator
+      :fringe-face 'flycheck-fringe-info)
+    (setq-default flycheck-disabled-checkers
+                  (append flycheck-disabled-checkers
+                          '(javascript-jshint json-jsonlist)))
+
+    ;;Get rid of the background color in the Fringe area
+    (set-face-attribute 'fringe nil
+                        :foreground (face-foreground 'default)
+                        :background (face-background 'default))
+    (fringe-mode 15)
+
+    (add-hook 'flycheck-mode-hook 'add-node-modules-path))
+#+end_src
+*** Flyspell
+#+begin_src elisp
+  (use-package flyspell)
+  (setq ispell-program-name "aspell")
+  (ispell-change-dictionary "pt_BR")
+
+  (defun fd-switch-dictionary()
+    (interactive)
+    (let* ((dic ispell-current-dictionary)
+           (change (if (string= dic "pt_BR") "english" "pt_BR")))
+      (ispell-change-dictionary change)
+      (message "Dictionary switched from %s to %s" dic change)))
+
+  (global-set-key (kbd "<f5>") 'fd-switch-dictionary)
+  (define-key flyspell-mode-map (kbd "C-;") 'flyspell-correct-wrapper)
+#+end_src
+*** Yasnippet
+#+begin_src elisp
+  (use-package yasnippet
+    :init
+    :config
+    (yas-load-directory "~/.emacs.d/snippets")
+    (yas-global-mode 1))
+#+end_src
+*** Helm
+#+begin_src elisp
+  (setq helm-buffers-fuzzy-matching t)
+	(setq helm-recentf-fuzzy-match    t)
+#+end_src
+*** Code Folding
+#+begin_src elisp
+  (use-package yafolding)
+#+end_src
+*** Restclient
+#+begin_src elisp
+(use-package restclient)
+#+end_src
+*** Projectile
+#+begin_src elisp
+  (use-package helm-projectile)
+  (use-package helm-ag)
+  (use-package projectile
+    :bind-keymap ("C-c p" . projectile-command-map)
+    :config
+    (setq projectile-indexing-method 'alien)
+    (setq projectile-completion-system 'helm)
+    (setq helm-ag-command-option "--hidden")
+    (add-to-list 'projectile-globally-ignored-directories "node_modules")
+    (add-to-list 'projectile-globally-ignored-files "yarn.lock")
+    (helm-projectile-on)
+    (projectile-mode))
+#+end_src
+** Org
+*** Bootstrap
+#+begin_src elisp
+  (use-package org-contrib)
+  (use-package git-auto-commit-mode)
+  (use-package ox-slack)
+  (require 'org-inlinetask)
+  (require 'org-tempo)
+  (require 'org-collector)
+  (setq org-export-coding-system 'utf-8)
+  (setq org-directory "~/Projects/org-files")
+  (setq org-tag-alist '(("work" . ?w) ("personal" . ?p) ("cto" . ?c) ("emacsLove" . ?l) ("quotes" . ?q) ("finances" . ?f)))
+  (setq org-startup-indented t)
+  (setq org-export-with-toc nil)
+  (setq org-export-with-section-numbers nil)
+  (setq gac-automatically-push-p t)
+  (setq org-agenda-custom-commands
+        '(("c" "Simple agenda view"
+           ((agenda "")
+            (alltodo "")))))
+  (add-to-list 'org-modules 'org-habit t)
+  (add-hook 'org-mode-hook 'turn-on-flyspell)
+#+end_src
+*** Reveal
+#+begin_src elisp
+  (use-package ox-reveal)
+  (setq org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js")
+  (setq org-reveal-title-slide nil)
+  (setq org-reveal-mathjax t)
+
+  (use-package htmlize
+    :ensure t)
+#+end_src
+*** UI
+#+begin_src elisp
+  ;;Clean bullets
+  (setq org-hide-leading-stars 't)
+
+  ;;Setup olivetti mode
+  (use-package olivetti
+    :config
+    (add-hook 'markdown-mode-hook (lambda () (olivetti-mode)))
+    (add-hook 'org-mode-hook (lambda () (olivetti-mode))))
+ #+end_src
+*** Journal
+#+begin_src elisp
+  (use-package org-journal
+    :config
+    (add-hook 'org-journal-after-save-hook 'git-auto-commit-mode)
+
+    (setq org-journal-enable-agenda-integration t
+          org-journal-dir "~/Projects/org-files/journal/"
+          org-journal-file-type 'yearly
+          org-journal-time-format ""
+          org-journal-file-format "%Y.org"
+          org-journal-date-format "%A, %d %B %Y"))
+
+
+  (defun org-journal-find-location ()
+    ;; Open today's journal, but specify a non-nil prefix argument in order to
+    ;; inhibit inserting the heading; org-capture will insert the heading.
+    (org-journal-new-entry t)
+    (unless (eq org-journal-file-type 'daily)
+      (org-narrow-to-subtree))
+    (goto-char (point-max)))
+
+  (setq org-capture-templates '(("d" "Daily questions" plain (function org-journal-find-location)
+                                 (file "~/.emacs.d/templates/daily.org")
+                                 :jump-to-captured t :immediate-finish t)))
+#+end_src
+*** Super-agenda
+#+begin_src elisp
+  (use-package org-super-agenda)
+  (org-super-agenda-mode t)
+
+  (setq org-agenda-custom-commands
+        '(("z" "Super zaen view"
+           ((tags "cto" ((org-agenda-overriding-header "Objetivos do ciclo")))
+            (agenda "" ((org-agenda-span 'day)
+                        (org-super-agenda-groups
+                         '((:name "Today"
+                                  :time-grid t
+                                  :date today
+                                  :todo "TODAY"
+                                  :scheduled today
+                                  :order 1)))))
+            (alltodo "" ((org-agenda-overriding-header "")
+                         (org-super-agenda-groups
+                          '((:name "Next to do"
+                                   :todo "NEXT"
+                                   :order 1)
+                            (:name "Due Soon"
+                                   :discard (:tag ("finances"))
+                                   :deadline future
+                                   :order 8)
+                            (:name "Personal"
+                                   :tag "personal"
+                                   :order 30)
+                            (:name "Work"
+                                   :tag "work"
+                                   :order 31)
+                             (:discard (:tag ("Routine" "Daily" "cto" "finances")))))))
+             ))))
+  ;;(org-agenda nil "z")
+  ;;(delete-other-windows)
+#+end_src
+** Javascript
+#+begin_src elisp
+  (setq js-indent-level 2)
+#+end_src
+*** rjsx
+#+begin_src elisp
+  (use-package rjsx-mode
+    :config
+    (add-to-list 'auto-mode-alist '("\\.js\\'" . rjsx-mode))
+    (setq js2-strict-missing-semi-warning nil)
+    (add-hook 'rjsx-mode-hook 'add-node-modules-path))
+#+end_src
+*** tide
+#+begin_src elisp
+  (defun tide-setup-hook ()
+    (interactive)
+    (tide-setup)
+    (flycheck-mode +1)
+    (setq flycheck-check-syntax-automatically '(save mode-enabled))
+    (tide-hl-identifier-mode +1)
+    (company-mode +1))
+
+  (use-package tide
+    :after (rjsx-mode company flycheck)
+    :hook ((rjsx-mode . tide-setup-hook)))
+#+end_src
+*** prettier
+#+begin_src elisp
+  (use-package prettier-js
+    :after (rjsx-mode)
+    :hook (rjsx-mode . prettier-js-mode))
+#+end_src
+*** eglot
+#+begin_src elisp :tangle no
+  (use-package eglot
+    :hook (rjsx-mode . eglot-ensure)
+    :config
+    (setq lsp-log-io nil)
+    (define-key eglot-mode-map (kbd "C-c r") 'eglot-rename)
+    (define-key eglot-mode-map (kbd "C-c o") 'eglot-code-action-organize-imports)
+    (define-key eglot-mode-map (kbd "C-c h") 'eldoc)
+    (define-key eglot-mode-map (kbd "M-.") 'xref-find-definitions)
+    (define-key eglot-mode-map (kbd "C-c .") 'eglot-code-actions)
+    (add-to-list 'eglot-server-programs '((rjsx-mode typescript-mode web-mode) . ("typescript-language-server" "--stdio"))))
+#+end_src
+
