@@ -6,7 +6,7 @@
     (setq comp-deferred-compilation t))
 
   (when (file-directory-p "~/.emacs.d/elpa")
-    (native-compile-async "~/.emacs.d/elpa" 8 t))
+    (native-compile-async "~/.emacs.d/elpa" 'recursively))
 
   (setq native-comp-async-report-warnings-errors nil)
   (setq warning-minimum-level :error)
