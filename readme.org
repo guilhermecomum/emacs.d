@@ -389,16 +389,17 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
     :ensure t)
 #+end_src
 *** UI
+Clean bullets
 #+begin_src elisp
-  ;;Clean bullets
   (setq org-hide-leading-stars 't)
-
-  ;;Setup olivetti mode
+ #+end_src
+*** Olivetti
+#+begin_src elisp
   (use-package olivetti
     :config
     (add-hook 'markdown-mode-hook (lambda () (olivetti-mode)))
     (add-hook 'org-mode-hook (lambda () (olivetti-mode))))
- #+end_src
+#+end_src
 *** Journal
 #+begin_src elisp
   (use-package org-journal
