@@ -8,3 +8,7 @@ elpa
 emojis
 transient
 session.*
+eln-cache
+projects
+readme.el
+recentf
