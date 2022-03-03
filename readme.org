@@ -238,6 +238,7 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
   (use-package company-box
     :hook (company-mode . company-box-mode))
 
+  (use-package rainbow-mode)
 #+end_src
 *** Multiple cursor
 #+begin_src elisp
