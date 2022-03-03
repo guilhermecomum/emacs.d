@@ -43,6 +43,7 @@
 #+begin_src elisp
   (setq default-directory "~/")
 
+  (global-auto-revert-mode t)
   (use-package tramp
     :config
     (setq tramp-auto-save-directory "/tmp")
