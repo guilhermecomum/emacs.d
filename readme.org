@@ -254,6 +254,17 @@ Don't pop up UI dialogs when prompting
 	   ("s-," . mc/mark-previous-like-this)
 	   ("s->" . mc/mark-all-like-this)))
 #+end_src
+*** Unfill paragraph
+#+begin_src elisp
+  (defun unfill-paragraph (&optional region)
+    "Takes a multi-line paragraph or (REGION) and make it into a single line of text."
+    (interactive (progn (barf-if-buffer-read-only) '(t)))
+    (let ((fill-column (point-max))
+          ;; This would override `fill-column' if it's an integer.
+          (emacs-lisp-docstring-fill-column t))
+      (fill-paragraph nil region)))
+#+end_src
+
 ** Misc
 *** Flycheck
 #+begin_src elisp
