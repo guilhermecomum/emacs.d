@@ -106,22 +106,22 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
     (add-hook 'dired-mode-hook 'all-the-icons-dired-mode))
 #+end_src
 
-*** Doom Theme
+*** Theme
 #+begin_src elisp
   (use-package doom-themes
     :config
     (doom-themes-neotree-config)
-    (set-face-attribute 'default nil :font "FiraCode 11")
+    (set-face-attribute 'default nil :font "FiraCode 14")
     (set-face-attribute 'region nil :background "#000" :foreground "#ffffff")
 
     :init
-    (setq selected-theme "doom-material")
+    (setq selected-theme "doom-rouge")
     (load-theme (intern selected-theme) t)
 
     (defun gg-switch-theme()
       (interactive)
       (let* ((theme selected-theme)
-             (change (if (string= theme "doom-material") "doom-solarized-light" "doom-material")))
+             (change (if (string= theme "doom-rouge") "doom-solarized-light" "doom-rouge")))
         (load-theme (intern change) t)
         (setq selected-theme change)
         (message "Theme switched from %s to %s" theme change)))
