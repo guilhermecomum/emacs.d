@@ -489,7 +489,9 @@ Clean bullets
   (use-package rjsx-mode
     :config
     (add-to-list 'auto-mode-alist '("\\.js\\'" . rjsx-mode))
+    (add-to-list 'auto-mode-alist '("\\.tsx\\'" . rjsx-mode))
     (setq js2-strict-missing-semi-warning nil)
+    (setq flycheck-eslint-args '("--fix-dry-run"))
     (add-hook 'rjsx-mode-hook 'add-node-modules-path))
 #+end_src
 *** tide
