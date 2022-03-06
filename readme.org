@@ -169,6 +169,11 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
     (setq doom-modeline-bar-width 1)
     (doom-modeline-mode 1))
 #+end_src
+*** Dialog
+Don't pop up UI dialogs when prompting
+#+begin_src elisp
+  (setq use-dialog-box nil)
+#+end_src
 ** Keys
 
 *** Org-mode
