@@ -480,6 +480,14 @@ Clean bullets
   ;;(org-agenda nil "z")
   ;;(delete-other-windows)
 #+end_src
+*** Functions
+Check if a billing is paid based on the date
+#+begin_src elisp
+  (defun is-paid? (time)
+    (if (eq (string-to-number (format-time-string "%m")) (nth 4 (org-parse-time-string time)))
+        "-" "pago"))
+#+end_src
+
 ** Javascript
 #+begin_src elisp
   (setq js-indent-level 2)
