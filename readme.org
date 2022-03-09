@@ -26,6 +26,8 @@
   (require 'use-package)
   (setq use-package-always-ensure t)
   (use-package auto-package-update)
+  (use-package use-package-ensure-system-package)
+
 #+END_SRC
 
 *** Enconding
@@ -520,6 +522,7 @@ Check if a billing is paid based on the date
 #+begin_src elisp
   (use-package prettier-js
     :after (rjsx-mode)
+    :ensure-system-package (tern . "npm i -g prettier")
     :hook (rjsx-mode . prettier-js-mode))
 #+end_src
 *** eglot
