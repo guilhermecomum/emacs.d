@@ -209,6 +209,10 @@ Don't pop up UI dialogs when prompting
   (global-set-key (kbd "C-c d") 'uncomment-region)
 #+end_src
 
+*** Terminal
+#+begin_src elisp
+  (global-set-key (kbd "C-c t") 'eshell)
+#+end_src
 ** Editing
 *** Display line numbers
 #+begin_src elisp
