@@ -213,6 +213,10 @@ Don't pop up UI dialogs when prompting
 #+begin_src elisp
   (global-set-key (kbd "C-c t") 'eshell)
 #+end_src
+*** Conf
+#+begin_src elisp
+  (global-set-key (kbd "<f12>") (lambda() (interactive)(find-file "~/.emacs.d/readme.org")))
+#+end_src
 ** Editing
 *** Display line numbers
 #+begin_src elisp
