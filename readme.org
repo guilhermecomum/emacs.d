@@ -349,6 +349,7 @@ Centaur tabs
 *** Flyspell
 #+begin_src elisp
   (use-package flyspell)
+  (use-package flyspell-correct-popup)
   (setq ispell-program-name "aspell")
   (ispell-change-dictionary "pt_BR")
 
