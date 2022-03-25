@@ -176,6 +176,21 @@ Don't pop up UI dialogs when prompting
 #+begin_src elisp
   (setq use-dialog-box nil)
 #+end_src
+*** Tabs
+Centaur tabs
+#+begin_src elisp
+  (use-package centaur-tabs
+    :demand
+    :config
+    (centaur-tabs-mode t)
+    (centaur-tabs-group-by-projectile-project)
+    ;; Only show tabs in buffers visiting files
+    (advice-add 'centaur-tabs-line :around
+		(lambda (oldfn &rest args)
+		  (if (buffer-file-name)
+		      (apply oldfn args)
+		    (setq header-line-format nil)))))
+#+end_src
 ** Keys
 
 *** Org-mode
