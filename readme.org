@@ -113,7 +113,7 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
   (use-package doom-themes
     :config
     (doom-themes-neotree-config)
-    (set-face-attribute 'default nil :font "FiraCode 14")
+    (set-face-attribute 'default nil :font "FiraCode 12")
     (set-face-attribute 'region nil :background "#000" :foreground "#ffffff")
 
     :init
