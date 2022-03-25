@@ -387,7 +387,8 @@ Centaur tabs
 *** Projectile
 #+begin_src elisp
   (use-package helm-projectile)
-  (use-package helm-ag)
+  (use-package helm-ag
+    :ensure-system-package (ag . "sudo apt install silversearcher-ag"))
   (use-package projectile
     :bind-keymap ("C-c p" . projectile-command-map)
     :config
