@@ -407,8 +407,9 @@ Centaur tabs
     (helm-projectile-on)
     (projectile-mode))
 #+end_src
-** Org
-*** Bootstrap
+** Modes
+*** Org
+**** Bootstrap
 #+begin_src elisp
   (use-package org-contrib)
   (use-package git-auto-commit-mode)
@@ -430,7 +431,7 @@ Centaur tabs
   (add-to-list 'org-modules 'org-habit t)
   (add-hook 'org-mode-hook 'turn-on-flyspell)
 #+end_src
-*** Reveal
+**** Reveal
 #+begin_src elisp
   (use-package ox-reveal)
   (setq org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js")
@@ -440,19 +441,19 @@ Centaur tabs
   (use-package htmlize
     :ensure t)
 #+end_src
-*** UI
+**** UI
 Clean bullets
 #+begin_src elisp
   (setq org-hide-leading-stars 't)
  #+end_src
-*** Olivetti
+**** Olivetti
 #+begin_src elisp
   (use-package olivetti
     :config
     (add-hook 'markdown-mode-hook (lambda () (olivetti-mode)))
     (add-hook 'org-mode-hook (lambda () (olivetti-mode))))
 #+end_src
-*** Journal
+**** Journal
 #+begin_src elisp
   (use-package org-journal
     :config
@@ -478,7 +479,7 @@ Clean bullets
                                  (file "~/.emacs.d/templates/daily.org")
                                  :jump-to-captured t :immediate-finish t)))
 #+end_src
-*** Super-agenda
+**** Super-agenda
 #+begin_src elisp
   (use-package org-super-agenda)
   (org-super-agenda-mode t)
@@ -514,7 +515,7 @@ Clean bullets
   ;;(org-agenda nil "z")
   ;;(delete-other-windows)
 #+end_src
-*** Functions
+**** Functions
 Check if a billing is paid based on the date
 #+begin_src elisp
   (defun is-paid? (time)
