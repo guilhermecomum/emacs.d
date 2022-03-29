@@ -181,15 +181,22 @@ Centaur tabs
 #+begin_src elisp
   (use-package centaur-tabs
     :demand
+    :bind
+    ("M-[" . centaur-tabs-backward)
+    ("M-]" . centaur-tabs-forward)
     :config
+    (setq centaur-tabs-set-icons t)
+    (setq centaur-tabs-gray-out-icons 'buffer)
+    (setq centaur-tabs-style "rounded")
+    (setq centaur-tabs-height 40)
     (centaur-tabs-mode t)
     (centaur-tabs-group-by-projectile-project)
     ;; Only show tabs in buffers visiting files
     (advice-add 'centaur-tabs-line :around
-		(lambda (oldfn &rest args)
-		  (if (buffer-file-name)
-		      (apply oldfn args)
-		    (setq header-line-format nil)))))
+                (lambda (oldfn &rest args)
+                  (if (buffer-file-name)
+                      (apply oldfn args)
+                    (setq header-line-format nil)))))
 #+end_src
 ** Keys
 
