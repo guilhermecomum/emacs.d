@@ -398,6 +398,7 @@ Centaur tabs
     :ensure-system-package (ag . "sudo apt install silversearcher-ag"))
   (use-package projectile
     :bind-keymap ("C-c p" . projectile-command-map)
+    :bind("C-." . projectile-find-file)
     :config
     (setq projectile-indexing-method 'alien)
     (setq projectile-completion-system 'helm)
