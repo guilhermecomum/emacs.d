@@ -1,0 +1,3 @@
+[submodule "lisp/ligature.el"]
+	path = lisp/ligature.el
+	url = https://github.com/mickeynp/ligature.el.git
