@@ -344,7 +344,7 @@ Centaur tabs
     :init
     (global-flycheck-mode)
     :config
-    (setq-default flycheck-highlighting-mode 'lines)
+    (setq-default flycheck-highlighting-mode 'sexps)
     (when (fboundp 'define-fringe-bitmap)
       (define-fringe-bitmap 'my-flycheck-fringe-indicator
         (vector #b00000000
