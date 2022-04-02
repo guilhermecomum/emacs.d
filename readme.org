@@ -45,7 +45,12 @@
 #+begin_src elisp
   (setq default-directory "~/")
 
+  ;; Automatically revert buffers for changed files
   (global-auto-revert-mode t)
+
+  ;; remembering the last place you visited in a file
+  (save-place-mode 1)
+
   (use-package tramp
     :config
     (setq tramp-auto-save-directory "/tmp")
