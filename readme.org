@@ -313,11 +313,7 @@ Centaur tabs
     :hook (after-init . global-company-mode)
     :config
     (setq company-tooltip-align-annotations t)
-    (setq company-minimum-prefix-length 1)
     (setq company-idle-delay .3))
-
-  (use-package company-box
-    :hook (company-mode . company-box-mode))
 
   (use-package rainbow-mode)
 #+end_src
