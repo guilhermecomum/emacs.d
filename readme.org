@@ -51,6 +51,9 @@
   ;; remembering the last place you visited in a file
   (save-place-mode 1)
 
+  ;; Close all dired buffers after opening
+  (setq dired-kill-when-opening-new-dired-buffer t)
+
   (use-package tramp
     :config
     (setq tramp-auto-save-directory "/tmp")
