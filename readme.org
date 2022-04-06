@@ -126,14 +126,15 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
     (set-face-attribute 'region nil :background "#000" :foreground "#ffffff")
 
     :init
-    (setq default-theme "doom-material")
-    (setq selected-theme default-theme)
+    (setq dark-theme "doom-nord")
+    (setq light-theme "doom-nord-light")
+    (setq selected-theme dark-theme)
     (load-theme (intern selected-theme) t)
 
     (defun gg-switch-theme()
       (interactive)
       (let* ((theme selected-theme)
-             (change (if (string= theme default-theme) "doom-solarized-light" default-theme)))
+             (change (if (string= theme dark-theme) (light-theme) dark-theme)))
         (load-theme (intern change) t)
         (setq selected-theme change)
         (message "Theme switched from %s to %s" theme change)))
