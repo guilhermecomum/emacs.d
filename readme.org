@@ -237,6 +237,26 @@ Centaur tabs
     (typescript-mode . ligature-mode))
 
 #+end_src
+*** Buffers
+Before kill a modified buffer, give option to see the diff
+#+begin_src elisp
+(defun my/kill-this-buffer ()
+  (interactive)
+  (catch 'quit
+    (save-window-excursion
+      (let (done)
+        (when (and buffer-file-name (buffer-modified-p))
+          (while (not done)
+            (let ((response (read-char-choice
+                             (format "Save file %s? (y, n, d, q) " (buffer-file-name))
+                             '(?y ?n ?d ?q))))
+              (setq done (cond
+                          ((eq response ?q) (throw 'quit nil))
+                          ((eq response ?y) (save-buffer) t)
+                          ((eq response ?n) (set-buffer-modified-p nil) t)
+                          ((eq response ?d) (diff-buffer-with-file) nil))))))
+        (kill-buffer (current-buffer))))))
+#+end_src
 ** Keys
 
 *** Org-mode
@@ -256,6 +276,9 @@ Centaur tabs
   ;;; change window
   (global-set-key [(C-tab)] 'other-window)
   (global-set-key [(C-M-tab)] 'other-window)
+
+  ;;; Remap kill buffer to my/kill-this-buffer
+  (global-set-key (kbd "C-x k") 'my/kill-this-buffer)
 #+end_src
 *** Code navigation
 #+begin_src elisp
