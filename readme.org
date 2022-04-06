@@ -122,6 +122,7 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
     :config
     (doom-themes-neotree-config)
     (set-face-attribute 'default nil :font "FiraCode 12")
+    (set-face-attribute 'font-lock-keyword-face nil :slant 'italic :weight 'normal :family "CascadiaCode")
     (set-face-attribute 'region nil :background "#000" :foreground "#ffffff")
 
     :init
