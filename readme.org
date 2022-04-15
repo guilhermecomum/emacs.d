@@ -264,7 +264,7 @@ Before kill a modified buffer, give option to see the diff
                     (interactive)
                     (org-agenda nil "z")))
   (global-set-key (kbd "C-c /") 'org-capture)
-  (global-set-key (kbd "C-c C-j") 'org-journal-new-entry)
+  (global-set-key (kbd "<f12>") 'org-journal-new-entry)
 #+end_src
 *** Buffer/Window
 #+begin_src elisp
@@ -297,7 +297,7 @@ Before kill a modified buffer, give option to see the diff
 #+end_src
 *** Conf
 #+begin_src elisp
-  (global-set-key (kbd "<f12>") (lambda() (interactive)(find-file "~/.emacs.d/readme.org")))
+  (global-set-key (kbd "<f6>") (lambda() (interactive)(find-file "~/.emacs.d/readme.org")))
 #+end_src
 ** Editing
 *** Display line numbers
