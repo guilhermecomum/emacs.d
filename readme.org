@@ -83,8 +83,6 @@
   (setq custom-file "~/.emacs.d/custom.el")
   (load custom-file)
 
-  (use-package magit)
-
   (use-package neotree
     :bind([f8] . neotree-toggle)
     :config
@@ -475,6 +473,30 @@ Before kill a modified buffer, give option to see the diff
     (helm-projectile-on)
     (projectile-mode))
 #+end_src
+*** Magit
+#+begin_src elisp
+  (use-package magit)
+  (use-package magit-delta
+    :hook (magit-mode . magit-delta-mode))
+
+#+end_src
+*** Blamer
+#+begin_src elisp
+  (use-package blamer
+  :ensure t
+  :bind (("s-i" . blamer-show-commit-info)
+         ("s-b" . blamer-mode))
+  :defer 20
+  :custom
+  (blamer-idle-time 0.3)
+  (blamer-min-offset 10)
+  :custom-face
+  (blamer-face ((t :foreground "#9099AB"
+                    :background nil
+                    :height .9
+                    :italic t))))
+#+end_src
+
 ** Modes
 *** Org
 **** Bootstrap
