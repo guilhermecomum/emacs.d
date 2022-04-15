@@ -362,7 +362,7 @@ Before kill a modified buffer, give option to see the diff
       (fill-paragraph nil region)))
 #+end_src
 
-** Misc
+** Tools
 *** Flycheck
 #+begin_src elisp
   (use-package add-node-modules-path)
