@@ -417,7 +417,10 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
                         :background (face-background 'default))
     (fringe-mode 15)
 
-    (add-hook 'flycheck-mode-hook 'add-node-modules-path))
+    (add-hook 'flycheck-mode-hook 'add-node-modules-path)
+    (use-package flycheck-popup-tip
+      :hook
+      (flycheck-mode-hook . flychec-popup-tip-mode)))
 #+end_src
 *** Flyspell
 #+begin_src elisp
