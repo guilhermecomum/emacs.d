@@ -208,7 +208,7 @@ Centaur tabs
                     (setq header-line-format nil)))))
 #+end_src
 *** Ligature
-#+begin_src elisp
+#+begin_src elisp :tangle no
   "Setup ligature"
   (use-package ligature
     :load-path "~/.emacs.d/lisp/ligature.el"
