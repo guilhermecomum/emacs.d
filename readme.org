@@ -237,6 +237,7 @@ Centaur tabs
 #+end_src
 *** Buffers
 Before kill a modified buffer, give option to see the diff
+Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-prompt-with-option-to-diff-the-changes/3363#3363][here]]
 #+begin_src elisp
 (defun my/kill-this-buffer ()
   (interactive)
