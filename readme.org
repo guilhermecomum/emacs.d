@@ -617,12 +617,44 @@ Check if a billing is paid based on the date
         "-" "pago"))
 #+end_src
 
-** Javascript
-#+begin_src elisp
-  (setq js-indent-level 2)
+*** Web mode
+#+begin_src elisp :tangle no
+  (use-package web-mode
+    :mode (("\\.html?\\'" . web-mode)
+           ("\\.tsx\\'" . web-mode)
+           ("\\.ts\\'" . web-mode))
+    :config
+    (setq web-mode-markup-indent-offset 2
+          web-mode-css-indent-offset 2
+          web-mode-code-indent-offset 2
+          web-mode-block-padding 2
+          web-mode-comment-style 2
+          web-mode-enable-css-colorization t
+          web-mode-enable-auto-pairing t
+          web-mode-enable-comment-keywords t
+          web-mode-enable-current-element-highlight t
+          web-mode-enable-current-column-highlight t))
+
 #+end_src
-*** rjsx
+*** Javascript
 #+begin_src elisp
+  ;;(setq js-indent-level 2)
+  (use-package frontside-javascript
+    :init (frontside-javascript)
+    :config
+    (setq web-mode-markup-indent-offset 2
+          web-mode-css-indent-offset 2
+          web-mode-code-indent-offset 2
+          web-mode-block-padding 2
+          web-mode-comment-style 2
+          web-mode-enable-css-colorization t
+          web-mode-enable-auto-pairing t
+          web-mode-enable-comment-keywords t
+          web-mode-enable-current-element-highlight t
+          web-mode-enable-current-column-highlight t))
+#+end_src
+**** rjsx
+#+begin_src elisp :tangle no
   (use-package rjsx-mode
     :config
     (add-to-list 'auto-mode-alist '("\\.js\\'" . rjsx-mode))
@@ -631,8 +663,8 @@ Check if a billing is paid based on the date
     (setq flycheck-eslint-args '("--fix-dry-run"))
     (add-hook 'rjsx-mode-hook 'add-node-modules-path))
 #+end_src
-*** tide
-#+begin_src elisp
+**** tide
+#+begin_src elisp :tangle no
   (defun tide-setup-hook ()
     (interactive)
     (tide-setup)
@@ -645,17 +677,22 @@ Check if a billing is paid based on the date
     :after (rjsx-mode company flycheck)
     :hook ((rjsx-mode . tide-setup-hook)))
 #+end_src
-*** prettier
-#+begin_src elisp
-  (use-package prettier-js
-    :after (rjsx-mode)
-    :ensure-system-package (tern . "npm i -g prettier")
-    :hook (rjsx-mode . prettier-js-mode))
-#+end_src
-*** eglot
+**** prettier
 #+begin_src elisp :tangle no
+      (use-package prettier-js
+        :ensure-system-package (prettier . "npm i -g prettier")
+        :hook
+        (rjsx-mode . prettier-js-mode)
+        (typescript-mode . prettier-js-mode))
+#+end_src
+**** eglot
+#+begin_src elisp
   (use-package eglot
-    :hook (rjsx-mode . eglot-ensure)
+    :hook
+    (rjsx-mode . eglot-ensure)
+    (ruby-mode . eglot-ensure)
+    :ensure-system-package
+    (typescript-language-server . "npm i -g typescript-language-server")
     :config
     (setq lsp-log-io nil)
     (define-key eglot-mode-map (kbd "C-c r") 'eglot-rename)
@@ -663,12 +700,100 @@ Check if a billing is paid based on the date
     (define-key eglot-mode-map (kbd "C-c h") 'eldoc)
     (define-key eglot-mode-map (kbd "M-.") 'xref-find-definitions)
     (define-key eglot-mode-map (kbd "C-c .") 'eglot-code-actions)
-    (add-to-list 'eglot-server-programs '((rjsx-mode typescript-mode web-mode) . ("typescript-language-server" "--stdio"))))
+    (add-to-list 'eglot-server-programs '((rjsx-mode) . ("typescript-language-server" "--stdio"))))
 #+end_src
-** Elisp
-*** Unit Test
+**** Commit
+#+begin_src elisp
+  (use-package js-comint)
+#+end_src
+*** Elisp
+**** Unit Test
 Buttercup
 #+begin_src elisp
   (use-package buttercup)
 #+end_src
+*** Prisma
+Setup prsima orm mode
+#+begin_src elisp
+  (add-to-list 'load-path "~/.emacs.d/lisp/emacs-prisma-mode/")
+  (require 'prisma-mode)
+  (add-hook 'prisma-mode-hook #'lsp-deferred)
+  (add-hook 'before-save-hook #'(lambda () (when (eq major-mode 'prisma-mode)
+                                             (lsp-format-buffer))))
 
+
+#+end_src
+*** Ruby
+#+begin_src elisp :tangle no
+  (use-package rubocopfmt
+    :hook
+    (ruby-mode . rubocopfmt-mode))
+#+end_src
+** Tree-sitter
+#+begin_src elisp :tangle no
+  (defface tree-sitter-hl-face:warning
+    '((default :inherit font-lock-warning-face))
+    "Face for parser errors"
+    :group 'tree-sitter-hl-faces)
+
+  ;;(defun change-export-face()
+  (tree-sitter-hl-add-patterns 'typescript
+    [((string) @string
+      (.match? @constant "^export"))])
+
+    ;; (lambda ()
+    ;;   (add-function :before-until (local 'tree-sitter-hl-face-mapping-function)
+    ;;     (lambda (capture-name)
+    ;;       (pcase capture-name
+    ;;         ("keyword" 'font-lock-variable-name-face)))))
+    ;;)
+
+  (use-package tree-sitter
+    :ensure t
+    ;;:custom-face
+    ;;(tree-sitter-hl-face:operator ((t)))
+    ;;(tree-sitter-hl-face:keyword ((t (:foreground "#3679D8" ))))
+    ;;(tree-sitter-hl-face:function ((t (:foreground "#3dd318" ))))
+    ;;(tree-sitter-hl-face:function.method.call ((t)))
+    :hook
+    ;;(tree-sitter-after-on-hook . tree-sitter-hl-mode)
+    (javascript-mode . change-export-face)
+    :config
+    (setq tree-sitter-debug-highlight-jump-region t)
+    (setq tree-sitter-debug-jump-buttons t))
+
+
+  (use-package tree-sitter-langs
+    :ensure t
+    :after tree-sitter
+    :config
+    (add-to-list 'tree-sitter-major-mode-language-alist '(typescript-mode . typescript)))
+
+#+end_src
+** LSP
+Make lsp lighter and faster with tips from this [[https://ianyepan.github.io/posts/emacs-ide/][post]]
+#+begin_src elisp
+  (setq lsp-auto-guess-root t)
+  (setq lsp-log-io nil)
+  (setq lsp-restart 'auto-restart)
+  (setq lsp-enable-symbol-highlighting nil)
+  (setq lsp-enable-on-type-formatting nil)
+  (setq lsp-signature-auto-activate nil)
+  (setq lsp-signature-render-documentation nil)
+  (setq lsp-eldoc-hook nil)
+  (setq lsp-modeline-code-actions-enable nil)
+  (setq lsp-modeline-diagnostics-enable nil)
+  (setq lsp-headerline-breadcrumb-enable nil)
+  (setq lsp-semantic-tokens-enable nil)
+  (setq lsp-enable-folding nil)
+  (setq lsp-enable-imenu nil)
+  (setq lsp-enable-snippet nil)
+  (setq read-process-output-max (* 1024 1024)) ;; 1MB
+  (setq lsp-idle-delay 0.5)
+#+end_src
+** Performance
+*** GCMH - the Garbage Collector Magic Hack
+#+begin_src elisp :tangle no
+  (use-package gcmh)
+  (gcmh-mode 1)
+#+end_src
