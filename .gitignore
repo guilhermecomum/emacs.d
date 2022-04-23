@@ -12,3 +12,5 @@ eln-cache
 projects
 readme.el
 recentf
+elpa-old
+straight

@@ -12,22 +12,31 @@
   (setq warning-minimum-level :error)
 #+end_src
 
-*** Packages
+*** Package manager
+Straight.el
 #+BEGIN_SRC elisp
+  (setq package-enable-at-startup nil)
+  (defvar bootstrap-version)
+  (let ((bootstrap-file
+         (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+        (bootstrap-version 5))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+          (url-retrieve-synchronously
+           "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+           'silent 'inhibit-cookies)
+        (goto-char (point-max))
+        (eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage))
+
+  (straight-use-package 'use-package)
+  (setq straight-use-package-by-default t)
+
   (require 'package)
   (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
   (add-to-list 'package-archives '("nongnu" . "https://elpa.nongnu.org/nongnu/") t)
-  (package-initialize)
 
-  (when (not (package-installed-p 'use-package))
-    (package-refresh-contents)
-    (package-install 'use-package))
-
-  (require 'use-package)
-  (setq use-package-always-ensure t)
-  (use-package auto-package-update)
   (use-package use-package-ensure-system-package)
-
 #+END_SRC
 
 *** Enconding
@@ -480,14 +489,15 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 *** Magit
 #+begin_src elisp
   (use-package magit)
+
   (use-package magit-delta
+    :after magit
     :hook (magit-mode . magit-delta-mode))
 
 #+end_src
 *** Blamer
 #+begin_src elisp
   (use-package blamer
-  :ensure t
   :bind (("s-i" . blamer-show-commit-info)
          ("s-b" . blamer-mode))
   :defer 20
@@ -507,7 +517,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 #+begin_src elisp
   (use-package org-contrib)
   (use-package git-auto-commit-mode)
-  (use-package ox-slack)
+  ;;(use-package ox-slack)
   (require 'org-inlinetask)
   (require 'org-tempo)
   (require 'org-collector)
@@ -526,20 +536,67 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
   (add-hook 'org-mode-hook 'turn-on-flyspell)
 #+end_src
 **** Reveal
-#+begin_src elisp
+#+begin_src elisp :tangle no
   (use-package ox-reveal)
   (setq org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js")
   (setq org-reveal-title-slide nil)
   (setq org-reveal-mathjax t)
 
-  (use-package htmlize
-    :ensure t)
+  (use-package htmlize)
 #+end_src
 **** UI
-Clean bullets
+Clean* bullets
 #+begin_src elisp
   (setq org-hide-leading-stars 't)
- #+end_src
+#+end_src
+Scale headline font size
+#+begin_src elisp
+  (set-face-attribute 'org-level-1 nil :height 1.75)
+  (set-face-attribute 'org-level-2 nil :height 1.5)
+  (set-face-attribute 'org-level-3 nil :height 1.25)
+  (set-face-attribute 'org-level-4 nil :height 1.1)
+#+end_src
+Make bold, italic and other emphasis prettier
+#+begin_src
+(setq org-hide-emphasis-markers t)
+#+end_src
+Icons
+#+begin_src elisp
+  (defun tb/org-mode-setup ()
+      ;; (org-indent-mode)
+      (visual-line-mode 1)
+      (setq prettify-symbols-unprettify-at-point 'right-edge)
+      (push '("[ ]" .  "☐") prettify-symbols-alist)
+      (push '("[X]" . "☑") prettify-symbols-alist)
+      (push '("[-]" . "❍") prettify-symbols-alist)
+      (push '("TODO" . "") prettify-symbols-alist)
+      (push '("DONE" . "") prettify-symbols-alist)
+      (prettify-symbols-mode))
+  (tb/org-mode-setup)
+
+  (defvar tb/org-todo-bullet-faces
+      '(("TODO" . (:inherit base-todo-keyword-face :foreground "#FF8580"))
+        ("DONE" . (:inherit base-todo-keyword-face :foreground "#75AD18"))))
+
+    (use-package org-superstar
+    :straight '(org-superstar
+                :fork (:host github
+                        :repo "thibautbenjamin/org-superstar-mode"))
+    :after org
+    :hook (org-mode . org-superstar-mode)
+    :config
+      (set-face-attribute 'org-superstar-header-bullet nil :inherit 'fixed-pitched :height 180)
+    :custom
+    ;; set the leading bullet to be a space. For alignment purposes I use an em-quad space (U+2001)
+    (org-superstar-headline-bullets-list '(" "))
+    (org-superstar-todo-bullet-alist '(("DONE" . ?✔)
+                                       ("TODO" . ?⌖)))
+    (org-superstar-special-todo-items t)
+    (org-superstar-leading-bullet "")
+    (org-superstar-todo-bullet-face-alist tb/org-todo-bullet-faces))
+
+
+#+end_src
 **** Olivetti
 #+begin_src elisp
   (use-package olivetti
@@ -575,8 +632,10 @@ Clean bullets
 #+end_src
 **** Super-agenda
 #+begin_src elisp
-  (use-package org-super-agenda)
-  (org-super-agenda-mode t)
+  (use-package org-super-agenda
+  :after org-agenda
+  :config
+  (org-super-agenda-mode t))
 
   (setq org-agenda-custom-commands
         '(("z" "Super zaen view"
@@ -749,7 +808,6 @@ Setup prsima orm mode
     ;;)
 
   (use-package tree-sitter
-    :ensure t
     ;;:custom-face
     ;;(tree-sitter-hl-face:operator ((t)))
     ;;(tree-sitter-hl-face:keyword ((t (:foreground "#3679D8" ))))
@@ -764,7 +822,6 @@ Setup prsima orm mode
 
 
   (use-package tree-sitter-langs
-    :ensure t
     :after tree-sitter
     :config
     (add-to-list 'tree-sitter-major-mode-language-alist '(typescript-mode . typescript)))
