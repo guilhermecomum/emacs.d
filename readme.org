@@ -524,7 +524,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
   (require 'org-collector)
   (setq org-export-coding-system 'utf-8)
   (setq org-directory "~/Projects/org-files")
-  (setq org-tag-alist '(("work" . ?w) ("personal" . ?p) ("cto" . ?c) ("emacsLove" . ?l) ("quotes" . ?q) ("finances" . ?f)))
+  (setq org-tag-alist '(("work" . ?w) ("personal" . ?p) ("cto" . ?c) ("emacsLove" . ?l) ("quotes" . ?q) ("finances" . ?f) ("howto" . ?h)))
   (setq org-startup-indented t)
   (setq org-export-with-toc nil)
   (setq org-export-with-section-numbers nil)
