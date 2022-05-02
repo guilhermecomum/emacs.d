@@ -529,10 +529,6 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
   (setq org-export-with-toc nil)
   (setq org-export-with-section-numbers nil)
   (setq gac-automatically-push-p t)
-  (setq org-agenda-custom-commands
-        '(("c" "Simple agenda view"
-           ((agenda "")
-            (alltodo "")))))
   (add-to-list 'org-modules 'org-habit t)
   (add-hook 'org-mode-hook 'turn-on-flyspell)
 #+end_src
@@ -546,57 +542,9 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
   (use-package htmlize)
 #+end_src
 **** UI
-Clean* bullets
-#+begin_src elisp
-  (setq org-hide-leading-stars 't)
-#+end_src
-Scale headline font size
-#+begin_src elisp
-  (set-face-attribute 'org-level-1 nil :height 1.75)
-  (set-face-attribute 'org-level-2 nil :height 1.5)
-  (set-face-attribute 'org-level-3 nil :height 1.25)
-  (set-face-attribute 'org-level-4 nil :height 1.1)
-#+end_src
 Make bold, italic and other emphasis prettier
 #+begin_src
 (setq org-hide-emphasis-markers t)
-#+end_src
-Icons
-#+begin_src elisp
-  (defun tb/org-mode-setup ()
-      ;; (org-indent-mode)
-      (visual-line-mode 1)
-      (setq prettify-symbols-unprettify-at-point 'right-edge)
-      (push '("[ ]" .  "☐") prettify-symbols-alist)
-      (push '("[X]" . "☑") prettify-symbols-alist)
-      (push '("[-]" . "❍") prettify-symbols-alist)
-      (push '("TODO" . "") prettify-symbols-alist)
-      (push '("DONE" . "") prettify-symbols-alist)
-      (prettify-symbols-mode))
-  (tb/org-mode-setup)
-
-  (defvar tb/org-todo-bullet-faces
-      '(("TODO" . (:inherit base-todo-keyword-face :foreground "#FF8580"))
-        ("DONE" . (:inherit base-todo-keyword-face :foreground "#75AD18"))))
-
-    (use-package org-superstar
-    :straight '(org-superstar
-                :fork (:host github
-                        :repo "thibautbenjamin/org-superstar-mode"))
-    :after org
-    :hook (org-mode . org-superstar-mode)
-    :config
-      (set-face-attribute 'org-superstar-header-bullet nil :inherit 'fixed-pitched :height 180)
-    :custom
-    ;; set the leading bullet to be a space. For alignment purposes I use an em-quad space (U+2001)
-    (org-superstar-headline-bullets-list '(" "))
-    (org-superstar-todo-bullet-alist '(("DONE" . ?✔)
-                                       ("TODO" . ?⌖)))
-    (org-superstar-special-todo-items t)
-    (org-superstar-leading-bullet "")
-    (org-superstar-todo-bullet-face-alist tb/org-todo-bullet-faces))
-
-
 #+end_src
 **** Olivetti
 #+begin_src elisp
@@ -769,12 +717,12 @@ Check if a billing is paid based on the date
 *** Elisp
 **** Unit Test
 Buttercup
-#+begin_src elisp
+#+begin_src elisp :tangle no
   (use-package buttercup)
 #+end_src
 *** Prisma
 Setup prsima orm mode
-#+begin_src elisp
+#+begin_src elisp :tangle no
   (add-to-list 'load-path "~/.emacs.d/lisp/emacs-prisma-mode/")
   (require 'prisma-mode)
   (add-hook 'prisma-mode-hook #'lsp-deferred)
@@ -827,31 +775,4 @@ Setup prsima orm mode
     :config
     (add-to-list 'tree-sitter-major-mode-language-alist '(typescript-mode . typescript)))
 
-#+end_src
-** LSP
-Make lsp lighter and faster with tips from this [[https://ianyepan.github.io/posts/emacs-ide/][post]]
-#+begin_src elisp
-  (setq lsp-auto-guess-root t)
-  (setq lsp-log-io nil)
-  (setq lsp-restart 'auto-restart)
-  (setq lsp-enable-symbol-highlighting nil)
-  (setq lsp-enable-on-type-formatting nil)
-  (setq lsp-signature-auto-activate nil)
-  (setq lsp-signature-render-documentation nil)
-  (setq lsp-eldoc-hook nil)
-  (setq lsp-modeline-code-actions-enable nil)
-  (setq lsp-modeline-diagnostics-enable nil)
-  (setq lsp-headerline-breadcrumb-enable nil)
-  (setq lsp-semantic-tokens-enable nil)
-  (setq lsp-enable-folding nil)
-  (setq lsp-enable-imenu nil)
-  (setq lsp-enable-snippet nil)
-  (setq read-process-output-max (* 1024 1024)) ;; 1MB
-  (setq lsp-idle-delay 0.5)
-#+end_src
-** Performance
-*** GCMH - the Garbage Collector Magic Hack
-#+begin_src elisp :tangle no
-  (use-package gcmh)
-  (gcmh-mode 1)
 #+end_src
