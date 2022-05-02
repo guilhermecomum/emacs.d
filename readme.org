@@ -515,9 +515,10 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 *** Org
 **** Bootstrap
 #+begin_src elisp
+  (use-package org :straight (:type built-in))
   (use-package org-contrib)
   (use-package git-auto-commit-mode)
-  ;;(use-package ox-slack)
+  (use-package ox-slack)
   (require 'org-inlinetask)
   (require 'org-tempo)
   (require 'org-collector)
