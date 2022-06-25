@@ -741,6 +741,11 @@ Setup prsima orm mode
     :hook
     (ruby-mode . rubocopfmt-mode))
 #+end_src
+*** Cooklang
+#+begin_src elisp
+  (straight-use-package
+   '(el-patch :type git :host github :repo "cooklang/cook-mode"))
+#+end_src
 ** Tree-sitter
 #+begin_src elisp :tangle no
   (defface tree-sitter-hl-face:warning
