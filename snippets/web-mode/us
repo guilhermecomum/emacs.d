@@ -1,0 +1,6 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: React useState
+# key: us
+# uuid: us
+# --
+const [ ${1:variable}, set${1:$(capitalize yas-text)}] = useState(${3:default})
