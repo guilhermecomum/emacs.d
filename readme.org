@@ -107,6 +107,24 @@ Straight.el
 #+end_src
 
 ** UI
+*** Theme
+#+begin_src elisp
+  (use-package doom-themes
+    :config
+    (doom-themes-neotree-config)
+    (set-face-attribute 'default nil :font "FiraCode 12")
+    (set-face-attribute 'font-lock-keyword-face nil :slant 'italic :weight 'normal :family "CascadiaCode")
+    (set-face-attribute 'region nil :background "#000" :foreground "#ffffff")
+    (load-theme (intern "doom-nord") t))
+#+end_src
+*** Neotree
+#+begin_src elisp
+  (defun text-scale-twice ()
+    (interactive)
+    (progn(text-scale-adjust 0)(text-scale-decrease 2)))
+  (add-hook 'neo-after-create-hook (lambda (_)(call-interactively 'text-scale-twice)))
+#+end_src
+
 *** Improve theme loading
 Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_you_currently_using/d43c5cw][Reddit]]
 #+begin_src elisp
@@ -121,36 +139,6 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
   (use-package all-the-icons-dired
     :config
     (add-hook 'dired-mode-hook 'all-the-icons-dired-mode))
-#+end_src
-
-*** Theme
-#+begin_src elisp
-  (use-package doom-themes
-    :config
-    (doom-themes-neotree-config)
-    (set-face-attribute 'default nil :font "FiraCode 12")
-    (set-face-attribute 'font-lock-keyword-face nil :slant 'italic :weight 'normal :family "CascadiaCode")
-    (set-face-attribute 'region nil :background "#000" :foreground "#ffffff")
-
-    :init
-    (setq dark-theme "doom-nord")
-    (setq light-theme "doom-nord-light")
-    (setq selected-theme dark-theme)
-    (load-theme (intern selected-theme) t)
-
-    (defun gg-switch-theme()
-      (interactive)
-      (let* ((theme selected-theme)
-             (change (if (string= theme dark-theme) (light-theme) dark-theme)))
-        (load-theme (intern change) t)
-        (setq selected-theme change)
-        (message "Theme switched from %s to %s" theme change)))
-    (global-set-key (kbd "<f9>") 'gg-switch-theme))
-
-  (defun text-scale-twice ()
-    (interactive)
-    (progn(text-scale-adjust 0)(text-scale-decrease 2)))
-  (add-hook 'neo-after-create-hook (lambda (_)(call-interactively 'text-scale-twice)))
 #+end_src
 
 *** Nyan cat
@@ -515,14 +503,39 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
                     :italic t))))
 #+end_src
 
+*** Eglot
+#+begin_src elisp
+  (use-package eglot
+    :hook
+    (rjsx-mode . eglot-ensure)
+    (ruby-mode . eglot-ensure)
+    (python-mode . eglot-ensure)
+    :ensure-system-package
+    ((typescript-language-server . "npm i -g typescript-language-server")
+    (pyright . "pip install pyright"))
+    :config
+    (setq lsp-log-io nil)
+    (define-key eglot-mode-map (kbd "C-c r") 'eglot-rename)
+    (define-key eglot-mode-map (kbd "C-c o") 'eglot-code-action-organize-imports)
+    (define-key eglot-mode-map (kbd "C-c h") 'eldoc)
+    (define-key eglot-mode-map (kbd "M-.") 'xref-find-definitions)
+    (define-key eglot-mode-map (kbd "C-c .") 'eglot-code-actions)
+    (add-to-list 'eglot-server-programs '((rjsx-mode typescript-mode) . ("typescript-language-server" "--stdio"))))
+#+end_src
+*** Todoist
+#+begin_src elisp :tangle no
+  (setq todoist-token "")
+#+end_src
 ** Modes
 *** Org
 **** Bootstrap
 #+begin_src elisp
   (use-package org :straight (:type built-in))
   (use-package org-contrib)
+  (use-package org-ql
+    :after '(org)
+    :straight (org-ql :host github :repo "alphapapa/org-ql"))
   (use-package git-auto-commit-mode)
-  (use-package ox-slack)
   (require 'org-inlinetask)
   (require 'org-tempo)
   (require 'org-collector)
@@ -547,12 +560,14 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 #+end_src
 **** UI
 Make bold, italic and other emphasis prettier
-#+begin_src
-(setq org-hide-emphasis-markers t)
+#+begin_src elisp
+  (setq org-hide-emphasis-markers t)
 #+end_src
 **** Olivetti
 #+begin_src elisp
   (use-package olivetti
+    :custom
+    (olivetti-body-width 120)
     :config
     (add-hook 'markdown-mode-hook (lambda () (olivetti-mode)))
     (add-hook 'org-mode-hook (lambda () (olivetti-mode))))
@@ -586,14 +601,15 @@ Make bold, italic and other emphasis prettier
 **** Super-agenda
 #+begin_src elisp
   (use-package org-super-agenda
-  :after org-agenda
-  :config
-  (org-super-agenda-mode t))
+    :after org-agenda
+    :config
+    (org-super-agenda-mode t))
 
   (setq org-agenda-custom-commands
-        '(("z" "Super zaen view"
+        '(("z" "Super view"
            ((tags "cto" ((org-agenda-overriding-header "Objetivos do ciclo")))
             (agenda "" ((org-agenda-span 'day)
+                        ;;(org-agenda-prefix-format "%-2i")
                         (org-super-agenda-groups
                          '((:name "Today"
                                   :time-grid t
@@ -602,8 +618,10 @@ Make bold, italic and other emphasis prettier
                                   :scheduled today
                                   :order 1)))))
             (alltodo "" ((org-agenda-overriding-header "")
+                         (org-agenda-remove-tags t)
                          (org-super-agenda-groups
-                          '((:name "Next to do"
+                          '(
+                            (:name "Next to do"
                                    :todo "NEXT"
                                    :order 1)
                             (:name "Due Soon"
@@ -616,10 +634,9 @@ Make bold, italic and other emphasis prettier
                             (:name "Work"
                                    :tag "work"
                                    :order 31)
-                             (:discard (:tag ("Routine" "Daily" "cto" "finances")))))))
-             ))))
-  ;;(org-agenda nil "z")
-  ;;(delete-other-windows)
+                            (:discard (:tag ("Routine" "Daily" "cto" "finances")))))))
+            ))
+          ))
 #+end_src
 **** Functions
 Check if a billing is paid based on the date
@@ -697,33 +714,19 @@ Check if a billing is paid based on the date
         (rjsx-mode . prettier-js-mode)
         (typescript-mode . prettier-js-mode))
 #+end_src
-**** eglot
-#+begin_src elisp
-  (use-package eglot
-    :hook
-    (rjsx-mode . eglot-ensure)
-    (ruby-mode . eglot-ensure)
-    :ensure-system-package
-    (typescript-language-server . "npm i -g typescript-language-server")
-    :config
-    (setq lsp-log-io nil)
-    (define-key eglot-mode-map (kbd "C-c r") 'eglot-rename)
-    (define-key eglot-mode-map (kbd "C-c o") 'eglot-code-action-organize-imports)
-    (define-key eglot-mode-map (kbd "C-c h") 'eldoc)
-    (define-key eglot-mode-map (kbd "M-.") 'xref-find-definitions)
-    (define-key eglot-mode-map (kbd "C-c .") 'eglot-code-actions)
-    (add-to-list 'eglot-server-programs '((rjsx-mode) . ("typescript-language-server" "--stdio"))))
-#+end_src
-**** Commit
+
+*** Commit
 #+begin_src elisp
   (use-package js-comint)
 #+end_src
 *** Elisp
 **** Unit Test
 Buttercup
-#+begin_src elisp :tangle no
+#+begin_src elisp
   (use-package buttercup)
 #+end_src
+*** Python
+
 *** Prisma
 Setup prsima orm mode
 #+begin_src elisp :tangle no
