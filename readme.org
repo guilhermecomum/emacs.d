@@ -309,6 +309,11 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 #+begin_src elisp
   (global-set-key (kbd "<f6>") (lambda() (interactive)(find-file "~/.emacs.d/readme.org")))
 #+end_src
+*** Helm
+#+begin_src elisp
+(global-set-key (kbd "C-.") 'helm-buffers-list)
+#+end_src
+
 ** Editing
 *** Display line numbers
 #+begin_src elisp
@@ -476,7 +481,6 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
     :ensure-system-package (ag . "sudo apt install silversearcher-ag"))
   (use-package projectile
     :bind-keymap ("C-c p" . projectile-command-map)
-    :bind("C-." . projectile-find-file)
     :config
     (setq projectile-indexing-method 'alien)
     (setq projectile-completion-system 'helm)
