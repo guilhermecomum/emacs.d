@@ -503,7 +503,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 #+begin_src elisp
   (use-package blamer
   :bind (("s-i" . blamer-show-commit-info)
-         ("s-b" . blamer-mode))
+         ("s-n" . blamer-mode))
   :defer 20
   :custom
   (blamer-idle-time 0.3)
