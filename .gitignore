@@ -14,3 +14,10 @@ readme.el
 recentf
 elpa-old
 straight
+.cache
+.cask
+projectile.cache
+request
+tramp
+url
+hackernews
