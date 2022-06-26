@@ -236,22 +236,22 @@ Centaur tabs
 Before kill a modified buffer, give option to see the diff
 Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-prompt-with-option-to-diff-the-changes/3363#3363][here]]
 #+begin_src elisp
-(defun my/kill-this-buffer ()
-  (interactive)
-  (catch 'quit
-    (save-window-excursion
-      (let (done)
-        (when (and buffer-file-name (buffer-modified-p))
-          (while (not done)
-            (let ((response (read-char-choice
-                             (format "Save file %s? (y, n, d, q) " (buffer-file-name))
-                             '(?y ?n ?d ?q))))
-              (setq done (cond
-                          ((eq response ?q) (throw 'quit nil))
-                          ((eq response ?y) (save-buffer) t)
-                          ((eq response ?n) (set-buffer-modified-p nil) t)
-                          ((eq response ?d) (diff-buffer-with-file) nil))))))
-        (kill-buffer (current-buffer))))))
+  (defun my/kill-this-buffer ()
+    (interactive)
+    (catch 'quit
+      (save-window-excursion
+        (let (done)
+          (when (and buffer-file-name (buffer-modified-p))
+            (while (not done)
+              (let ((response (read-char-choice
+                               (format "Save file %s? (y, n, d, q) " (buffer-file-name))
+                               '(?y ?n ?d ?q))))
+                (setq done (cond
+                            ((eq response ?q) (throw 'quit nil))
+                            ((eq response ?y) (save-buffer) t)
+                            ((eq response ?n) (set-buffer-modified-p nil) t)
+                            ((eq response ?d) (diff-buffer-with-file) nil))))))
+          (kill-buffer (current-buffer))))))
 #+end_src
 ** Keys
 
