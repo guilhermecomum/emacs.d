@@ -141,11 +141,21 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
     (add-hook 'dired-mode-hook 'all-the-icons-dired-mode))
 #+end_src
 
-*** Nyan cat
+*** Cosmetics
+
+**** Nyan cat
 #+begin_src elisp
   (use-package nyan-mode
     :init
     (nyan-mode t))
+#+end_src
+
+**** Emoji
+#+begin_src elisp
+  (use-package emojify
+      :config
+      (add-hook 'after-init-hook #'global-emojify-mode))
+
 #+end_src
 
 *** Dimmer
@@ -263,6 +273,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
                     (org-agenda nil "z")))
   (global-set-key (kbd "C-c /") 'org-capture)
   (global-set-key (kbd "<f12>") 'org-journal-new-entry)
+  (global-set-key (kbd "s-c") 'ox-clip-formatted-copy)
 #+end_src
 *** Buffer/Window
 #+begin_src elisp
@@ -536,6 +547,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
     :after '(org)
     :straight (org-ql :host github :repo "alphapapa/org-ql"))
   (use-package git-auto-commit-mode)
+  (use-package ox-clip)
   (require 'org-inlinetask)
   (require 'org-tempo)
   (require 'org-collector)
