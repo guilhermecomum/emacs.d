@@ -112,9 +112,10 @@ Straight.el
   (use-package doom-themes
     :config
     (doom-themes-neotree-config)
-    (set-face-attribute 'default nil :font "FiraCode 12")
+    (set-face-attribute 'default nil :font "Fira Code 12")
     (set-face-attribute 'font-lock-keyword-face nil :slant 'italic :weight 'normal :family "CascadiaCode")
     (set-face-attribute 'region nil :background "#000" :foreground "#ffffff")
+    ;;(load-theme (intern "doom-nord-light") t)
     (load-theme (intern "doom-nord") t))
 #+end_src
 *** Neotree
@@ -356,14 +357,17 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
     (setq company-idle-delay .3))
 
   (use-package rainbow-mode)
+
+  (use-package string-inflection)
 #+end_src
 *** Multiple cursor
 #+begin_src elisp
-  (use-package multiple-cursors
-    :bind (("C-S-c C-S-c" . mc/edit-lines)
-	   ("s-." . mc/mark-next-like-this)
-	   ("s-," . mc/mark-previous-like-this)
-	   ("s->" . mc/mark-all-like-this)))
+      (use-package multiple-cursors
+        :bind (("C-S-c C-S-c" . mc/edit-lines)
+               ("s-." . mc/mark-next-like-this)
+               ("s-," . mc/mark-previous-like-this)
+               ("s->" . mc/mark-all-like-this)
+               ("C-S-<mouse-1>" . mc/add-cursor-on-click)))
 #+end_src
 *** Unfill paragraph
 #+begin_src elisp
@@ -490,12 +494,12 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
     (projectile-mode))
 #+end_src
 *** Magit
-#+begin_src elisp
+#+begin_src elisp :tangle no
   (use-package magit)
 
-  (use-package magit-delta
-    :after magit
-    :hook (magit-mode . magit-delta-mode))
+   (use-package magit-delta
+     :after magit
+     :hook (magit-mode . magit-delta-mode))
 
 #+end_src
 *** Blamer
@@ -521,6 +525,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
     (rjsx-mode . eglot-ensure)
     (ruby-mode . eglot-ensure)
     (python-mode . eglot-ensure)
+    (lua-mode . eglot-ensure)
     :ensure-system-package
     ((typescript-language-server . "npm i -g typescript-language-server")
     (pyright . "pip install pyright"))
@@ -657,7 +662,17 @@ Check if a billing is paid based on the date
     (if (eq (string-to-number (format-time-string "%m")) (nth 4 (org-parse-time-string time)))
         "-" "pago"))
 #+end_src
-
+Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids-to-every-entry-in-org-mode][source]]
+#+begin_src elisp
+  (defun add-id-to-tasks-in-file ()
+    "Add ID properties to all tasks in the current file which
+    do not already have one."
+    (interactive)
+    (org-ql-select (buffer-file-name)
+      '(and
+        (todo))
+      :action #'org-id-get-create))
+#+end_src
 *** Web mode
 #+begin_src elisp :tangle no
   (use-package web-mode
@@ -756,10 +771,18 @@ Setup prsima orm mode
     :hook
     (ruby-mode . rubocopfmt-mode))
 #+end_src
+*** Lua :first-quarter-moon-with-face:
+#+begin_src elisp
+  (use-package lua-mode)
+#+end_src
 *** Cooklang
 #+begin_src elisp
   (straight-use-package
    '(el-patch :type git :host github :repo "cooklang/cook-mode"))
+#+end_src
+*** JSON
+#+begin_src elsip
+  (use-package json-mode)
 #+end_src
 ** Tree-sitter
 #+begin_src elisp :tangle no
