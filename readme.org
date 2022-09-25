@@ -352,9 +352,18 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 
   (use-package company
     :hook (after-init . global-company-mode)
+    :bind (("s-SPC" . company-complete))
     :config
     (setq company-tooltip-align-annotations t)
+    (setq company-minimum-prefix-length 3)
     (setq company-idle-delay .3))
+
+  (use-package company-quickhelp
+    :ensure t
+    :init
+    (company-quickhelp-mode 1)
+    (use-package pos-tip
+      :ensure t))
 
   (use-package rainbow-mode)
 
@@ -494,13 +503,8 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
     (projectile-mode))
 #+end_src
 *** Magit
-#+begin_src elisp :tangle no
+#+begin_src elisp
   (use-package magit)
-
-   (use-package magit-delta
-     :after magit
-     :hook (magit-mode . magit-delta-mode))
-
 #+end_src
 *** Blamer
 #+begin_src elisp
@@ -673,12 +677,38 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
         (todo))
       :action #'org-id-get-create))
 #+end_src
+
+*** Typescript
+#+begin_src elisp
+  (defun tide-setup-hook ()
+    (interactive)
+    (tide-setup)
+    (flycheck-mode +1)
+    (setq flycheck-check-syntax-automatically '(save mode-enabled))
+
+    (eldoc-mode +1)
+    (tide-hl-identifier-mode +1)
+    (setq web-mode-enable-auto-quoting nil)
+    (setq web-mode-code-indent-offset 2)
+    (setq web-mode-attr-indent-offset 2)
+    (setq web-mode-attr-value-indent-offset 2)
+    (company-mode +1))
+
+  (setq company-tooltip-align-annotations t)
+
+
+  (use-package tide
+    :after (rjsx-mode company flycheck))
+
+  (add-hook 'before-save-hook 'tide-format-before-save)
+  (add-hook 'typescript-mode-hook #'tide-setup-hook)
+#+end_src
 *** Web mode
-#+begin_src elisp :tangle no
+#+begin_src elisp
   (use-package web-mode
     :mode (("\\.html?\\'" . web-mode)
            ("\\.tsx\\'" . web-mode)
-           ("\\.ts\\'" . web-mode))
+           ("\\.jsx\\'" . web-mode))
     :config
     (setq web-mode-markup-indent-offset 2
           web-mode-css-indent-offset 2
@@ -691,9 +721,14 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
           web-mode-enable-current-element-highlight t
           web-mode-enable-current-column-highlight t))
 
+  (add-hook 'web-mode-hook 'tide-setup-hook
+            (lambda () (pcase (file-name-extension buffer-file-name)
+                         ("tsx" ('tide-setup-hook)))))
+
+
 #+end_src
 *** Javascript
-#+begin_src elisp
+#+begin_src elisp :tangle no
   ;;(setq js-indent-level 2)
   (use-package frontside-javascript
     :init (frontside-javascript)
@@ -719,20 +754,7 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
     (setq flycheck-eslint-args '("--fix-dry-run"))
     (add-hook 'rjsx-mode-hook 'add-node-modules-path))
 #+end_src
-**** tide
-#+begin_src elisp :tangle no
-  (defun tide-setup-hook ()
-    (interactive)
-    (tide-setup)
-    (flycheck-mode +1)
-    (setq flycheck-check-syntax-automatically '(save mode-enabled))
-    (tide-hl-identifier-mode +1)
-    (company-mode +1))
 
-  (use-package tide
-    :after (rjsx-mode company flycheck)
-    :hook ((rjsx-mode . tide-setup-hook)))
-#+end_src
 **** prettier
 #+begin_src elisp :tangle no
       (use-package prettier-js
@@ -781,7 +803,7 @@ Setup prsima orm mode
    '(el-patch :type git :host github :repo "cooklang/cook-mode"))
 #+end_src
 *** JSON
-#+begin_src elsip
+#+begin_src elisp
   (use-package json-mode)
 #+end_src
 ** Tree-sitter
