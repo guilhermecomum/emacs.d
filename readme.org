@@ -724,15 +724,16 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
   (use-package tide
     :after (rjsx-mode company flycheck))
 
-  (add-hook 'before-save-hook 'tide-format-before-save)
+  ;;(add-hook 'before-save-hook 'tide-format-before-save)
   (add-hook 'typescript-mode-hook #'tide-setup-hook)
+  ;;(add-hook 'js-mode-hook #'tide-setup-hook)
 #+end_src
 *** Web mode
 #+begin_src elisp
   (use-package web-mode
     :mode (("\\.html?\\'" . web-mode)
            ("\\.tsx\\'" . web-mode)
-           ("\\.jsx\\'" . web-mode))
+           ("\\.js[x]?\\'" . web-mode))
     :config
     (setq web-mode-markup-indent-offset 2
           web-mode-css-indent-offset 2
@@ -743,13 +744,13 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
           web-mode-enable-auto-pairing t
           web-mode-enable-comment-keywords t
           web-mode-enable-current-element-highlight t
-          web-mode-enable-current-column-highlight t))
+          web-mode-enable-current-column-highlight t
+          web-mode-content-types-alist  '(("django" . "\\.tpl\\'"))
+          web-mode-content-types-alist  '(("jsx" . "\\.js[x]?\\'"))))
 
   (add-hook 'web-mode-hook 'tide-setup-hook
             (lambda () (pcase (file-name-extension buffer-file-name)
                          ("tsx" ('tide-setup-hook)))))
-
-
 #+end_src
 *** Javascript
 #+begin_src elisp :tangle no
@@ -780,11 +781,11 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
 #+end_src
 
 **** prettier
-#+begin_src elisp :tangle no
+#+begin_src elisp
       (use-package prettier-js
         :ensure-system-package (prettier . "npm i -g prettier")
         :hook
-        (rjsx-mode . prettier-js-mode)
+        (web-mode . prettier-js-mode)
         (typescript-mode . prettier-js-mode))
 #+end_src
 
