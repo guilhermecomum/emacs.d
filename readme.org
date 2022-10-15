@@ -392,6 +392,8 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
   (use-package rainbow-mode)
 
   (use-package string-inflection)
+
+  (global-hl-line-mode +1)
 #+end_src
 *** Multiple cursor
 #+begin_src elisp
