@@ -573,6 +573,9 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 #+begin_src elisp
   (use-package org :straight (:type built-in))
   (use-package org-contrib)
+  (use-package org-web-tools
+    :ensure-system-package (pandoc . "sudo apt install pandoc"))
+
   (use-package org-ql
     :after '(org)
     :straight (org-ql :host github :repo "alphapapa/org-ql"))
