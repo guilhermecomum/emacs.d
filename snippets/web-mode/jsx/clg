@@ -3,4 +3,4 @@
 # key: clg
 # uuid: clg
 # --
-console.log($0)`(if (eolp) (js-react-redux-yasnippets-semicolon))`
+console.log($0)

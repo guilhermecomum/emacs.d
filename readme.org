@@ -752,6 +752,13 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
             (lambda () (pcase (file-name-extension buffer-file-name)
                          ("tsx" ('tide-setup-hook)))))
 #+end_src
+yasnippet
+#+begin_src elisp
+  (eval-after-load 'yasnippet
+    '(let ((dir "~/.emacs.d/snippets/web-mode"))
+        (add-to-list 'yas-snippet-dirs dir)
+        (yas-load-directory dir)))
+#+end_src
 *** Javascript
 #+begin_src elisp :tangle no
   ;;(setq js-indent-level 2)
