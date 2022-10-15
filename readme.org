@@ -552,21 +552,16 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 #+begin_src elisp
   (use-package eglot
     :hook
-    (rjsx-mode . eglot-ensure)
     (ruby-mode . eglot-ensure)
-    (python-mode . eglot-ensure)
     (lua-mode . eglot-ensure)
-    :ensure-system-package
-    ((typescript-language-server . "npm i -g typescript-language-server")
-    (pyright . "pip install pyright"))
+    (dart-mode . eglot-ensure)
     :config
     (setq lsp-log-io nil)
     (define-key eglot-mode-map (kbd "C-c r") 'eglot-rename)
     (define-key eglot-mode-map (kbd "C-c o") 'eglot-code-action-organize-imports)
     (define-key eglot-mode-map (kbd "C-c h") 'eldoc)
     (define-key eglot-mode-map (kbd "M-.") 'xref-find-definitions)
-    (define-key eglot-mode-map (kbd "C-c .") 'eglot-code-actions)
-    (add-to-list 'eglot-server-programs '((rjsx-mode typescript-mode) . ("typescript-language-server" "--stdio"))))
+    (define-key eglot-mode-map (kbd "C-c .") 'eglot-code-actions))
 #+end_src
 *** Todoist
 #+begin_src elisp :tangle no
@@ -839,4 +834,20 @@ Setup prsima orm mode
 *** JSON
 #+begin_src elisp
   (use-package json-mode)
+#+end_src
+*** Flutter
+#+begin_src elisp
+  ;; Assuming usage with dart-mode
+  (use-package dart-mode
+    ;; Optional
+    :hook (dart-mode . flutter-test-mode))
+
+  (use-package flutter
+    :after (dart-mode eglot)
+    :bind (:map dart-mode-map
+                ("C-M-x" . #'flutter-run-or-hot-reload)))
+
+  (setq eglot-server-programs
+        `((dart-mode . ("dart" "language-server"))))
+
 #+end_src
