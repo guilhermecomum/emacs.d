@@ -129,27 +129,6 @@ Straight.el
     (progn(text-scale-adjust 0)(text-scale-decrease 2)))
   (add-hook 'neo-after-create-hook (lambda (_)(call-interactively 'text-scale-twice)))
 #+end_src
-*** Treemacs
-#+begin_src elisp
-  (use-package treemacs
-    :config
-    (treemacs-hide-gitignored-files-mode t)
-    (progn
-      (setq
-       treemacs-litter-directories '("/node_modules" "/.venv" "/.cask")))
-    :bind
-    (:map global-map
-          ("C-/" . treemacs-find-file)
-          ([f8]   . treemacs)))
-
-
-  (use-package treemacs-projectile
-    :after (treemacs projectile))
-
-  (use-package treemacs-magit
-    :after (treemacs magit))
-
-#+end_src
 *** Improve theme loading
 Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_you_currently_using/d43c5cw][Reddit]]
 #+begin_src elisp
