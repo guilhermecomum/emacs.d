@@ -682,6 +682,10 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
       :action #'org-id-get-create))
 #+end_src
 
+*** Markdown
+#+begin_src elisp
+  (use-package markdown-mode)
+#+end_src
 *** Typescript
 #+begin_src elisp
   (defun tide-setup-hook ()
