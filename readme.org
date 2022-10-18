@@ -743,6 +743,23 @@ yasnippet
         (add-to-list 'yas-snippet-dirs dir)
         (yas-load-directory dir)))
 #+end_src
+*** Zencoding
+#+begin_src elisp
+  (use-package emmet-mode
+    :hook
+    ((web-mode rjsx-mode typescript-mode) . emmet-mode)
+    :init
+    (setq emmet-indent-after-insert nil)
+    (setq emmet-indentation 2)
+    (setq emmet-expand-jsx-className? t)
+    (setq emmet-move-cursor-between-quotes t)
+    (setq emmet-self-closing-tag-style " /")
+
+    :config
+    (add-to-list 'emmet-jsx-major-modes 'web-mode)
+    (add-to-list 'emmet-jsx-major-modes 'typescript-mode))
+
+#+end_src
 *** Javascript
 #+begin_src elisp :tangle no
   ;;(setq js-indent-level 2)
