@@ -851,6 +851,12 @@ Setup prsima orm mode
 #+begin_src elisp
   (use-package json-mode)
 #+end_src
+*** Prisma
+#+begin_src elisp
+    (use-package prisma-mode
+      :straight (prisma-mode :host github :repo "pimeys/emacs-prisma-mode"))
+
+#+end_src
 *** Flutter
 #+begin_src elisp
   ;; Assuming usage with dart-mode
