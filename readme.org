@@ -184,12 +184,12 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
 #+end_src
 
 *** Dimmer
-#+begin_src elisp :tangle no
+#+begin_src elisp
   (use-package dimmer
       :init
       (dimmer-mode t)
       :config
-      (setq dimmer-fraction 0.5))
+      (setq dimmer-fraction 0.3))
 #+end_src
 
 *** Emacs interface
