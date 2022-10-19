@@ -529,7 +529,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
   (add-hook 'org-mode-hook 'turn-on-flyspell)
 #+end_src
 **** Reveal
-#+begin_src elisp :tangle no
+#+begin_src elisp
   (use-package ox-reveal)
   (setq org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js")
   (setq org-reveal-title-slide nil)
