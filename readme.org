@@ -442,15 +442,8 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
     (yas-load-directory "~/.emacs.d/snippets")
     (yas-global-mode 1))
 #+end_src
-*** ivy
-#+begin_src elisp
-  (use-package counsel
-    :config
-    (ivy-mode 1)
-    (setq ivy-height 20))
-#+end_src
 *** Helm
-#+begin_src elisp :tangle no
+#+begin_src elisp
   (use-package helm
     :straight t
     :config
@@ -467,16 +460,22 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 #+end_src
 *** Projectile
 #+begin_src elisp
-  (use-package counsel-projectile)
-  (use-package projectile
-    :bind-keymap ("C-c p" . projectile-command-map)
-    :config
-    (setq projectile-indexing-method 'alien)
-    (setq projectile-sort-order 'recently-active)
-    (add-to-list 'projectile-globally-ignored-directories "node_modules")
-    (add-to-list 'projectile-globally-ignored-files "yarn.lock")
-    (counsel-projectile-mode)
-    (projectile-mode))
+    (use-package helm-projectile
+      :after '(helm projectile))
+    (use-package helm-ag
+      :ensure-system-package (ag . "sudo apt install silversearcher-ag"))
+    ;;  (use-package counsel-projectile)
+    (use-package projectile
+      :bind-keymap ("C-c p" . projectile-command-map)
+      :config
+      (setq projectile-indexing-method 'alien)
+      (setq projectile-sort-order 'recently-active)
+      (setq projectile-completion-system 'helm)
+
+      (add-to-list 'projectile-globally-ignored-directories "node_modules")
+      (add-to-list 'projectile-globally-ignored-files "yarn.lock")
+      (helm-projectile-on)
+      (projectile-mode))
 #+end_src
 *** Magit
 #+begin_src elisp
@@ -782,7 +781,7 @@ Buttercup
     :commands lsp)
 
   (use-package lsp-ui :commands lsp-ui-mode)
-  (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
+  (use-package helm-lsp :commands helm-lsp-workspace-symbol)
   (use-package dap-mode)
   (use-package which-key
     :config
