@@ -366,8 +366,6 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 #+begin_src elisp
   (use-package add-node-modules-path)
   (use-package flycheck
-    :init
-    (global-flycheck-mode)
     :config
     (setq-default flycheck-highlighting-mode 'sexps)
     (when (fboundp 'define-fringe-bitmap)
@@ -401,7 +399,6 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
       :fringe-bitmap 'my-flycheck-fringe-indicator
       :fringe-face 'flycheck-fringe-warning)
     (flycheck-define-error-level 'info
-      :severity
       :overlay-category 'flycheck-info-overlay
       :fringe-bitmap 'my-flycheck-fringe-indicator
       :fringe-face 'flycheck-fringe-info)
@@ -445,10 +442,20 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
     (yas-load-directory "~/.emacs.d/snippets")
     (yas-global-mode 1))
 #+end_src
-*** Helm
+*** ivy
 #+begin_src elisp
-  (setq helm-buffers-fuzzy-matching t)
-	(setq helm-recentf-fuzzy-match    t)
+  (use-package counsel
+    :config
+    (ivy-mode 1)
+    (setq ivy-height 20))
+#+end_src
+*** Helm
+#+begin_src elisp :tangle no
+  (use-package helm
+    :straight t
+    :config
+    (setq helm-buffers-fuzzy-matching t)
+    (setq helm-recentf-fuzzy-match    t))
 #+end_src
 *** Code Folding
 #+begin_src elisp
@@ -460,19 +467,15 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 #+end_src
 *** Projectile
 #+begin_src elisp
-  (use-package helm-projectile)
-  (use-package helm-ag
-    :ensure-system-package (ag . "sudo apt install silversearcher-ag"))
+  (use-package counsel-projectile)
   (use-package projectile
     :bind-keymap ("C-c p" . projectile-command-map)
     :config
     (setq projectile-indexing-method 'alien)
-    (setq projectile-completion-system 'helm)
     (setq projectile-sort-order 'recently-active)
-    (setq helm-ag-command-option "--hidden")
     (add-to-list 'projectile-globally-ignored-directories "node_modules")
     (add-to-list 'projectile-globally-ignored-files "yarn.lock")
-    (helm-projectile-on)
+    (counsel-projectile-mode)
     (projectile-mode))
 #+end_src
 *** Magit
@@ -493,22 +496,6 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
                     :background nil
                     :height .9
                     :italic t))))
-#+end_src
-
-*** Eglot
-#+begin_src elisp
-  (use-package eglot
-    :hook
-    (ruby-mode . eglot-ensure)
-    (lua-mode . eglot-ensure)
-    (dart-mode . eglot-ensure)
-    :config
-    (setq lsp-log-io nil)
-    (define-key eglot-mode-map (kbd "C-c r") 'eglot-rename)
-    (define-key eglot-mode-map (kbd "C-c o") 'eglot-code-action-organize-imports)
-    (define-key eglot-mode-map (kbd "C-c h") 'eldoc)
-    (define-key eglot-mode-map (kbd "M-.") 'xref-find-definitions)
-    (define-key eglot-mode-map (kbd "C-c .") 'eglot-code-actions))
 #+end_src
 *** Todoist
 #+begin_src elisp :tangle no
