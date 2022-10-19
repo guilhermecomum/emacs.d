@@ -218,34 +218,6 @@ Centaur tabs
                       (apply oldfn args)
                     (setq header-line-format nil)))))
 #+end_src
-*** Ligature
-#+begin_src elisp :tangle no
-  "Setup ligature"
-  (use-package ligature
-    :load-path "~/.emacs.d/lisp/ligature.el"
-    :config
-    ;; Enable traditional ligature support in eww-mode, if the
-    ;; `variable-pitch' face supports it
-    ;; Enable all Cascadia Code ligatures in programming modes
-    (ligature-set-ligatures 'prog-mode '("|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
-                                         ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
-                                         "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
-                                         "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
-                                         "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
-                                         "..." "+++" "/==" "///" "_|_" "www" "&&" "^=" "~~" "~@" "~="
-                                         "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|=" "|>" "|-" "{|"
-                                         "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
-                                         ">=" ">>" ">-" "-~" "-|" "->" "--" "-<" "<~" "<*" "<|" "<:"
-                                         "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
-                                         "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
-                                         "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
-                                         "\\\\" "://"))
-    ;; Enables ligature checks globally in all buffers. You can also do it
-    ;; per mode with `ligature-mode'.
-    :hook
-    (typescript-mode . ligature-mode))
-
-#+end_src
 *** Buffers
 Before kill a modified buffer, give option to see the diff
 Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-prompt-with-option-to-diff-the-changes/3363#3363][here]]
@@ -295,7 +267,6 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 #+begin_src elisp
   (global-set-key (kbd "M-g") 'goto-line)
   (global-set-key (kbd "C-c s") 'sort-lines)
-  (global-set-key (kbd "C-x b") 'helm-mini)
   (global-set-key (kbd "<C-return>") #'yafolding-toggle-element)
 #+end_src
 *** Editing
@@ -311,10 +282,6 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 *** Conf
 #+begin_src elisp
   (global-set-key (kbd "<f6>") (lambda() (interactive)(find-file "~/.emacs.d/readme.org")))
-#+end_src
-*** Helm
-#+begin_src elisp
-(global-set-key (kbd "C-.") 'helm-buffers-list)
 #+end_src
 
 ** Editing
@@ -761,33 +728,6 @@ yasnippet
 
 #+end_src
 *** Javascript
-#+begin_src elisp :tangle no
-  ;;(setq js-indent-level 2)
-  (use-package frontside-javascript
-    :init (frontside-javascript)
-    :config
-    (setq web-mode-markup-indent-offset 2
-          web-mode-css-indent-offset 2
-          web-mode-code-indent-offset 2
-          web-mode-block-padding 2
-          web-mode-comment-style 2
-          web-mode-enable-css-colorization t
-          web-mode-enable-auto-pairing t
-          web-mode-enable-comment-keywords t
-          web-mode-enable-current-element-highlight t
-          web-mode-enable-current-column-highlight t))
-#+end_src
-**** rjsx
-#+begin_src elisp :tangle no
-  (use-package rjsx-mode
-    :config
-    (add-to-list 'auto-mode-alist '("\\.js\\'" . rjsx-mode))
-    (add-to-list 'auto-mode-alist '("\\.tsx\\'" . rjsx-mode))
-    (setq js2-strict-missing-semi-warning nil)
-    (setq flycheck-eslint-args '("--fix-dry-run"))
-    (add-hook 'rjsx-mode-hook 'add-node-modules-path))
-#+end_src
-
 **** prettier
 #+begin_src elisp
   (use-package prettier-js
@@ -818,25 +758,6 @@ yasnippet
 Buttercup
 #+begin_src elisp
   (use-package buttercup)
-#+end_src
-*** Python
-
-*** Prisma
-Setup prsima orm mode
-#+begin_src elisp :tangle no
-  (add-to-list 'load-path "~/.emacs.d/lisp/emacs-prisma-mode/")
-  (require 'prisma-mode)
-  (add-hook 'prisma-mode-hook #'lsp-deferred)
-  (add-hook 'before-save-hook #'(lambda () (when (eq major-mode 'prisma-mode)
-                                             (lsp-format-buffer))))
-
-
-#+end_src
-*** Ruby
-#+begin_src elisp :tangle no
-  (use-package rubocopfmt
-    :hook
-    (ruby-mode . rubocopfmt-mode))
 #+end_src
 *** Lua :first-quarter-moon-with-face:
 #+begin_src elisp
