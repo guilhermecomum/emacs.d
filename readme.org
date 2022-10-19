@@ -239,6 +239,24 @@ Centaur tabs
                       (apply oldfn args)
                     (setq header-line-format nil)))))
 #+end_src
+*** Company
+#+begin_src elisp
+  (use-package company
+    :after lsp-mode
+    :hook (prog-mode . company-mode)
+    :bind (:map company-active-map
+                ("<tab>" . company-complete-selection))
+    (:map lsp-mode-map
+          ("<tab>" . company-indent-or-complete-common))
+    :custom
+    (company-minimum-prefix-length 1)
+    (company-idle-delay 0.0))
+
+  (setq company-tooltip-align-annotations t)
+
+  (use-package company-box
+    :hook (company-mode . company-box-mode))
+#+end_src
 *** Buffers
 Before kill a modified buffer, give option to see the diff
 Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-prompt-with-option-to-diff-the-changes/3363#3363][here]]
@@ -341,20 +359,6 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
   (use-package rainbow-delimiters
     :hook (prog-mode . rainbow-delimiters-mode))
 
-  (use-package company
-    :hook (after-init . global-company-mode)
-    :bind (("s-SPC" . company-complete))
-    :config
-    (setq company-tooltip-align-annotations t)
-    (setq company-minimum-prefix-length 3)
-    (setq company-idle-delay .3))
-
-  (use-package company-quickhelp
-    :ensure t
-    :init
-    (company-quickhelp-mode 1)
-    (use-package pos-tip
-      :ensure t))
 
   (use-package rainbow-mode)
 
@@ -790,27 +794,32 @@ Buttercup
 #+end_src
 *** LSP
 #+begin_src elisp
-  (use-package lsp-mode
-    :init
-    ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
-    (setq lsp-keymap-prefix "C-c l")
-    :hook (
-           (typescript-mode . lsp)
-           (ruby-mode . lsp)
-           (dart-mode . lsp))
-    (lsp-mode . lsp-enable-which-key-integration)
-    :commands lsp)
+      (use-package lsp-mode
+        :init
+        (setq lsp-keymap-prefix "C-c l")
+        :hook (
+               (typescript-mode . lsp)
+               (ruby-mode . lsp)
+               (dart-mode . lsp))
+        (lsp-mode . lsp-enable-which-key-integration)
+        :commands (lsp lsp-deferred))
 
-  (use-package lsp-ui :commands lsp-ui-mode)
-  (use-package helm-lsp :commands helm-lsp-workspace-symbol)
-  (use-package dap-mode)
-  (use-package which-key
-    :config
-    (which-key-mode))
 
-  (use-package lsp-mode
-    :hook ((typescript-mode . lsp-deferred)
-           (dart-mode . lsp-deferred)
-           (ruby-mode . lsp-deferred))
-    :commands (lsp lsp-deferred))
+      (use-package lsp-ui
+        :commands lsp-ui-mode
+        :hook (lsp-mode . lsp-ui-mode)
+        :config
+        (setq lsp-ui-doc-position 'bottom))
+
+      (use-package helm-lsp :commands helm-lsp-workspace-symbol)
+      (use-package dap-mode)
+      (use-package which-key
+        :config
+        (which-key-mode))
+
+      (use-package lsp-mode
+        :hook ((typescript-mode . lsp-deferred)
+               (dart-mode . lsp-deferred)
+               (ruby-mode . lsp-deferred))
+        :commands (lsp lsp-deferred))
 #+end_src
