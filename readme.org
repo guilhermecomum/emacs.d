@@ -245,12 +245,12 @@ Centaur tabs
     :after lsp-mode
     :hook (prog-mode . company-mode)
     :bind (:map company-active-map
-                ("<tab>" . company-complete-selection))
+                ("s-SPC" . company-complete-selection))
     (:map lsp-mode-map
-          ("<tab>" . company-indent-or-complete-common))
+          ("s-SPC" . company-indent-or-complete-common))
     :custom
-    (company-minimum-prefix-length 1)
-    (company-idle-delay 0.0))
+    (company-minimum-prefix-length 2)
+    (company-idle-delay 0.8))
 
   (setq company-tooltip-align-annotations t)
 
@@ -330,7 +330,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
   (add-hook 'conf-mode-hook #'display-line-numbers-mode)
 #+end_src
 *** Indent Guides
-#+begin_src elisp
+#+begin_src elisp :tangle no
   (use-package highlight-indent-guides
     :config
     (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
@@ -667,6 +667,7 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
 *** Typescript
 #+begin_src elisp
   (use-package typescript-mode
+    :ensure-system-package (typescript-language-server . "npm i -g typescript-language-server")
     :config
     (setq typescript-indent-level 2))
 #+end_src
@@ -678,6 +679,7 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
            ("\\.js[x]?\\'" . web-mode))
     :config
     (setq web-mode-markup-indent-offset 2
+          web-mode-enable-auto-indentation nil
           web-mode-css-indent-offset 2
           web-mode-code-indent-offset 2
           web-mode-block-padding 2
@@ -690,10 +692,16 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
           web-mode-content-types-alist  '(("django" . "\\.tpl\\'"))
           web-mode-content-types-alist  '(("jsx" . "\\.js[x]?\\'"))))
 
+  (add-hook 'web-mode-hook  'auto-rename-tag-mode)
   (add-hook 'web-mode-hook 'lsp-deferred
             (lambda () (pcase (file-name-extension buffer-file-name)
                          ("tsx" ('lsp-deferred)))))
 #+end_src
+Auto rename tag
+#+begin_src elisp
+  (use-package auto-rename-tag)
+#+end_src
+
 yasnippet
 #+begin_src elisp
   (eval-after-load 'yasnippet
@@ -794,32 +802,61 @@ Buttercup
 #+end_src
 *** LSP
 #+begin_src elisp
-      (use-package lsp-mode
-        :init
-        (setq lsp-keymap-prefix "C-c l")
-        :hook (
-               (typescript-mode . lsp)
-               (ruby-mode . lsp)
-               (dart-mode . lsp))
-        (lsp-mode . lsp-enable-which-key-integration)
-        :commands (lsp lsp-deferred))
+  (use-package lsp-mode
+    :init
+    (setq lsp-keymap-prefix "C-c l")
+    ;; Disable features that have great potential to be slow.
+    (setq lsp-enable-folding nil
+          lsp-enable-text-document-color nil)
+    ;; Reduce unexpected modifications to code
+    (setq lsp-enable-on-type-formatting nil)
+    ;; Make breadcrumbs opt-in; they're redundant with the modeline and imenu
+    (setq lsp-headerline-breadcrumb-enable t)
+    (setq lsp-treemacs-sync-mode 1)
+    :hook (
+           (typescript-mode . lsp-deferred))
+    ;;(ruby-mode . lsp-deferred)
+    ;;(dart-mode . lsp-deferred))
+    ;;(lsp-mode . lsp-enable-which-key-integration)
+    :commands (lsp lsp-deferred)
+    :custom ((lsp-eldoc-render-all nil)))
 
+  (use-package lsp-treemacs
+    :after lsp-mode)
 
-      (use-package lsp-ui
-        :commands lsp-ui-mode
-        :hook (lsp-mode . lsp-ui-mode)
-        :config
-        (setq lsp-ui-doc-position 'bottom))
+  (use-package lsp-tailwindcss
+    :init (setq lsp-tailwindcss-add-on-mode t)
+    :config (add-to-list 'lsp-tailwindcss-major-modes 'typescript-tsx-mode :append)
+    :after (lsp-mode))
 
-      (use-package helm-lsp :commands helm-lsp-workspace-symbol)
-      (use-package dap-mode)
-      (use-package which-key
-        :config
-        (which-key-mode))
+  (use-package lsp-tailwindcss)
 
-      (use-package lsp-mode
-        :hook ((typescript-mode . lsp-deferred)
-               (dart-mode . lsp-deferred)
-               (ruby-mode . lsp-deferred))
-        :commands (lsp lsp-deferred))
+  (use-package lsp-ui
+    :commands lsp-ui-mode
+    :hook (lsp-mode . lsp-ui-mode)
+    :custom ((lsp-eldoc-render-all nil)
+             (lsp-signature-auto-activate nil)
+             (lsp-ui-doc-delay 1.3)
+             (lsp-ui-doc-enable t)
+             (lsp-ui-doc-include-signature t)
+             (lsp-ui-doc-max-height 20)
+             (lsp-ui-doc-max-width 100)
+             (lsp-ui-doc-position 'at-point)
+             (lsp-ui-doc-show-with-cursor t)
+             (lsp-ui-doc-use-childframe t)
+             (lsp-ui-peek-enable t)
+             (lsp-ui-sideline-enable nil))
+    :config
+    (define-key lsp-ui-mode-map (kbd "C-M-.") #'lsp-ui-peek-find-definitions)
+    (define-key lsp-ui-mode-map (kbd "C-M-?") #'lsp-ui-peek-find-references))
+
+  (use-package helm-lsp :commands helm-lsp-workspace-symbol)
+  ;;(use-package dap-mode)
+  (use-package which-key
+    :config
+    (which-key-mode))
 #+end_src
+
+
+
+
