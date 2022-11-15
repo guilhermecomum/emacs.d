@@ -856,7 +856,15 @@ Buttercup
     :config
     (which-key-mode))
 #+end_src
-
-
-
+*** SQL
+#+begin_src elisp
+  (use-package sql-indent)
+  (use-package sqlformat
+    :ensure-system-package (pg_format . "sudo apt install pgformatter")
+    :config
+    (setq sqlformat-command 'pgformatter)
+    (setq sqlformat-args '("-s2" "-g"))
+    (add-hook 'sql-mode-hook 'sqlformat-on-save-mode)
+    (define-key sql-mode-map (kbd "C-c C-f") 'sqlformat))
+#+end_src
 
