@@ -244,14 +244,14 @@ Centaur tabs
   (use-package company
     :after lsp-mode
     :hook (prog-mode . company-mode)
-    :bind (:map company-active-map
-                ("s-SPC" . company-complete-selection))
-    (:map lsp-mode-map
-          ("s-SPC" . company-indent-or-complete-common))
-    :custom
-    (company-minimum-prefix-length 2)
-    (company-idle-delay 0.8))
+    :config
+    (setq company-minimum-prefix-length 2)
+    (setq company-idle-delay 0.2))
 
+    (global-company-mode)
+    (global-set-key (kbd "TAB") #'company-indent-or-complete-common)
+
+  ;;(setq tab-always-indent 'complete)
   (setq company-tooltip-align-annotations t)
 
   (use-package company-box
