@@ -805,21 +805,33 @@ Buttercup
   (use-package lsp-mode
     :init
     (setq lsp-keymap-prefix "C-c l")
-    ;; Disable features that have great potential to be slow.
     (setq lsp-enable-folding nil
-          lsp-enable-text-document-color nil)
-    ;; Reduce unexpected modifications to code
-    (setq lsp-enable-on-type-formatting nil)
-    ;; Make breadcrumbs opt-in; they're redundant with the modeline and imenu
-    (setq lsp-headerline-breadcrumb-enable t)
-    (setq lsp-treemacs-sync-mode 1)
+          lsp-idle-delay 0.500
+          lsp-enable-text-document-color nil
+          ;; Reduce unexpected modifications to code
+          lsp-enable-on-type-formatting nil
+          ;; Make breadcrumbs opt-in; they're redundant with the modeline and imenu
+          lsp-treemacs-sync-mode 1
+          ;; performance tips from [[https://ianyepan.github.io/posts/emacs-ide/][source]]
+          lsp-eldoc-hook nil
+          lsp-eldoc-render-all nil
+          lsp-enable-imenu t
+          lsp-enable-on-type-formatting nil
+          lsp-enable-snippet nil
+          lsp-enable-symbol-highlighting nil
+          lsp-headerline-breadcrumb-enable t
+          lsp-log-io nil
+          ;;lsp-modeline-code-actions-enable nil
+          lsp-modeline-diagnostics-enable nil
+          lsp-restart 'auto-restart
+          ;;lsp-semantic-tokens-enable nil
+          ;;lsp-signature-auto-activate nil
+          lsp-signature-render-documentation nil)
     :hook (
-           (typescript-mode . lsp-deferred))
-    ;;(ruby-mode . lsp-deferred)
-    ;;(dart-mode . lsp-deferred))
-    ;;(lsp-mode . lsp-enable-which-key-integration)
-    :commands (lsp lsp-deferred)
-    :custom ((lsp-eldoc-render-all nil)))
+           (typescript-mode . lsp-deferred)
+           (dart-mode . lsp-deferred)
+           (lsp-mode . lsp-enable-which-key-integration))
+    :commands (lsp lsp-deferred))
 
   (use-package lsp-treemacs
     :after lsp-mode)
@@ -834,19 +846,22 @@ Buttercup
   (use-package lsp-ui
     :commands lsp-ui-mode
     :hook (lsp-mode . lsp-ui-mode)
-    :custom ((lsp-eldoc-render-all nil)
-             (lsp-signature-auto-activate nil)
-             (lsp-ui-doc-delay 1.3)
-             (lsp-ui-doc-enable t)
-             (lsp-ui-doc-include-signature t)
-             (lsp-ui-doc-max-height 20)
-             (lsp-ui-doc-max-width 100)
-             (lsp-ui-doc-position 'at-point)
-             (lsp-ui-doc-show-with-cursor t)
-             (lsp-ui-doc-use-childframe t)
-             (lsp-ui-peek-enable t)
-             (lsp-ui-sideline-enable nil))
+    ;; :custom ()
     :config
+    (setq lsp-eldoc-render-all nil
+          lsp-signature-auto-activate nil
+          lsp-ui-doc-delay 1.3
+          lsp-ui-doc-enable t
+          lsp-ui-doc-include-signature t
+          lsp-ui-doc-position 'at-point
+          lsp-ui-doc-show-with-cursor nil
+          lsp-ui-doc-show-with-mouse t
+          lsp-ui-doc-use-childframe t
+          lsp-ui-peek-enable t
+          lsp-ui-sideline-show-code-actions t
+          lsp-ui-sideline-delay 0.05
+          lsp-ui-doc-border (face-foreground 'default))
+
     (define-key lsp-ui-mode-map (kbd "C-M-.") #'lsp-ui-peek-find-definitions)
     (define-key lsp-ui-mode-map (kbd "C-M-?") #'lsp-ui-peek-find-references))
 
