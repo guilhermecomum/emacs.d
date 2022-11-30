@@ -3,6 +3,10 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(flycheck-display-errors-delay 0.1)
+ '(flymake-error-bitmap '(my-rounded-fringe-indicator compilation-error))
+ '(flymake-note-bitmap '(my-rounded-fringe-indicator compilation-info))
+ '(flymake-warning-bitmap '(my-rounded-fringe-indicator compilation-warning))
  '(org-agenda-files '("/home/guerra/Projects/org-files/journal/2022.org"))
  '(safe-local-variable-values
    '((eval progn
@@ -10,9 +14,15 @@
            (puthash
             (projectile-project-root)
             "cask exec buttercup -L ." projectile-test-cmd-map)))))
+;;(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+;; '(blamer-face ((t :foreground "#9099AB" :background nil :height 0.9 :italic t)) t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(blamer-face ((t :foreground "#9099AB" :background nil :height 0.9 :italic t))))
+ )
