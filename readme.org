@@ -817,9 +817,11 @@ Buttercup
 #+end_src
 *** Prisma
 #+begin_src elisp
-    (use-package prisma-mode
-      :straight (prisma-mode :host github :repo "pimeys/emacs-prisma-mode"))
-
+  (use-package prisma-mode
+    :straight (prisma-mode :host github :repo "pimeys/emacs-prisma-mode")
+    :ensure-system-package (prisma-language-server . "npm i -g @prisma/language-server")
+    :config
+    (add-hook 'prisma-mode-hook (lambda () (add-hook 'before-save-hook 'eglot-format))))
 #+end_src
 *** YAML
 #+begin_src elisp
@@ -851,14 +853,15 @@ Buttercup
     :straight (:type built-in)
     :hook
     (web-mode . eglot-ensure)
+    (prisma-mode . eglot-ensure)
     :config
     (define-key eglot-mode-map (kbd "C-c r") 'eglot-rename)
     (define-key eglot-mode-map (kbd "C-c o") 'eglot-code-action-organize-imports)
     (define-key eglot-mode-map (kbd "C-c h") 'eldoc)
     (define-key eglot-mode-map (kbd "M-.") 'xref-find-definitions)
     (define-key eglot-mode-map (kbd "C-c .") 'eglot-code-actions)
-    (add-to-list 'eglot-server-programs '((web-mode typescript-mode) . ("typescript-language-server" "--stdio"))))
-
+    (add-to-list 'eglot-server-programs '((web-mode typescript-mode) . ("typescript-language-server" "--stdio")))
+    (add-to-list 'eglot-server-programs '((prisma-mode) . ("prisma-language-server" "--stdio"))))
 #+end_src
 
 *** SQL
