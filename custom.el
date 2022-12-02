@@ -3,6 +3,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(eglot-confirm-server-initiated-edits nil)
  '(flycheck-display-errors-delay 0.1)
  '(flymake-error-bitmap '(my-rounded-fringe-indicator compilation-error))
  '(flymake-note-bitmap '(my-rounded-fringe-indicator compilation-info))
