@@ -447,6 +447,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 *** Magit
 #+begin_src elisp
   (use-package magit)
+  (use-package magit-todos)
 #+end_src
 *** Blamer
 #+begin_src elisp :tangle no
