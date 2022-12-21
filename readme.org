@@ -106,7 +106,12 @@ Contrary to what many Emacs users have in their configs, you don't need more tha
     (set-face-attribute 'region nil :background "#000" :foreground "#ffffff")
     (load-theme (intern "doom-tokyo-night") t))
 
+**** N Λ N O
+#+begin_src elisp
+  (use-package nano-modeline)
+  (nano-modeline-mode)
 #+end_src
+
 *** Neotree
 #+begin_src elisp
   (defun text-scale-twice ()
@@ -168,7 +173,7 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
 #+end_src
 
 *** Doom modeline
-#+begin_src elisp
+#+begin_src elisp :tangle no
   (use-package doom-modeline
     :config
     (setq doom-modeline-height 35)

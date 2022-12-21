@@ -8,6 +8,7 @@
  '(flymake-error-bitmap '(my-rounded-fringe-indicator compilation-error))
  '(flymake-note-bitmap '(my-rounded-fringe-indicator compilation-info))
  '(flymake-warning-bitmap '(my-rounded-fringe-indicator compilation-warning))
+ '(nano-modeline-position 'bottom)
  '(org-agenda-files '("/home/guerra/Projects/org-files/journal/2022.org"))
  '(safe-local-variable-values
    '((eval progn
