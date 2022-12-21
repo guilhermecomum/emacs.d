@@ -354,6 +354,15 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
           (emacs-lisp-docstring-fill-column t))
       (fill-paragraph nil region)))
 #+end_src
+*** Treesiter
+#+begin_src elisp
+  (require 'treesit)
+  (setq treesit-extra-load-path '("~/Projects/tree-sitter-module/dist"))
+  (push '(css-mode . css-ts-mode) major-mode-remap-alist)
+  (push '(javascript-mode . js-ts-mode) major-mode-remap-alist)
+  (push '(js-json-mode . json-ts-mode) major-mode-remap-alist)
+  (push '(typescript-mode . typescript-ts-mode) major-mode-remap-alist)
+#+end_src
 
 ** Tools
 *** Flymake
