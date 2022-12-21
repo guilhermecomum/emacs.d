@@ -262,7 +262,8 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 #+begin_src elisp
   (global-set-key [s-tab] 'next-buffer)
   (global-set-key [S-s-iso-lefttab] 'previous-buffer)
-
+  (global-set-key ["M-["] 'next-buffer)
+  (global-set-key ["M-]"] 'previous-buffer)
   ;;; change window
   (global-set-key [(C-tab)] 'other-window)
   (global-set-key [(C-M-tab)] 'other-window)
