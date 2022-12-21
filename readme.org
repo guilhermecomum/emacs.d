@@ -814,21 +814,10 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
 #+begin_src elisp
   (use-package markdown-mode)
 #+end_src
-*** Typescript
-#+begin_src elisp
-  (use-package typescript-mode
-    :ensure-system-package (typescript-language-server . "npm i -g typescript-language-server")
-    :hook
-    (typescript-mode . eglot-ensure)
-    :config
-    (setq typescript-indent-level 2))
-  ;;(add-hook 'typescript-ts-mode-hook 'eglot-ensure)
-#+end_src
 *** Web mode
 #+begin_src elisp
   (use-package web-mode
     :mode (("\\.html?\\'" . web-mode)
-           ("\\.tsx\\'" . web-mode)
            ("\\.js[x]?\\'" . web-mode))
     :config
     (setq web-mode-markup-indent-offset 2
@@ -904,6 +893,15 @@ yasnippet
 **** Commit
 #+begin_src elisp
   (use-package js-comint)
+#+end_src
+*** Typescript
+#+begin_src elisp
+  (use-package typescript-mode
+    :ensure-system-package (typescript-language-server . "npm i -g typescript-language-server"))
+  (use-package ts-comint
+    :ensure-system-package (tsun . "npm install -g tsun"))
+#+end_src
+
 #+end_src
 *** Elisp
 **** Unit Test
