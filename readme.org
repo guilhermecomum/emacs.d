@@ -76,19 +76,10 @@ Contrary to what many Emacs users have in their configs, you don't need more tha
   (setq custom-file "~/.emacs.d/custom.el")
   (load custom-file)
 
-  (use-package neotree
-    :bind([f9] . neotree-toggle)
-    :config
-    (setq neo-autorefresh nil)
-    (setq neo-smart-open t)
-    (with-eval-after-load 'neotree
-      (define-key neotree-mode-map (kbd "h") 'neotree-hidden-file-toggle)))
-
   (use-package add-node-modules-path)
   (use-package exec-path-from-shell)
   (setq exec-path-from-shell-variables '("GOPATH" "PATH" "MANPATH"))
   (exec-path-from-shell-initialize)
-
 #+end_src
 
 ** UI
@@ -114,6 +105,14 @@ Contrary to what many Emacs users have in their configs, you don't need more tha
 
 *** Neotree
 #+begin_src elisp
+  (use-package neotree
+    :bind([f9] . neotree-toggle)
+    :config
+    (setq neo-autorefresh nil)
+    (setq neo-smart-open t)
+    (with-eval-after-load 'neotree
+      (define-key neotree-mode-map (kbd "h") 'neotree-hidden-file-toggle)))
+
   (defun text-scale-twice ()
     (interactive)
     (progn(text-scale-adjust 0)(text-scale-decrease 2)))
