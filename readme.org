@@ -357,6 +357,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 *** Treesiter
 #+begin_src elisp
   (require 'treesit)
+  ;; modules build from https://github.com/casouri/tree-sitter-module
   (setq treesit-extra-load-path '("~/Projects/tree-sitter-module/dist"))
   (push '(css-mode . css-ts-mode) major-mode-remap-alist)
   (push '(javascript-mode . js-ts-mode) major-mode-remap-alist)
@@ -627,7 +628,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 
      ;; Org styling, hide markup etc.
      org-hide-emphasis-markers t
-     org-pretty-entities t
+     org-pretty-entities nil
      org-ellipsis "…")
     (global-org-modern-mode))
 
