@@ -823,9 +823,7 @@ Buttercup
 #+begin_src elisp
   (use-package prisma-mode
     :straight (prisma-mode :host github :repo "pimeys/emacs-prisma-mode")
-    :ensure-system-package (prisma-language-server . "npm i -g @prisma/language-server")
-    :config
-    (add-hook 'prisma-mode-hook (lambda () (add-hook 'before-save-hook 'eglot-format))))
+    :ensure-system-package (prisma-language-server . "npm i -g @prisma/language-server"))
 #+end_src
 *** YAML
 #+begin_src elisp
