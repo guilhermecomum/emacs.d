@@ -967,6 +967,20 @@ Buttercup
     :hook
     (web-mode . eglot-ensure)
     (prisma-mode . eglot-ensure)
+    :bind (:map eglot-mode-map
+                ("C-c ." . eglot-code-actions)
+                ("C-c e r" . eglot-rename)
+                ("C-c e f" . eglot-format)
+                ("M-?" . xref-find-references)
+                ("M-." . xref-find-definitions)
+                ("C-c x a" . xref-find-apropos)
+                ("C-c f n" . flymake-goto-next-error)
+                ("C-c f p" . flymake-goto-prev-error)
+                ("C-c f d" . flymake-show-project-diagnostics))
+    :custom
+    (eglot-autoshutdown t)
+    (eglot-menu-string "LSP")
+    (eglot-ignored-server-capabilities '(:documentHighlightProvider))
     :config
     (define-key eglot-mode-map (kbd "C-c r") 'eglot-rename)
     (define-key eglot-mode-map (kbd "C-c o") 'eglot-code-action-organize-imports)
