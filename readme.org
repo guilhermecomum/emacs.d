@@ -82,6 +82,16 @@ Contrary to what many Emacs users have in their configs, you don't need more tha
   (exec-path-from-shell-initialize)
 #+end_src
 
+*** Startup Screen
+#+begin_src elisp
+  (use-package dashboard
+    :config
+    (setq dashboard-banner-logo-title "Olá, bem vindo ao Emacs")
+    (setq dashboard-startup-banner "~/.emacs.d/nyan-cat.png")
+    (setq dashboard-center-content t)
+    (setq dashboard-items '((projects . 5) (agenda . 5) ))
+    (dashboard-setup-startup-hook))
+#+end_src
 ** UI
 *** Theme
 **** Doom Themes
@@ -169,8 +179,6 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
   (tool-bar-mode 0)
   (column-number-mode)
   (setq ring-bell-function 'ignore)
-  (setq inhibit-splash-screen t)
-  (setq inhibit-startup-screen t)
 #+end_src
 
 *** Doom modeline
