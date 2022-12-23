@@ -280,12 +280,14 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 
   ;;; Remap kill buffer to my/kill-this-buffer
   (global-set-key (kbd "C-x k") 'my/kill-this-buffer)
+
+  ;;; Go to scratch buffer
+  (global-set-key (kbd "<f2>") (lambda() (interactive)(switch-to-buffer "*scratch*")))
 #+end_src
 *** Code navigation
 #+begin_src elisp
   (global-set-key (kbd "M-g") 'goto-line)
   (global-set-key (kbd "C-c s") 'sort-lines)
-
 #+end_src
 *** Editing
 #+begin_src elisp
