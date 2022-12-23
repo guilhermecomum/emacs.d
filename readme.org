@@ -460,12 +460,14 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
     (setq projectile-indexing-method 'alien)
     (setq projectile-sort-order 'recently-active)
     (setq projectile-completion-system 'helm)
-
+    (setq projectile-per-project-compilation-buffer t)
+    (setq projectile-comint-mode t)
+    (setq compilation-read-command nil)
     (add-to-list 'projectile-globally-ignored-directories "node_modules")
     (add-to-list 'projectile-globally-ignored-files "yarn.lock")
+    (add-hook 'projectile-after-switch-project-hook 'projectile-run-project)
     (helm-projectile-on)
     (projectile-mode))
-
   (use-package helm-projectile)
 
 #+end_src
