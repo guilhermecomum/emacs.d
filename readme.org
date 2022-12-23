@@ -1,3 +1,5 @@
+#+OPTIONS: toc:t
+
 * My Emacs config
 ** Bootstrap
 *** Native Comp
