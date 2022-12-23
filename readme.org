@@ -1,5 +1,3 @@
-#+OPTIONS: toc:t
-
 * My Emacs config
 ** Bootstrap
 *** Native Comp
@@ -54,7 +52,6 @@ Contrary to what many Emacs users have in their configs, you don't need more tha
   ;; Close all dired buffers after opening
   (setq dired-kill-when-opening-new-dired-buffer t)
 
-  (add-to-list 'default-frame-alist '(fullscreen . maximized))
   (defun dont-kill-scratch ()
     "This function doesn't let you kill scratch by mistake."
     (if (not (equal (buffer-name) "*scratch*"))
@@ -93,6 +90,10 @@ Contrary to what many Emacs users have in their configs, you don't need more tha
     (setq dashboard-center-content t)
     (setq dashboard-items '((projects . 5) (agenda . 5) ))
     (dashboard-setup-startup-hook))
+#+end_src
+*** Emacs Server
+#+begin_src elisp
+(server-start)
 #+end_src
 ** UI
 *** Theme
@@ -257,7 +258,6 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
           (kill-buffer (current-buffer))))))
 #+end_src
 ** Keys
-
 *** Org-mode
 #+begin_src elisp
   (global-set-key (kbd "C-c a")
@@ -293,10 +293,6 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
   (global-set-key (kbd "C-c d") 'uncomment-region)
 #+end_src
 
-*** Terminal
-#+begin_src elisp
-  (global-set-key (kbd "C-c t") 'eshell)
-#+end_src
 *** Conf
 #+begin_src elisp
   (global-set-key (kbd "<f6>") (lambda() (interactive)(find-file "~/.emacs.d/readme.org")))
@@ -586,6 +582,28 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 *** Todoist
 #+begin_src elisp :tangle no
   (setq todoist-token "")
+#+end_src
+*** Yequake
+#+begin_src elisp
+  (use-package yequake
+    :straight (yequake :host github :repo "alphapapa/yequake")
+
+    :custom
+    (yequake-frames
+     '(("terminal"
+        (buffer-fns . (vterm))
+        (width . 0.98)
+        (height . 0.5)
+        (alpha . 1.0)
+        (frame-parameters . ((undecorated . t)
+                             (skip-taskbar . t)
+                             (sticky . t)))))))
+#+end_src
+*** Vterm
+#+begin_src elisp
+(use-package vterm)
+
+(global-set-key (kbd "<f3>") (lambda() (interactive)(vterm)))
 #+end_src
 ** Modes
 *** Org
