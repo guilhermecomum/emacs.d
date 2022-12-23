@@ -843,9 +843,6 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
           web-mode-content-types-alist  '(("jsx" . "\\.js[x]?\\'"))))
 
   (add-hook 'web-mode-hook  'auto-rename-tag-mode)
-  (add-hook 'web-mode-hook 'eglot-ensure
-            (lambda () (pcase (file-name-extension buffer-file-name)
-                         ("tsx" ('eglot-ensure)))))
 #+end_src
 Auto rename tag
 #+begin_src elisp
@@ -908,8 +905,20 @@ yasnippet
     :ensure-system-package (typescript-language-server . "npm i -g typescript-language-server"))
   (use-package ts-comint
     :ensure-system-package (tsun . "npm install -g tsun"))
+
+  (defun node-project-p ()
+    "Predicate for determining if the open project is a Node one."
+    (let ((p-root (cdr (project-current))))
+      (file-exists-p (concat p-root "package.json"))))
 #+end_src
 
+#+end_src
+*** Deno
+#+begin_src elisp
+  (defun deno-project-p ()
+    "Predicate for determining if the open project is a Deno one."
+    (let ((p-root (cdr (project-current))))
+      (file-exists-p (concat p-root "deno.json"))))
 #+end_src
 *** Elisp
 **** Unit Test
@@ -961,12 +970,21 @@ Buttercup
     ;;         read-process-output-max (* 1024 1024)))
 #+end_src
 *** Eglot
+Original code from https://github.com/joaotavora/eglot/discussions/999
 #+begin_src elisp
+  (defun ecma-server-program (_)
+    "Decide which server to use for ECMA Script based on project characteristics."
+    (cond ((deno-project-p) '("deno" "lsp" :initializationOptions (:enable t :lint t)))
+          ((node-project-p) '("typescript-language-server" "--stdio"))
+          (t                nil)))
+
   (use-package eglot
-    :straight (:type built-in)
+    :straight t
     :hook
-    (web-mode . eglot-ensure)
-    (prisma-mode . eglot-ensure)
+    (typescript-mode . eglot-ensure)
+    (typescript-ts-mode . eglot-ensure)
+    (tsx-ts-mode . eglot-ensure)
+    ;;(prisma-mode . eglot-ensure)
     :bind (:map eglot-mode-map
                 ("C-c ." . eglot-code-actions)
                 ("C-c e r" . eglot-rename)
@@ -982,12 +1000,7 @@ Buttercup
     (eglot-menu-string "LSP")
     (eglot-ignored-server-capabilities '(:documentHighlightProvider))
     :config
-    (define-key eglot-mode-map (kbd "C-c r") 'eglot-rename)
-    (define-key eglot-mode-map (kbd "C-c o") 'eglot-code-action-organize-imports)
-    (define-key eglot-mode-map (kbd "C-c h") 'eldoc)
-    (define-key eglot-mode-map (kbd "M-.") 'xref-find-definitions)
-    (define-key eglot-mode-map (kbd "C-c .") 'eglot-code-actions)
-    (add-to-list 'eglot-server-programs '((web-mode typescript-mode) . ("typescript-language-server" "--stdio")))
+    (add-to-list 'eglot-server-programs '((js-ts-mode tsx-ts-mode typescript-ts-mode) . ecma-server-program))
     (add-to-list 'eglot-server-programs '((prisma-mode) . ("prisma-language-server" "--stdio"))))
 #+end_src
 
