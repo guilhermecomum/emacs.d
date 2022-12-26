@@ -112,12 +112,6 @@ Contrary to what many Emacs users have in their configs, you don't need more tha
       (load-theme (intern "doom-tokyo-night") t))
 #+end_src
 
-**** N Λ N O
-#+begin_src elisp
-  (use-package nano-modeline)
-  (nano-modeline-mode)
-#+end_src
-
 *** Neotree
 #+begin_src elisp
   (use-package neotree
@@ -185,10 +179,10 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
 #+end_src
 
 *** Doom modeline
-#+begin_src elisp :tangle no
+#+begin_src elisp
   (use-package doom-modeline
     :config
-    (setq doom-modeline-height 35)
+    (setq doom-modeline-height 25)
     (set-face-background 'doom-modeline-bar (face-background 'mode-line))
     (setq doom-modeline-bar-width 1)
     (doom-modeline-mode 1))
@@ -225,8 +219,7 @@ Centaur tabs
   (use-package company
     :hook (prog-mode . company-mode)
     :config
-    (setq company-minimum-prefix-length 2)
-    (setq company-idle-delay 0.2))
+    (setq company-minimum-prefix-length 2))
 
     (global-company-mode)
     (global-set-key (kbd "TAB") #'company-indent-or-complete-common)
