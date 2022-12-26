@@ -602,6 +602,20 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 
 (global-set-key (kbd "<f3>") (lambda() (interactive)(vterm)))
 #+end_src
+*** EAF
+#+begin_src elisp
+  (straight-use-package
+   '(webkit :type git :host github :repo "akirakyle/emacs-webkit"
+            :branch "main"
+            :files (:defaults "*.js" "*.css" "*.so")
+            :pre-build ("make")))
+  (use-package webkit)
+  (setq webkit-search-prefix "https://google.com/search?q=")
+#+end_src
+**** Search clipboard on google
+#+begin_src elisp
+  (global-set-key (kbd "C-c C-g") (lambda () (interactive) (webkit (car kill-ring))))
+#+end_src
 ** Modes
 *** Org
 **** Bootstrap
