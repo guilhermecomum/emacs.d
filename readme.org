@@ -258,7 +258,6 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
                     (interactive)
                     (org-agenda nil "z")))
   (global-set-key (kbd "C-c /") 'org-capture)
-  (global-set-key (kbd "<f12>") 'org-journal-open-current-journal-file)
   (global-set-key (kbd "s-c") 'ox-clip-formatted-copy)
 #+end_src
 *** Buffer/Window
@@ -636,7 +635,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
   (require 'org-collector)
   (setq org-export-coding-system 'utf-8)
   (setq org-directory "~/Projects/org-files")
-  (setq org-tag-alist '(("work" . ?w) ("personal" . ?p) ("cto" . ?c) ("emacsLove" . ?l) ("quotes" . ?q) ("finances" . ?f) ("howto" . ?h)))
+  (setq org-tag-alist '(("work" . ?w) ("personal" . ?p) ("meta" . ?m) ("emacsLove" . ?l) ("quotes" . ?q) ("finances" . ?f) ("howto" . ?h)))
   (setq org-startup-indented t)
   (setq org-export-with-toc nil)
   (setq org-export-with-section-numbers nil)
@@ -765,32 +764,6 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
     (add-hook 'markdown-mode-hook (lambda () (olivetti-mode)))
     (add-hook 'org-mode-hook (lambda () (olivetti-mode))))
 #+end_src
-**** Journal
-#+begin_src elisp
-  (use-package org-journal
-    :config
-    (add-hook 'org-journal-after-save-hook 'git-auto-commit-mode)
-
-    (setq org-journal-enable-agenda-integration t
-          org-journal-dir "~/Projects/org-files/journal/"
-          org-journal-file-type 'yearly
-          org-journal-time-format ""
-          org-journal-file-format "%Y.org"
-          org-journal-date-format "%A, %d %B %Y"))
-
-
-  (defun org-journal-find-location ()
-    ;; Open today's journal, but specify a non-nil prefix argument in order to
-    ;; inhibit inserting the heading; org-capture will insert the heading.
-    (org-journal-new-entry t)
-    (unless (eq org-journal-file-type 'daily)
-      (org-narrow-to-subtree))
-    (goto-char (point-max)))
-
-  (setq org-capture-templates '(("d" "Daily questions" plain (function org-journal-find-location)
-                                 (file "~/.emacs.d/templates/daily.org")
-                                 :jump-to-captured t :immediate-finish t)))
-#+end_src
 **** Super-agenda
 #+begin_src elisp
   (use-package org-super-agenda
@@ -800,7 +773,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 
   (setq org-agenda-custom-commands
         '(("z" "Super view"
-           ((tags "cto" ((org-agenda-overriding-header "Objetivos do ciclo")))
+           ((tags "meta" ((org-agenda-overriding-header "Objetivos de 2023")))
             (agenda "" ((org-agenda-span 'day)
                         ;;(org-agenda-prefix-format "%-2i")
                         (org-super-agenda-groups
@@ -827,7 +800,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
                             (:name "Work"
                                    :tag "work"
                                    :order 31)
-                            (:discard (:tag ("Routine" "Daily" "cto" "finances")))))))
+                            (:discard (:tag ("Routine" "Daily" "meta" "finances")))))))
             ))
           ))
 #+end_src
