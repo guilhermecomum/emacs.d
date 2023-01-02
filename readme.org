@@ -430,6 +430,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
     :straight t
     :config
     (setq helm-buffers-fuzzy-matching t)
+    (define-key minibuffer-local-completion-map (kbd "SPC") 'self-insert-command)
     (setq helm-recentf-fuzzy-match    t))
 #+end_src
 *** Code Folding
@@ -847,6 +848,30 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
       '(and
         (todo))
       :action #'org-id-get-create))
+#+end_src
+**** Roam
+#+begin_src elisp
+  (use-package org-roam
+    ;; :init
+    ;; (setq org-roam-v2-ack t)
+    :custom
+    (org-roam-directory "~/Projects/org-files/roam")
+    (setq org-roam-dailies-directory "daily/")
+    (org-roam-completion-everywhere t)
+    :bind (("C-c n l" . org-roam-buffer-toggle)
+           ("<f4>" . org-roam-node-find)
+           ("C-c n i" . org-roam-node-insert)
+           ("<f12>" . org-roam-dailies-capture-today)
+           ;; :map org-mode-map
+           ;; ("C-M-i" . completion-at-point)
+           :map org-roam-dailies-map
+           ("Y" . org-roam-dailies-capture-yesterday)
+           ("T" . org-roam-dailies-capture-tomorrow))
+    :bind-keymap
+    ("C-c n d" . org-roam-dailies-map)
+    :config
+    (require 'org-roam-dailies) ;; Ensure the keymap is available
+    (org-roam-db-autosync-mode))
 #+end_src
 
 *** Markdown
