@@ -9,7 +9,7 @@
  '(flymake-note-bitmap '(my-rounded-fringe-indicator compilation-info))
  '(flymake-warning-bitmap '(my-rounded-fringe-indicator compilation-warning))
  '(nano-modeline-position 'bottom)
- '(org-agenda-files '("/home/guerra/Projects/org-files/roam"))
+ '(org-agenda-files '("/home/guerra/Projects/org-files/roam" "/home/guerra/Projects/org-files/roam/daily"))
  '(org-agenda-span 15)
  '(org-deadline-warning-days 0)
  '(org-icalendar-deadline-summary-prefix "")
