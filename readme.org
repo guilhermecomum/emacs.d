@@ -636,11 +636,12 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
   (setq org-export-coding-system 'utf-8)
   (setq org-directory "~/Projects/org-files")
   (setq org-tag-alist '(("work" . ?w) ("personal" . ?p) ("meta" . ?m) ("emacsLove" . ?l) ("quotes" . ?q) ("finances" . ?f) ("howto" . ?h)))
+  (setq org-log-done nil)
+  (setq org-log-repeat nil)
   (setq org-startup-indented t)
   (setq org-export-with-toc nil)
   (setq org-export-with-section-numbers nil)
   (setq gac-automatically-push-p t)
-  (add-to-list 'org-modules 'org-habit t)
   (add-hook 'org-mode-hook 'turn-on-flyspell)
 #+end_src
 **** Reveal
@@ -774,35 +775,19 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
   (setq org-agenda-custom-commands
         '(("z" "Super view"
            ((tags "meta" ((org-agenda-overriding-header "Objetivos de 2023")))
-            (agenda "" ((org-agenda-span 'day)
-                        ;;(org-agenda-prefix-format "%-2i")
-                        (org-super-agenda-groups
-                         '((:name "Today"
-                                  :time-grid t
-                                  :date today
-                                  :todo "TODAY"
-                                  :scheduled today
-                                  :order 1)))))
+            (agenda "" ((org-agenda-span 'week)
+                        (org-agenda-overriding-header "")
+                        ))
             (alltodo "" ((org-agenda-overriding-header "")
                          (org-agenda-remove-tags t)
                          (org-super-agenda-groups
-                          '(
-                            (:name "Next to do"
-                                   :todo "NEXT"
-                                   :order 1)
-                            (:name "Due Soon"
+                          '((:name "Próximos eventos"
                                    :discard (:tag ("finances"))
                                    :deadline future
                                    :order 8)
-                            (:name "Personal"
-                                   :tag "personal"
-                                   :order 30)
-                            (:name "Work"
-                                   :tag "work"
-                                   :order 31)
+                            (:name "Sem data" :deadline nil :order 9)
                             (:discard (:tag ("Routine" "Daily" "meta" "finances")))))))
-            ))
-          ))
+            ))))
 #+end_src
 **** Functions
 Check if a billing is paid based on the date

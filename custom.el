@@ -10,6 +10,12 @@
  '(flymake-warning-bitmap '(my-rounded-fringe-indicator compilation-warning))
  '(nano-modeline-position 'bottom)
  '(org-agenda-files '("/home/guerra/Projects/org-files/roam"))
+ '(org-agenda-span 15)
+ '(org-deadline-warning-days 0)
+ '(org-icalendar-deadline-summary-prefix "")
+ '(org-icalendar-timezone "")
+ '(org-icalendar-use-deadline '(event-if-todo todo-due))
+ '(org-icalendar-with-timestamps nil)
  '(safe-local-variable-values
    '((eval progn
            (require 'projectile)
