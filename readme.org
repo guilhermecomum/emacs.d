@@ -644,6 +644,14 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
   (setq gac-automatically-push-p t)
   (add-hook 'org-mode-hook 'turn-on-flyspell)
 #+end_src
+**** Ox
+***** Slack
+#+begin_src elisp
+  (use-package ox-slack
+    :bind ("C-c e s" . org-slack-export-to-clipboard-as-slack))
+
+#+end_src
+
 **** Reveal
 #+begin_src elisp
   (use-package ox-reveal)
@@ -654,7 +662,6 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
   (use-package htmlize)
 #+end_src
 **** UI
-
 ***** Org modern
 #+begin_src elisp
   (use-package org-modern
