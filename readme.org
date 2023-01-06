@@ -788,7 +788,11 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
             (alltodo "" ((org-agenda-overriding-header "")
                          (org-agenda-remove-tags t)
                          (org-super-agenda-groups
-                          '((:name "Próximos eventos"
+                          '(
+                            (:name "🚨 Atrasados"
+                                   :deadline past
+                                   :order 7)
+                            (:name "Próximos eventos"
                                    :discard (:tag ("finances"))
                                    :deadline future
                                    :order 8)
