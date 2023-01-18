@@ -1,14 +1,17 @@
 * My Emacs config
 ** Bootstrap
-*** Native Comp
+Emacs server
+#+begin_src elisp
+(server-start)
+#+end_src
+*** Native Compilation
 #+begin_src elisp
   (when (fboundp 'native-compile-async)
     (setq comp-deferred-compilation t))
 
-  (setq native-comp-async-report-warnings-errors nil)
-  (setq warning-minimum-level :error)
+  (setq native-comp-async-report-warnings-errors nil
+        warning-minimum-level :error)
 #+end_src
-
 *** Package manager
 Straight.el
 #+BEGIN_SRC elisp
@@ -32,13 +35,12 @@ Straight.el
   (use-package use-package-ensure-system-package)
 #+END_SRC
 
-*** Enconding
+*** Encoding
 From [[https://github.com/doomemacs/doomemacs/blob/594d70292dc134d483fbf7a427001250de07b4d2/lisp/doom-start.el#L132-L134][Doom emacs]]
 Contrary to what many Emacs users have in their configs, you don't need more than this to make UTF-8 the default coding system:
 #+begin_src elisp
 (set-language-environment "UTF-8")
 #+end_src
-
 *** Misc
 #+begin_src elisp
   (setq default-directory "~/")
@@ -91,11 +93,7 @@ Contrary to what many Emacs users have in their configs, you don't need more tha
     (setq dashboard-items '((projects . 5) (agenda . 5) ))
     (dashboard-setup-startup-hook))
 #+end_src
-*** Emacs Server
-#+begin_src elisp
-(server-start)
-#+end_src
-** UI
+** User Interface
 *** Theme
 **** Doom Themes
 #+begin_src elisp
@@ -114,18 +112,19 @@ Contrary to what many Emacs users have in their configs, you don't need more tha
 
 *** Neotree
 #+begin_src elisp
+  (defun text-scale-twice ()
+    (interactive)
+    (progn(text-scale-adjust 0)(text-scale-decrease 2)))
+
   (use-package neotree
     :bind([f9] . neotree-toggle)
+    :hook (neo-after-create . (lambda (_)(call-interactively 'text-scale-twice)))
     :config
     (setq neo-autorefresh nil)
     (setq neo-smart-open t)
     (with-eval-after-load 'neotree
       (define-key neotree-mode-map (kbd "h") 'neotree-hidden-file-toggle)))
 
-  (defun text-scale-twice ()
-    (interactive)
-    (progn(text-scale-adjust 0)(text-scale-decrease 2)))
-  (add-hook 'neo-after-create-hook (lambda (_)(call-interactively 'text-scale-twice)))
 #+end_src
 *** Improve theme loading
 Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_you_currently_using/d43c5cw][Reddit]]
@@ -139,8 +138,7 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
 #+begin_src elisp
   (use-package all-the-icons)
   (use-package all-the-icons-dired
-    :config
-    (add-hook 'dired-mode-hook 'all-the-icons-dired-mode))
+    :hook (dired-mode . all-the-icons-dired-mode))
 #+end_src
 
 *** Cosmetics
@@ -155,9 +153,7 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
 **** Emoji
 #+begin_src elisp
   (use-package emojify
-      :config
-      (add-hook 'after-init-hook #'global-emojify-mode))
-
+      :hook (after-init . global-emojify-mode))
 #+end_src
 
 *** Dimmer
@@ -250,16 +246,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
                             ((eq response ?d) (diff-buffer-with-file) nil))))))
           (kill-buffer (current-buffer))))))
 #+end_src
-** Keys
-*** Org-mode
-#+begin_src elisp
-  (global-set-key (kbd "C-c a")
-                  (lambda ()
-                    (interactive)
-                    (org-agenda nil "z")))
-  (global-set-key (kbd "C-c /") 'org-capture)
-  (global-set-key (kbd "s-c") 'ox-clip-formatted-copy)
-#+end_src
+** Key mapping
 *** Buffer/Window
 #+begin_src elisp
   (global-set-key [s-tab] 'next-buffer)
@@ -286,7 +273,6 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
   (global-set-key (kbd "C-c c") 'comment-region)
   (global-set-key (kbd "C-c d") 'uncomment-region)
 #+end_src
-
 *** Conf
 #+begin_src elisp
   (global-set-key (kbd "<f6>") (lambda() (interactive)(find-file "~/.emacs.d/readme.org")))
@@ -302,9 +288,8 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 #+begin_src elisp :tangle no
   (use-package highlight-indent-guides
     :config
-    (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
-    (setq highlight-indent-guides-method 'character))
-
+    (setq highlight-indent-guides-method 'character)
+    :hook (prog-mode . highlight-indent-guides-mode))
 #+end_src
 
 *** Misc
@@ -435,8 +420,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 *** Code Folding
 #+begin_src elisp
   (use-package yafolding
-    :config
-    (global-set-key (kbd "<C-return>") #'yafolding-toggle-element))
+    :bind ("<C-return>" . yafolding-toggle-element))
 #+end_src
 *** Restclient
 #+begin_src elisp
@@ -448,11 +432,11 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
     :ensure-system-package (ag . "sudo apt install silversearcher-ag"))
 
   (use-package projectile
-    :bind-keymap ("C-c p" . projectile-command-map)
+    :bind ("C-c p" . projectile-command-map)
     :config
     (setq projectile-indexing-method 'alien)
     (setq projectile-sort-order 'recently-active)
-    (setq projectile-completion-system 'helm)
+
     (setq projectile-per-project-compilation-buffer t)
     (setq projectile-comint-mode t)
     (setq compilation-read-command nil)
@@ -620,7 +604,11 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 *** Org
 **** Bootstrap
 #+begin_src elisp
-  (use-package org :straight (:type built-in))
+  (use-package org :straight (:type built-in)
+    :bind (("C-c a" . (lambda () (interactive) (org-agenda nil "z")) )
+           ("C-c /" . 'org-capture)
+           ("s-c" . 'ox-clip-formatted-copy))
+    :hook (org-mode . turn-on-flyspell))
   (use-package org-contrib)
   (use-package org-web-tools
     :ensure-system-package (pandoc . "sudo apt install pandoc"))
@@ -633,16 +621,16 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
   (require 'org-inlinetask)
   (require 'org-tempo)
   (require 'org-collector)
-  (setq org-export-coding-system 'utf-8)
-  (setq org-directory "~/Projects/org-files")
-  (setq org-tag-alist '(("work" . ?w) ("personal" . ?p) ("meta" . ?m) ("emacsLove" . ?l) ("quotes" . ?q) ("finances" . ?f) ("howto" . ?h)))
-  (setq org-log-done nil)
-  (setq org-log-repeat nil)
-  (setq org-startup-indented t)
-  (setq org-export-with-toc nil)
-  (setq org-export-with-section-numbers nil)
-  (setq gac-automatically-push-p t)
-  (add-hook 'org-mode-hook 'turn-on-flyspell)
+  (setq org-export-coding-system 'utf-8
+        org-directory "~/Projects/org-files"
+        org-tag-alist '(("work" . ?w) ("personal" . ?p) ("meta" . ?m) ("emacsLove" . ?l) ("quotes" . ?q) ("finances" . ?f) ("howto" . ?h))
+        org-log-done nil
+        org-log-repeat nil
+        org-startup-indented t
+        org-export-with-toc nil
+        org-export-with-section-numbers nil
+        gac-automatically-push-p t)
+
 #+end_src
 **** Ox
 ***** Slack
@@ -655,13 +643,21 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 **** Reveal
 #+begin_src elisp
   (use-package ox-reveal)
-  (setq org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js")
-  (setq org-reveal-title-slide nil)
-  (setq org-reveal-mathjax t)
-
+  (setq org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js"
+        org-reveal-title-slide nil
+        org-reveal-mathjax t)
   (use-package htmlize)
 #+end_src
 **** UI
+***** Olivetti
+#+begin_src elisp
+  (use-package olivetti
+    :custom
+    (olivetti-body-width 120)
+    :config
+    :hook ((markdown-mode . olivetti-mode)
+           (org-mode . olivetti-mode)))
+#+end_src
 ***** Org modern
 #+begin_src elisp
   (use-package org-modern
@@ -763,42 +759,34 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
                 (svg-tag-make tag :end -1 :inverse t :crop-left t :margin 0 :face 'org-date)))))))
 #+end_src
 
-***** Olivetti
-#+begin_src elisp :tangle no
-  (use-package olivetti
-    :custom
-    (olivetti-body-width 120)
-    :config
-    (add-hook 'markdown-mode-hook (lambda () (olivetti-mode)))
-    (add-hook 'org-mode-hook (lambda () (olivetti-mode))))
-#+end_src
 **** Super-agenda
 #+begin_src elisp
-  (use-package org-super-agenda
-    :after org-agenda
-    :config
-    (org-super-agenda-mode t))
+    (use-package org-super-agenda
+      :after org-agenda
+      :config
+      (org-super-agenda-mode t)
+      (setq org-agenda-skip-scheduled-if-done t))
 
-  (setq org-agenda-custom-commands
-        '(("z" "Super view"
-           ((tags "meta" ((org-agenda-overriding-header "Objetivos de 2023")))
-            (agenda "" ((org-agenda-span 'week)
-                        (org-agenda-overriding-header "")
-                        ))
-            (alltodo "" ((org-agenda-overriding-header "")
-                         (org-agenda-remove-tags t)
-                         (org-super-agenda-groups
-                          '(
-                            (:name "🚨 Atrasados"
-                                   :deadline past
-                                   :order 7)
-                            (:name "Próximos eventos"
-                                   :discard (:tag ("finances"))
-                                   :deadline future
-                                   :order 8)
-                            (:name "Sem data" :deadline nil :order 9)
-                            (:discard (:tag ("Routine" "Daily" "meta" "finances")))))))
-            ))))
+    (setq org-agenda-custom-commands
+          '(("z" "Super view"
+             ((tags "meta" ((org-agenda-overriding-header "Objetivos de 2023")))
+              (agenda "" ((org-agenda-span 'week)
+                          (org-agenda-overriding-header "")
+                          ))
+              (alltodo "" ((org-agenda-overriding-header "")
+                           (org-agenda-remove-tags t)
+                           (org-super-agenda-groups
+                            '(
+                              (:name "🚨 Atrasados"
+                                     :deadline past
+                                     :order 7)
+                              (:name "Próximos eventos"
+                                     :discard (:tag ("finances"))
+                                     :deadline future
+                                     :order 8)
+                              (:name "Sem data" :deadline nil :order 9)
+                              (:discard (:tag ("Routine" "Daily" "meta" "finances")))))))
+              ))))
 #+end_src
 **** Functions
 Check if a billing is paid based on the date
@@ -844,16 +832,24 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
 #+end_src
 **** Sync
 #+begin_src elisp
-  ;; Setting variables for the ics file path
-  (setq org-agenda-private-local-path "~/org.ics")
-  (setq org-agenda-private-remote-path "")
-
   (defun org-agenda-export-to-ics ()
     (interactive)
     (org-icalendar-combine-agenda-files)
     (copy-file org-agenda-private-local-path org-agenda-private-remote-path t))
 
-  (global-set-key (kbd "C-c e i") #'org-agenda-export-to-ics)
+  (use-package midnight :straight (:type built-in)
+    :config
+    (midnight-delay-set 'midnight-delay 16200)
+    (setq midnight-period 2400 ;; in seconds
+          org-agenda-private-local-path "~/org.ics"
+          org-agenda-private-remote-path "/gdrive:guilherme.ga@gmail.com:/Meu Drive/org.ics")
+    :hook (midnight . org-agenda-export-to-ics)
+    :bind ("C-c e i" . org-agenda-export-to-ics))
+
+#+end_src
+**** Chef
+#+begin_src elisp
+  (use-package org-chef)
 #+end_src
 
 *** Markdown
@@ -878,9 +874,8 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
           web-mode-enable-current-element-highlight t
           web-mode-enable-current-column-highlight t
           web-mode-content-types-alist  '(("django" . "\\.tpl\\'"))
-          web-mode-content-types-alist  '(("jsx" . "\\.js[x]?\\'"))))
-
-  (add-hook 'web-mode-hook  'auto-rename-tag-mode)
+          web-mode-content-types-alist  '(("jsx" . "\\.js[x]?\\'")))
+    :hook (web-mode . auto-rename-tag-mode))
 #+end_src
 Auto rename tag
 #+begin_src elisp
@@ -897,18 +892,14 @@ yasnippet
 *** Zencoding
 #+begin_src elisp
   (use-package emmet-mode
-    :hook
-    ((web-mode rjsx-mode typescript-mode) . emmet-mode)
-    :init
-    (setq emmet-indent-after-insert nil)
-    (setq emmet-indentation 2)
-    (setq emmet-expand-jsx-className? t)
-    (setq emmet-move-cursor-between-quotes t)
-    (setq emmet-self-closing-tag-style " /")
-
+    :hook ((web-mode typescript-ts-mode) . emmet-mode)
     :config
-    (add-to-list 'emmet-jsx-major-modes 'web-mode)
-    (add-to-list 'emmet-jsx-major-modes 'typescript-mode))
+    (setq emmet-indent-after-insert nil
+          emmet-indentation 2
+          emmet-expand-jsx-className? t
+          emmet-move-cursor-between-quotes t
+          emmet-self-closing-tag-style " /")
+    (add-to-list 'emmet-jsx-major-modes 'typescript-ts-mode))
 
 #+end_src
 *** Javascript
@@ -917,20 +908,13 @@ yasnippet
   (use-package prettier-js
     :ensure-system-package (prettier . "npm i -g prettier")
     :hook
-    (typescript-mode . prettier-js-mode))
+    (tsx-ts-mode . prettier-js-mode))
 
   (defun enable-minor-mode (my-pair)
     "Enable minor mode if filename match the regexp.  MY-PAIR is a cons cell (regexp . minor-mode)."
     (if (buffer-file-name)
         (if (string-match (car my-pair) buffer-file-name)
         (funcall (cdr my-pair)))))
-
-  (add-hook 'web-mode-hook #'(lambda ()
-                              (enable-minor-mode
-                               '("\\.jsx?\\'" . prettier-js-mode))))
-  (add-hook 'web-mode-hook #'(lambda ()
-                              (enable-minor-mode
-                               '("\\.tsx?\\'" . prettier-js-mode))))
 #+end_src
 
 **** Commit
@@ -943,6 +927,15 @@ yasnippet
     :ensure-system-package (typescript-language-server . "npm i -g typescript-language-server"))
   (use-package ts-comint
     :ensure-system-package (tsun . "npm install -g tsun"))
+
+  (use-package tsx-ts-helper-mode
+    :straight (tsx-ts-helper-mode
+               :type git
+               :host codeberg
+               :repo "ckruse/tsx-ts-helper-mode")
+    :commands (tsx-ts-helper-mode)
+    :hook (tsx-ts-mode . tsx-ts-helper-mode))
+
 
   (defun node-project-p ()
     "Predicate for determining if the open project is a Node one."
@@ -1048,10 +1041,11 @@ Original code from https://github.com/joaotavora/eglot/discussions/999
   (use-package sqlformat
     :ensure-system-package (pg_format . "sudo apt install pgformatter")
     :config
-    (setq sqlformat-command 'pgformatter)
-    (setq sqlformat-args '("-s2" "-g"))
-    (add-hook 'sql-mode-hook 'sqlformat-on-save-mode)
-    (define-key sql-mode-map (kbd "C-c C-f") 'sqlformat))
+    (setq sqlformat-command 'pgformatter
+          sqlformat-args '("-s2" "-g"))
+    :hook (sql-mode . sqlformat-on-save-mode)
+    :bind (:map sql-mode-map ("C-c C-f" . sqlformat)))
+
 #+end_src
 *** Reddit
 #+begin_src elisp :tangle no
