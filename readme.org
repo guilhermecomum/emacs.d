@@ -1,18 +1,9 @@
-* My Emacs config
-** Bootstrap
-Emacs server
+* My Emacs configuration
+** Native Compilation
 #+begin_src elisp
-(server-start)
+  (setq native-comp-async-report-warnings-errors nil)
 #+end_src
-*** Native Compilation
-#+begin_src elisp
-  (when (fboundp 'native-compile-async)
-    (setq comp-deferred-compilation t))
-
-  (setq native-comp-async-report-warnings-errors nil
-        warning-minimum-level :error)
-#+end_src
-*** Package manager
+** Package manager
 Straight.el
 #+BEGIN_SRC elisp
   (setq package-enable-at-startup nil)
@@ -35,13 +26,13 @@ Straight.el
   (use-package use-package-ensure-system-package)
 #+END_SRC
 
-*** Encoding
+** Encoding
 From [[https://github.com/doomemacs/doomemacs/blob/594d70292dc134d483fbf7a427001250de07b4d2/lisp/doom-start.el#L132-L134][Doom emacs]]
 Contrary to what many Emacs users have in their configs, you don't need more than this to make UTF-8 the default coding system:
 #+begin_src elisp
 (set-language-environment "UTF-8")
 #+end_src
-*** Misc
+** Misc
 #+begin_src elisp
   (setq default-directory "~/")
 
@@ -83,7 +74,11 @@ Contrary to what many Emacs users have in their configs, you don't need more tha
   (exec-path-from-shell-initialize)
 #+end_src
 
-*** Startup Screen
+** Emacs server
+#+begin_src elisp
+(server-start)
+#+end_src
+** Startup Screen
 #+begin_src elisp
   (use-package dashboard
     :config
@@ -187,28 +182,6 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
 Don't pop up UI dialogs when prompting
 #+begin_src elisp
   (setq use-dialog-box nil)
-#+end_src
-*** Tabs
-Centaur tabs
-#+begin_src elisp :tangle no
-  (use-package centaur-tabs
-    :demand
-    :bind
-    ("M-[" . centaur-tabs-backward)
-    ("M-]" . centaur-tabs-forward)
-    :config
-    (setq centaur-tabs-set-icons t)
-    (setq centaur-tabs-gray-out-icons 'buffer)
-    (setq centaur-tabs-style "rounded")
-    (setq centaur-tabs-height 40)
-    (centaur-tabs-mode t)
-    (centaur-tabs-group-by-projectile-project)
-    ;; Only show tabs in buffers visiting files
-    (advice-add 'centaur-tabs-line :around
-                (lambda (oldfn &rest args)
-                  (if (buffer-file-name)
-                      (apply oldfn args)
-                    (setq header-line-format nil)))))
 #+end_src
 *** Company
 #+begin_src elisp
@@ -600,9 +573,8 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 #+begin_src elisp
   (global-set-key (kbd "C-c C-g") (lambda () (interactive) (webkit (car kill-ring))))
 #+end_src
-** Modes
-*** Org
-**** Bootstrap
+** Org
+*** Bootstrap
 #+begin_src elisp
   (use-package org :straight (:type built-in)
     :bind (("C-c a" . (lambda () (interactive) (org-agenda nil "z")) )
@@ -632,15 +604,15 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
         gac-automatically-push-p t)
 
 #+end_src
-**** Ox
-***** Slack
+*** Ox
+**** Slack
 #+begin_src elisp
   (use-package ox-slack
     :bind ("C-c e s" . org-slack-export-to-clipboard-as-slack))
 
 #+end_src
 
-**** Reveal
+*** Reveal
 #+begin_src elisp
   (use-package ox-reveal)
   (setq org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js"
@@ -648,8 +620,8 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
         org-reveal-mathjax t)
   (use-package htmlize)
 #+end_src
-**** UI
-***** Olivetti
+*** UI
+**** Olivetti
 #+begin_src elisp
   (use-package olivetti
     :custom
@@ -658,8 +630,8 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
     :hook ((markdown-mode . olivetti-mode)
            (org-mode . olivetti-mode)))
 #+end_src
-***** Org modern
-#+begin_src elisp
+**** Org modern
+#+begin_src elisp :tangle no
   (use-package org-modern
     :config
     (setq ;; Edit settings
@@ -677,7 +649,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 
 #+end_src
 
-***** SVG
+**** SVG
 #+begin_src elisp :tangle no
   (use-package svg-tag-mode
     :commands svg-tag-mode
@@ -759,7 +731,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
                 (svg-tag-make tag :end -1 :inverse t :crop-left t :margin 0 :face 'org-date)))))))
 #+end_src
 
-**** Super-agenda
+*** Super-agenda
 #+begin_src elisp
     (use-package org-super-agenda
       :after org-agenda
@@ -788,7 +760,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
                               (:discard (:tag ("Routine" "Daily" "meta" "finances")))))))
               ))))
 #+end_src
-**** Functions
+*** Functions
 Check if a billing is paid based on the date
 #+begin_src elisp
   (defun is-paid? (time)
@@ -806,7 +778,7 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
         (todo))
       :action #'org-id-get-create))
 #+end_src
-**** Roam
+*** Roam
 #+begin_src elisp
   (use-package org-roam
     ;; :init
@@ -830,7 +802,7 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
     (require 'org-roam-dailies) ;; Ensure the keymap is available
     (org-roam-db-autosync-mode))
 #+end_src
-**** Sync
+*** Sync
 #+begin_src elisp
   (defun org-agenda-export-to-ics ()
     (interactive)
@@ -847,16 +819,16 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
     :bind ("C-c e i" . org-agenda-export-to-ics))
 
 #+end_src
-**** Chef
+*** Chef
 #+begin_src elisp
   (use-package org-chef)
 #+end_src
 
-*** Markdown
+** Markdown
 #+begin_src elisp
   (use-package markdown-mode)
 #+end_src
-*** Web mode
+** Web mode
 #+begin_src elisp
   (use-package web-mode
     :mode (("\\.html?\\'" . web-mode)
@@ -889,7 +861,7 @@ yasnippet
         (add-to-list 'yas-snippet-dirs dir)
         (yas-load-directory dir)))
 #+end_src
-*** Zencoding
+** Zencoding
 #+begin_src elisp
   (use-package emmet-mode
     :hook ((web-mode typescript-ts-mode) . emmet-mode)
@@ -902,8 +874,8 @@ yasnippet
     (add-to-list 'emmet-jsx-major-modes 'typescript-ts-mode))
 
 #+end_src
-*** Javascript
-**** prettier
+** Javascript
+*** prettier
 #+begin_src elisp
   (use-package prettier-js
     :ensure-system-package (prettier . "npm i -g prettier")
@@ -917,11 +889,11 @@ yasnippet
         (funcall (cdr my-pair)))))
 #+end_src
 
-**** Commit
+*** Commit
 #+begin_src elisp
   (use-package js-comint)
 #+end_src
-*** Typescript
+** Typescript
 #+begin_src elisp
   (use-package typescript-mode
     :ensure-system-package (typescript-language-server . "npm i -g typescript-language-server"))
@@ -944,43 +916,43 @@ yasnippet
 #+end_src
 
 #+end_src
-*** Deno
+** Deno
 #+begin_src elisp
   (defun deno-project-p ()
     "Predicate for determining if the open project is a Deno one."
     (let ((p-root (cdr (project-current))))
       (file-exists-p (concat p-root "deno.json"))))
 #+end_src
-*** Elisp
-**** Unit Test
+** Elisp
+*** Unit Test
 Buttercup
 #+begin_src elisp
   (use-package buttercup)
 #+end_src
-*** Lua :first-quarter-moon-with-face:
+** Lua :first-quarter-moon-with-face:
 #+begin_src elisp
   (use-package lua-mode)
 #+end_src
-*** Cooklang
+** Cooklang
 #+begin_src elisp
   (straight-use-package
    '(el-patch :type git :host github :repo "cooklang/cook-mode"))
 #+end_src
-*** JSON
+** JSON
 #+begin_src elisp
   (use-package json-mode)
 #+end_src
-*** Prisma
+** Prisma
 #+begin_src elisp
   (use-package prisma-mode
     :straight (prisma-mode :host github :repo "pimeys/emacs-prisma-mode")
     :ensure-system-package (prisma-language-server . "npm i -g @prisma/language-server"))
 #+end_src
-*** YAML
+** YAML
 #+begin_src elisp
   (use-package yaml-mode)
 #+end_src
-*** Dart/Flutter
+** Dart/Flutter
 #+begin_src elisp
     (use-package dart-mode
       :hook (dart-mode . flutter-test-mode)
@@ -1000,7 +972,7 @@ Buttercup
     ;;   (setq gc-cons-threshold (* 100 1024 1024)
     ;;         read-process-output-max (* 1024 1024)))
 #+end_src
-*** Eglot
+** Eglot
 Original code from https://github.com/joaotavora/eglot/discussions/999
 #+begin_src elisp
   (defun ecma-server-program (_)
@@ -1035,7 +1007,7 @@ Original code from https://github.com/joaotavora/eglot/discussions/999
     (add-to-list 'eglot-server-programs '((prisma-mode) . ("prisma-language-server" "--stdio"))))
 #+end_src
 
-*** SQL
+** SQL
 #+begin_src elisp
   (use-package sql-indent)
   (use-package sqlformat
