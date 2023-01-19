@@ -106,13 +106,6 @@ Set the start point for the current buffer, this means if you will search for a 
 * Keep .emacs.d clean
 I don't want a bunch of transient files showing up as untracked in the Git repo so I move them all to another location.
 #+begin_src elisp
-  ;; Keep customization settings in a temporary file (thanks Ambrevar!)
-  (setq custom-file
-        (if (boundp 'server-socket-dir)
-            (expand-file-name "custom.el" server-socket-dir)
-          (expand-file-name (format "emacs-custom-%s.el" (user-uid)) temporary-file-directory)))
-  (load custom-file t)
-
   (setq backup-directory-alist
         `((".*" . ,temporary-file-directory))
         auto-save-file-name-transforms
@@ -362,6 +355,10 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 #+begin_src elisp
   (use-package sideline-flymake
     :hook (flymake-mode . sideline-mode)
+    :custom
+    (flymake-error-bitmap '(my-rounded-fringe-indicator compilation-error))
+    (flymake-note-bitmap '(my-rounded-fringe-indicator compilation-info))
+    (flymake-warning-bitmap '(my-rounded-fringe-indicator compilation-warning))
     :init
     (setq sideline-flymake-display-errors-whole-line 'point ; 'point to show errors only on point
           sideline-backends-right '(sideline-flymake))) ; 'line to show errors on the current line
@@ -924,6 +921,7 @@ Original code from https://github.com/joaotavora/eglot/discussions/999
     (eglot-autoshutdown t)
     (eglot-menu-string "LSP")
     (eglot-ignored-server-capabilities '(:documentHighlightProvider))
+    (eglot-confirm-server-initiated-edits nil)
     :config
     (add-to-list 'eglot-server-programs '((js-ts-mode tsx-ts-mode typescript-ts-mode) . ecma-server-program))
     (add-to-list 'eglot-server-programs '((prisma-mode) . ("prisma-language-server" "--stdio"))))
