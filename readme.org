@@ -255,14 +255,18 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
   (global-set-key [S-s-iso-lefttab] 'previous-buffer)
   (global-set-key ["M-["] 'next-buffer)
   (global-set-key ["M-]"] 'previous-buffer)
-  ;;; change window
+
+  ;; change window
   (global-set-key [(C-tab)] 'other-window)
   (global-set-key [(C-M-tab)] 'other-window)
 
-  ;;; Remap kill buffer to my/kill-this-buffer
+  ;; Remap kill buffer to my/kill-this-buffer
   (global-set-key (kbd "C-x k") 'my/kill-this-buffer)
 
-  ;;; Go to scratch buffer
+  ;; Revert buffer
+  (global-set-key (kbd "C-<f5>") 'revert-buffer)
+
+  ;; Go to scratch buffer
   (global-set-key (kbd "<f2>") (lambda() (interactive)(switch-to-buffer "*scratch*")))
 #+end_src
 ** Code navigation
