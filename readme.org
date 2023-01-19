@@ -106,6 +106,12 @@ Set the start point for the current buffer, this means if you will search for a 
 * Keep .emacs.d clean
 I don't want a bunch of transient files showing up as untracked in the Git repo so I move them all to another location.
 #+begin_src elisp
+  (setq custom-file
+          (if (boundp 'server-socket-dir)
+              (expand-file-name "custom.el" server-socket-dir)
+            (expand-file-name (format "emacs-custom-%s.el" (user-uid)) temporary-file-directory)))
+    (load custom-file t)
+
   (setq backup-directory-alist
         `((".*" . ,temporary-file-directory))
         auto-save-file-name-transforms
