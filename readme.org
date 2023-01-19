@@ -46,24 +46,9 @@ Straight.el
   (setq straight-use-package-by-default t)
 
   (use-package use-package-ensure-system-package)
-#+END_SRC
-
-** Encoding
-From [[https://github.com/doomemacs/doomemacs/blob/594d70292dc134d483fbf7a427001250de07b4d2/lisp/doom-start.el#L132-L134][Doom emacs]]
-Contrary to what many Emacs users have in their configs, you don't need more than this to make UTF-8 the default coding system:
-#+begin_src elisp
-(set-language-environment "UTF-8")
 #+end_src
-** Misc
+* General
 #+begin_src elisp
-  (setq default-directory "~/")
-
-  ;; Automatically revert buffers for changed files
-  (global-auto-revert-mode t)
-
-  ;; remembering the last place you visited in a file
-  (save-place-mode 1)
-
   ;; Close all dired buffers after opening
   (setq dired-kill-when-opening-new-dired-buffer t)
 
@@ -74,45 +59,80 @@ Contrary to what many Emacs users have in their configs, you don't need more tha
       (bury-buffer)
       nil))
   (add-hook 'kill-buffer-query-functions #'dont-kill-scratch)
+#+end_src
+** Startup Performance
+Make startup faster by reducing the frequency of garbage collection and then use a hook to measure Emacs startup time.
+#+begin_src emacs-lisp
+  ;; The default is 800 kilobytes.  Measured in bytes.
+  (setq gc-cons-threshold (* 50 1000 1000))
+#+end_src
 
-  ;; Store auto-save and backup files in a temporary directory
-  (setq backup-directory-alist
-        `(("." . ,(concat user-emacs-directory "backups"))))
-  (setq backup-directory-alist
-        `((".*" . ,temporary-file-directory)))
-  (setq auto-save-file-name-transforms
-        `((".*" ,temporary-file-directory t)))
-  (setq create-lockfiles nil)
-
-  ;; writing yes or no is length, type y / n instead
-  (defalias 'yes-or-no-p 'y-or-n-p)
-
-  (setq custom-file "~/.emacs.d/custom.el")
-  (load custom-file)
-
+** Native Compilation
+Silence compiler warnings as they can be pretty disruptive
+#+begin_src elisp
+  (setq native-comp-async-report-warnings-errors nil)
+#+end_src
+** Encoding
+From [[https://github.com/doomemacs/doomemacs/blob/594d70292dc134d483fbf7a427001250de07b4d2/lisp/doom-start.el#L132-L134][Doom emacs]]
+Contrary to what many Emacs users have in their configs, you don't need more than this to make UTF-8 the default coding system:
+#+begin_src elisp
+(set-language-environment "UTF-8")
+#+end_src
+** Path
+Load environment variables from the shell
+#+begin_src elisp
   (use-package add-node-modules-path)
   (use-package exec-path-from-shell)
   (setq exec-path-from-shell-variables '("GOPATH" "PATH" "MANPATH"))
   (exec-path-from-shell-initialize)
 #+end_src
 
-** Emacs server
+Set the start point for the current buffer, this means if you will search for a file, the start point will be the default-directory value.
 #+begin_src elisp
-(server-start)
+(setq default-directory "~/")
 #+end_src
-** Startup Screen
+
+* Startup Screen
 #+begin_src elisp
   (use-package dashboard
     :config
-    (setq dashboard-banner-logo-title "Olá, bem vindo ao Emacs")
-    (setq dashboard-startup-banner "~/.emacs.d/nyan-cat.png")
-    (setq dashboard-center-content t)
-    (setq dashboard-items '((projects . 5) (agenda . 5) ))
+    (setq dashboard-banner-logo-title "Olá, bem vindo ao Emacs"
+          dashboard-startup-banner "~/.emacs.d/nyan-cat.png"
+          dashboard-center-content t
+          dashboard-items '((projects . 5) (agenda . 5) ))
     (dashboard-setup-startup-hook))
 #+end_src
-** User Interface
-*** Theme
-**** Doom Themes
+
+* Keep .emacs.d clean
+I don't want a bunch of transient files showing up as untracked in the Git repo so I move them all to another location.
+#+begin_src elisp
+  ;; Keep customization settings in a temporary file (thanks Ambrevar!)
+  (setq custom-file
+        (if (boundp 'server-socket-dir)
+            (expand-file-name "custom.el" server-socket-dir)
+          (expand-file-name (format "emacs-custom-%s.el" (user-uid)) temporary-file-directory)))
+  (load custom-file t)
+
+  (setq backup-directory-alist
+        `((".*" . ,temporary-file-directory))
+        auto-save-file-name-transforms
+        `((".*" ,temporary-file-directory t))
+        create-lockfiles nil)
+
+  (setq tramp-auto-save-directory temporary-file-directory)
+#+end_src
+
+* Look & Feel
+** Improve theme loading
+Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_you_currently_using/d43c5cw][Reddit]]
+#+begin_src elisp
+  (defadvice load-theme (before clear-previous-themes activate)
+    "Clear existing theme settings instead of layering them"
+    (mapc #'disable-theme custom-enabled-themes))
+#+end_src
+
+** Theme
+*** Doom Themes
 #+begin_src elisp
     (use-package doom-themes
       :config
@@ -127,7 +147,7 @@ Contrary to what many Emacs users have in their configs, you don't need more tha
       (load-theme (intern "doom-tokyo-night") t))
 #+end_src
 
-*** Neotree
+** Neotree
 #+begin_src elisp
   (defun text-scale-twice ()
     (interactive)
@@ -143,37 +163,26 @@ Contrary to what many Emacs users have in their configs, you don't need more tha
       (define-key neotree-mode-map (kbd "h") 'neotree-hidden-file-toggle)))
 
 #+end_src
-*** Improve theme loading
-Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_you_currently_using/d43c5cw][Reddit]]
-#+begin_src elisp
-  (defadvice load-theme (before clear-previous-themes activate)
-    "Clear existing theme settings instead of layering them"
-    (mapc #'disable-theme custom-enabled-themes))
-#+end_src
-
-*** Icons
+** Icons
 #+begin_src elisp
   (use-package all-the-icons)
   (use-package all-the-icons-dired
     :hook (dired-mode . all-the-icons-dired-mode))
 #+end_src
 
-*** Cosmetics
-
-**** Nyan cat
+** Nyan cat
 #+begin_src elisp
   (use-package nyan-mode
     :init
     (nyan-mode t))
 #+end_src
-
-**** Emoji
+** Emoji
 #+begin_src elisp
   (use-package emojify
       :hook (after-init . global-emojify-mode))
 #+end_src
 
-*** Dimmer
+** Dimmer
 #+begin_src elisp :tangle no
   (use-package dimmer
       :init
@@ -182,7 +191,7 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
       (setq dimmer-fraction 0.3))
 #+end_src
 
-*** Emacs interface
+** Emacs interface
 #+begin_src elisp
   (scroll-bar-mode 0)
   (menu-bar-mode 0)
@@ -191,7 +200,12 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
   (setq ring-bell-function 'ignore)
 #+end_src
 
-*** Doom modeline
+Writing yes or no is length, type y / n instead
+#+begin_src elisp
+(defalias 'yes-or-no-p 'y-or-n-p)
+#+end_src
+
+** Doom modeline
 #+begin_src elisp
   (use-package doom-modeline
     :config
@@ -200,12 +214,12 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
     (setq doom-modeline-bar-width 1)
     (doom-modeline-mode 1))
 #+end_src
-*** Dialog
+** Dialog
 Don't pop up UI dialogs when prompting
 #+begin_src elisp
   (setq use-dialog-box nil)
 #+end_src
-*** Company
+** Company
 #+begin_src elisp
   (use-package company
     :hook (prog-mode . company-mode)
@@ -220,7 +234,7 @@ Don't pop up UI dialogs when prompting
   (use-package company-box
     :hook (company-mode . company-box-mode))
 #+end_src
-*** Buffers
+** Buffers
 Before kill a modified buffer, give option to see the diff
 Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-prompt-with-option-to-diff-the-changes/3363#3363][here]]
 #+begin_src elisp
@@ -241,8 +255,8 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
                             ((eq response ?d) (diff-buffer-with-file) nil))))))
           (kill-buffer (current-buffer))))))
 #+end_src
-** Key mapping
-*** Buffer/Window
+* Key mapping
+** Buffer/Window
 #+begin_src elisp
   (global-set-key [s-tab] 'next-buffer)
   (global-set-key [S-s-iso-lefttab] 'previous-buffer)
@@ -258,28 +272,55 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
   ;;; Go to scratch buffer
   (global-set-key (kbd "<f2>") (lambda() (interactive)(switch-to-buffer "*scratch*")))
 #+end_src
-*** Code navigation
+** Code navigation
 #+begin_src elisp
   (global-set-key (kbd "M-g") 'goto-line)
   (global-set-key (kbd "C-c s") 'sort-lines)
 #+end_src
-*** Editing
+** Editing
 #+begin_src elisp
   (global-set-key (kbd "C-c c") 'comment-region)
   (global-set-key (kbd "C-c d") 'uncomment-region)
 #+end_src
-*** Conf
+** Conf
 #+begin_src elisp
   (global-set-key (kbd "<f6>") (lambda() (interactive)(find-file "~/.emacs.d/readme.org")))
 #+end_src
 
-** Editing
-*** Display line numbers
+* Editing
+#+begin_src elisp
+  ;; Remembering the last place you visited in a file
+  (save-place-mode 1)
+
+  (setq-default truncate-lines t ;; Do not wrap lines
+                indent-tabs-mode nil) ;; spaces instead of tabs
+
+  (setq show-trailing-whitespace t ;; Complain about trailing white spaces
+        whitespace-style '(face trailing lines tabs big-indent)) ;; Cleanup white spaces before save
+
+  ;; Cleanup whitespace before save
+  (add-hook 'before-save-hook 'whitespace-cleanup)
+#+end_src
+** Parenthesis
+#+begin_src elisp
+  (use-package smartparens)
+  (smartparens-global-mode t)
+
+  (use-package rainbow-delimiters
+    :hook (prog-mode . rainbow-delimiters-mode))
+
+  (use-package rainbow-mode)
+
+  (use-package string-inflection)
+
+  (global-hl-line-mode t)
+#+end_src
+** Display line numbers
 #+begin_src elisp
   (add-hook 'prog-mode-hook #'display-line-numbers-mode)
   (add-hook 'conf-mode-hook #'display-line-numbers-mode)
 #+end_src
-*** Indent Guides
+** Indent Guides
 #+begin_src elisp :tangle no
   (use-package highlight-indent-guides
     :config
@@ -287,35 +328,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
     :hook (prog-mode . highlight-indent-guides-mode))
 #+end_src
 
-*** Misc
-#+begin_src elisp
-  ;; Do not wrap lines
-  (setq-default truncate-lines t)
-
-  ;; spaces instead of tabs
-  (setq-default indent-tabs-mode nil)
-
-  ;; Complain about trailing white spaces
-  (setq show-trailing-whitespace t)
-
-  ;; Cleanup white spaces before save
-  (setq whitespace-style '(face trailing lines tabs big-indent))
-  (add-hook 'before-save-hook 'whitespace-cleanup)
-
-  (use-package smartparens)
-  (smartparens-global-mode t)
-
-  (use-package rainbow-delimiters
-    :hook (prog-mode . rainbow-delimiters-mode))
-
-
-  (use-package rainbow-mode)
-
-  (use-package string-inflection)
-
-  (global-hl-line-mode +1)
-#+end_src
-*** Multiple cursor
+** Multiple cursor
 #+begin_src elisp
       (use-package multiple-cursors
         :bind (("C-S-c C-S-c" . mc/edit-lines)
@@ -324,7 +337,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
                ("s->" . mc/mark-all-like-this)
                ("C-S-<mouse-1>" . mc/add-cursor-on-click)))
 #+end_src
-*** Unfill paragraph
+** Unfill paragraph
 #+begin_src elisp
   (defun unfill-paragraph (&optional region)
     "Takes a multi-line paragraph or (REGION) and make it into a single line of text."
@@ -334,7 +347,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
           (emacs-lisp-docstring-fill-column t))
       (fill-paragraph nil region)))
 #+end_src
-*** Treesiter
+** Treesiter
 #+begin_src elisp
   (require 'treesit)
   ;; modules build from https://github.com/casouri/tree-sitter-module
@@ -345,17 +358,15 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
   (push '(typescript-mode . typescript-ts-mode) major-mode-remap-alist)
 #+end_src
 
-** Tools
-*** Flymake
+* Flymake
 #+begin_src elisp
   (use-package sideline-flymake
     :hook (flymake-mode . sideline-mode)
     :init
-    (setq sideline-flymake-display-errors-whole-line 'point) ; 'point to show errors only on point
-                                          ; 'line to show errors on the current line
-    (setq sideline-backends-right '(sideline-flymake)))
+    (setq sideline-flymake-display-errors-whole-line 'point ; 'point to show errors only on point
+          sideline-backends-right '(sideline-flymake))) ; 'line to show errors on the current line
 #+end_src
-**** Custom Fringe
+*** Custom Fringe
 #+begin_src elisp
   (when (fboundp 'define-fringe-bitmap)
     (define-fringe-bitmap 'my-rounded-fringe-indicator
@@ -378,7 +389,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
               #b00000000)))
 #+end_src
 
-*** Flyspell
+* Flyspell
 #+begin_src elisp
   (use-package flyspell)
   (use-package flyspell-correct-popup)
@@ -395,7 +406,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
   (global-set-key (kbd "<f5>") 'fd-switch-dictionary)
   (define-key flyspell-mode-map (kbd "C-;") 'flyspell-correct-wrapper)
 #+end_src
-*** Yasnippet
+* Yasnippet
 #+begin_src elisp
   (use-package yasnippet
     :init
@@ -403,144 +414,37 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
     (yas-load-directory "~/.emacs.d/snippets")
     (yas-global-mode 1))
 #+end_src
-*** Helm
-#+begin_src elisp
-  (use-package helm
-    :straight t
-    :config
-    (setq helm-buffers-fuzzy-matching t)
-    (define-key minibuffer-local-completion-map (kbd "SPC") 'self-insert-command)
-    (setq helm-recentf-fuzzy-match    t))
-#+end_src
-*** Code Folding
+* Code Folding
 #+begin_src elisp
   (use-package yafolding
     :bind ("<C-return>" . yafolding-toggle-element))
 #+end_src
-*** Restclient
+* Restclient
 #+begin_src elisp
-(use-package restclient)
+  (use-package restclient)
 #+end_src
-*** Projectile
+* Projectile
 #+begin_src elisp
-  (use-package helm-ag
-    :ensure-system-package (ag . "sudo apt install silversearcher-ag"))
-
   (use-package projectile
-    :bind ("C-c p" . projectile-command-map)
+    :bind (("C-c p" . projectile-command-map))
     :config
-    (setq projectile-indexing-method 'alien)
-    (setq projectile-sort-order 'recently-active)
-
-    (setq projectile-per-project-compilation-buffer t)
-    (setq projectile-comint-mode t)
-    (setq compilation-read-command nil)
+    (setq projectile-indexing-method 'alien
+          projectile-sort-order 'recently-active
+          projectile-per-project-compilation-buffer t
+          projectile-comint-mode t
+          compilation-read-command nil)
     (add-to-list 'projectile-globally-ignored-directories "node_modules")
     (add-to-list 'projectile-globally-ignored-files "yarn.lock")
-    (add-hook 'projectile-after-switch-project-hook 'projectile-run-project)
-    (helm-projectile-on)
+    :hook (projectile-after-switch-project . projectile-run-project)
+    :config
     (projectile-mode))
-  (use-package helm-projectile)
-
 #+end_src
-*** Magit
+* Magit
 #+begin_src elisp
   (use-package magit)
   (use-package magit-todos)
 #+end_src
-*** Treemacs
-#+begin_src elisp
-  (use-package treemacs
-    :ensure t
-    :defer t
-    :init
-    (with-eval-after-load 'winum
-      (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
-    :config
-    (progn
-      (setq treemacs-collapse-dirs                   (if treemacs-python-executable 3 0)
-            treemacs-deferred-git-apply-delay        0.5
-            treemacs-directory-name-transformer      #'identity
-            treemacs-display-in-side-window          t
-            treemacs-eldoc-display                   'simple
-            treemacs-file-event-delay                2000
-            treemacs-file-extension-regex            treemacs-last-period-regex-value
-            treemacs-file-follow-delay               0.2
-            treemacs-file-name-transformer           #'identity
-            treemacs-follow-after-init               t
-            treemacs-expand-after-init               t
-            treemacs-find-workspace-method           'find-for-file-or-pick-first
-            treemacs-git-command-pipe                ""
-            treemacs-goto-tag-strategy               'refetch-index
-            treemacs-header-scroll-indicators        '(nil . "^^^^^^")
-            treemacs-hide-dot-git-directory          t
-            treemacs-indentation                     2
-            treemacs-indentation-string              " "
-            treemacs-is-never-other-window           nil
-            treemacs-max-git-entries                 5000
-            treemacs-missing-project-action          'ask
-            treemacs-move-forward-on-expand          nil
-            treemacs-no-png-images                   nil
-            treemacs-no-delete-other-windows         t
-            treemacs-project-follow-cleanup          nil
-            treemacs-persist-file                    (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
-            treemacs-position                        'left
-            treemacs-read-string-input               'from-child-frame
-            treemacs-recenter-distance               0.1
-            treemacs-recenter-after-file-follow      nil
-            treemacs-recenter-after-tag-follow       nil
-            treemacs-recenter-after-project-jump     'always
-            treemacs-recenter-after-project-expand   'on-distance
-            treemacs-litter-directories              '("/node_modules" "/.venv" "/.cask")
-            treemacs-show-cursor                     nil
-            treemacs-show-hidden-files               t
-            treemacs-silent-filewatch                nil
-            treemacs-silent-refresh                  nil
-            treemacs-sorting                         'alphabetic-asc
-            treemacs-select-when-already-in-treemacs 'move-back
-            treemacs-space-between-root-nodes        t
-            treemacs-tag-follow-cleanup              t
-            treemacs-tag-follow-delay                1.5
-            treemacs-text-scale                      nil
-            treemacs-user-mode-line-format           nil
-            treemacs-user-header-line-format         nil
-            treemacs-wide-toggle-width               70
-            treemacs-width                           35
-            treemacs-width-increment                 1
-            treemacs-width-is-initially-locked       t
-            treemacs-workspace-switch-cleanup        nil)
-
-      (treemacs-follow-mode t)
-      (treemacs-filewatch-mode t)
-      (treemacs-fringe-indicator-mode 'always)
-      (when treemacs-python-executable
-        (treemacs-git-commit-diff-mode t))
-
-      (pcase (cons (not (null (executable-find "git")))
-                   (not (null treemacs-python-executable)))
-        (`(t . t)
-         (treemacs-git-mode 'deferred))
-        (`(t . _)
-         (treemacs-git-mode 'simple)))
-
-      (treemacs-hide-gitignored-files-mode nil))
-    :bind
-    (:map global-map
-          ("M-0"       . treemacs-select-window)
-          ("C-x t 1"   . treemacs-delete-other-windows)
-          ("C-x t t"   . treemacs)
-          ("C-x t d"   . treemacs-select-directory)
-          ("C-x t B"   . treemacs-bookmark)
-          ("C-x t C-t" . treemacs-find-file)
-          ("C-x t M-t" . treemacs-find-tag)))
-
-
-  (use-package treemacs-projectile
-    :after (treemacs projectile)
-    :ensure t)
-
-#+end_src
-*** Blamer
+* Blamer
 #+begin_src elisp :tangle no
   (use-package blamer
   :bind (("s-i" . blamer-show-commit-info)
@@ -555,11 +459,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
                     :height .9
                     :italic t))))
 #+end_src
-*** Todoist
-#+begin_src elisp :tangle no
-  (setq todoist-token "")
-#+end_src
-*** Yequake
+* Yequake
 #+begin_src elisp
   (use-package yequake
     :straight (yequake :host github :repo "alphapapa/yequake")
@@ -575,13 +475,13 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
                              (skip-taskbar . t)
                              (sticky . t)))))))
 #+end_src
-*** Vterm
+* Vterm
 #+begin_src elisp
 (use-package vterm)
 
 (global-set-key (kbd "<f3>") (lambda() (interactive)(vterm)))
 #+end_src
-*** EAF
+* EAF
 #+begin_src elisp
   (straight-use-package
    '(webkit :type git :host github :repo "akirakyle/emacs-webkit"
@@ -591,12 +491,12 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
   (use-package webkit)
   (setq webkit-search-prefix "https://google.com/search?q=")
 #+end_src
-**** Search clipboard on google
+*** Search clipboard on google
 #+begin_src elisp
   (global-set-key (kbd "C-c C-g") (lambda () (interactive) (webkit (car kill-ring))))
 #+end_src
-** Org
-*** Bootstrap
+* Org
+** Bootstrap
 #+begin_src elisp
   (use-package org :straight (:type built-in)
     :bind (("C-c a" . (lambda () (interactive) (org-agenda nil "z")) )
@@ -626,15 +526,15 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
         gac-automatically-push-p t)
 
 #+end_src
-*** Ox
-**** Slack
+** Ox
+*** Slack
 #+begin_src elisp
   (use-package ox-slack
     :bind ("C-c e s" . org-slack-export-to-clipboard-as-slack))
 
 #+end_src
 
-*** Reveal
+** Reveal
 #+begin_src elisp
   (use-package ox-reveal)
   (setq org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js"
@@ -642,8 +542,8 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
         org-reveal-mathjax t)
   (use-package htmlize)
 #+end_src
-*** UI
-**** Olivetti
+** UI
+*** Olivetti
 #+begin_src elisp
   (use-package olivetti
     :custom
@@ -652,7 +552,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
     :hook ((markdown-mode . olivetti-mode)
            (org-mode . olivetti-mode)))
 #+end_src
-**** Org modern
+*** Org modern
 #+begin_src elisp :tangle no
   (use-package org-modern
     :config
@@ -671,7 +571,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 
 #+end_src
 
-**** SVG
+*** SVG
 #+begin_src elisp :tangle no
   (use-package svg-tag-mode
     :commands svg-tag-mode
@@ -753,7 +653,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
                 (svg-tag-make tag :end -1 :inverse t :crop-left t :margin 0 :face 'org-date)))))))
 #+end_src
 
-*** Super-agenda
+** Super-agenda
 #+begin_src elisp
     (use-package org-super-agenda
       :after org-agenda
@@ -782,7 +682,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
                               (:discard (:tag ("Routine" "Daily" "meta" "finances")))))))
               ))))
 #+end_src
-*** Functions
+** Functions
 Check if a billing is paid based on the date
 #+begin_src elisp
   (defun is-paid? (time)
@@ -800,7 +700,7 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
         (todo))
       :action #'org-id-get-create))
 #+end_src
-*** Roam
+** Roam
 #+begin_src elisp
   (use-package org-roam
     ;; :init
@@ -824,7 +724,7 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
     (require 'org-roam-dailies) ;; Ensure the keymap is available
     (org-roam-db-autosync-mode))
 #+end_src
-*** Sync
+** Sync
 #+begin_src elisp
   (defun org-agenda-export-to-ics ()
     (interactive)
@@ -841,16 +741,16 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
     :bind ("C-c e i" . org-agenda-export-to-ics))
 
 #+end_src
-*** Chef
+** Chef
 #+begin_src elisp
   (use-package org-chef)
 #+end_src
 
-** Markdown
+* Markdown
 #+begin_src elisp
   (use-package markdown-mode)
 #+end_src
-** Web mode
+* Web mode
 #+begin_src elisp
   (use-package web-mode
     :mode (("\\.html?\\'" . web-mode)
@@ -883,7 +783,7 @@ yasnippet
         (add-to-list 'yas-snippet-dirs dir)
         (yas-load-directory dir)))
 #+end_src
-** Zencoding
+* Zencoding
 #+begin_src elisp
   (use-package emmet-mode
     :hook ((web-mode typescript-ts-mode) . emmet-mode)
@@ -896,8 +796,8 @@ yasnippet
     (add-to-list 'emmet-jsx-major-modes 'typescript-ts-mode))
 
 #+end_src
-** Javascript
-*** prettier
+* Javascript
+** prettier
 #+begin_src elisp
   (use-package prettier-js
     :ensure-system-package (prettier . "npm i -g prettier")
@@ -911,11 +811,11 @@ yasnippet
         (funcall (cdr my-pair)))))
 #+end_src
 
-*** Commit
+** Commit
 #+begin_src elisp
   (use-package js-comint)
 #+end_src
-** Typescript
+* Typescript
 #+begin_src elisp
   (use-package typescript-mode
     :ensure-system-package (typescript-language-server . "npm i -g typescript-language-server"))
@@ -938,43 +838,43 @@ yasnippet
 #+end_src
 
 #+end_src
-** Deno
+* Deno
 #+begin_src elisp
   (defun deno-project-p ()
     "Predicate for determining if the open project is a Deno one."
     (let ((p-root (cdr (project-current))))
       (file-exists-p (concat p-root "deno.json"))))
 #+end_src
-** Elisp
-*** Unit Test
+* Elisp
+** Unit Test
 Buttercup
 #+begin_src elisp
   (use-package buttercup)
 #+end_src
-** Lua :first-quarter-moon-with-face:
+* Lua :first-quarter-moon-with-face:
 #+begin_src elisp
   (use-package lua-mode)
 #+end_src
-** Cooklang
+* Cooklang
 #+begin_src elisp
   (straight-use-package
    '(el-patch :type git :host github :repo "cooklang/cook-mode"))
 #+end_src
-** JSON
+* JSON
 #+begin_src elisp
   (use-package json-mode)
 #+end_src
-** Prisma
+* Prisma
 #+begin_src elisp
   (use-package prisma-mode
     :straight (prisma-mode :host github :repo "pimeys/emacs-prisma-mode")
     :ensure-system-package (prisma-language-server . "npm i -g @prisma/language-server"))
 #+end_src
-** YAML
+* YAML
 #+begin_src elisp
   (use-package yaml-mode)
 #+end_src
-** Dart/Flutter
+* Dart/Flutter
 #+begin_src elisp
     (use-package dart-mode
       :hook (dart-mode . flutter-test-mode)
@@ -994,7 +894,7 @@ Buttercup
     ;;   (setq gc-cons-threshold (* 100 1024 1024)
     ;;         read-process-output-max (* 1024 1024)))
 #+end_src
-** Eglot
+* Eglot
 Original code from https://github.com/joaotavora/eglot/discussions/999
 #+begin_src elisp
   (defun ecma-server-program (_)
@@ -1029,7 +929,7 @@ Original code from https://github.com/joaotavora/eglot/discussions/999
     (add-to-list 'eglot-server-programs '((prisma-mode) . ("prisma-language-server" "--stdio"))))
 #+end_src
 
-** SQL
+* SQL
 #+begin_src elisp
   (use-package sql-indent)
   (use-package sqlformat
@@ -1041,11 +941,7 @@ Original code from https://github.com/joaotavora/eglot/discussions/999
     :bind (:map sql-mode-map ("C-c C-f" . sqlformat)))
 
 #+end_src
-*** Reddit
-#+begin_src elisp :tangle no
-  (use-package md4rd
-    :straight (md4rd :host github :repo "ahungry/md4rd"))
-** Vertigo
+* Vertigo
 #+begin_src elisp
   (use-package vertico
     :init
@@ -1060,19 +956,28 @@ Original code from https://github.com/joaotavora/eglot/discussions/999
     (completion-styles '(orderless basic))
     (completion-category-overrides '((file (styles basic partial-completion)))))
 #+end_src
-** Consult
+* Consult
 #+begin_src elisp
-  (defun gg/get-project-root ()
-    (when (fboundp 'projectile-project-root)
-      (projectile-project-root)))
+    (defun gg/get-project-root ()
+      (when (fboundp 'projectile-project-root)
+        (projectile-project-root)))
 
-  (use-package consult
-    :bind ("C-M-l" . consult-imenu)
-    :hook (completion-list-mode . consult-preview-at-point-mode)
+    (use-package consult
+      :bind (("C-M-l" . consult-imenu)
+             ("C-s" . consult-line)
+             ("C-M-g" . consult-ripgrep)
+             ("C-M-o" . consult-org-heading))
+      :hook (completion-list-mode . consult-preview-at-point-mode)
+      :init
+      (setq register-preview-delay 0
+            register-preview-function #'consult-register-format)
+      :custom (consult-project-root-function #'gg/get-project-root
+                 completion-in-region-function #'consult-completion-in-region))
+
+#+end_src
+* which-key
+#+begin_src elisp
+  (use-package which-key
     :init
-    (setq register-preview-delay 0
-          register-preview-function #'consult-register-format)
-    ;; :custom (consult-project-root-function #'gg/get-project-root
-    ;; 	     completion-in-region-function #'consult-completion-in-region)
-    )
+    (which-key-mode))
 #+end_src
