@@ -121,6 +121,12 @@ I don't want a bunch of transient files showing up as untracked in the Git repo 
   (setq tramp-auto-save-directory temporary-file-directory)
 #+end_src
 
+* Emacs Server
+Start the Emacs server from this instance so that all =emacsclient= calls are routed here.
+It's required to be able to use Emacs as my [[*Yequake][dropdown terminal]].
+#+begin_src elisp
+(server-start)
+#+end_src
 * Look & Feel
 ** Improve theme loading
 Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_you_currently_using/d43c5cw][Reddit]]
@@ -467,6 +473,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
                     :italic t))))
 #+end_src
 * Yequake
+This command =emacsclient -n -e '(yequake-toggle "terminal")'= is a keybind on Gnome, so I can use Emacs as my dropdown terminal
 #+begin_src elisp
   (use-package yequake
     :straight (yequake :host github :repo "alphapapa/yequake")
