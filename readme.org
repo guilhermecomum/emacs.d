@@ -497,13 +497,22 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
   (global-set-key (kbd "C-c C-g") (lambda () (interactive) (webkit (car kill-ring))))
 #+end_src
 * Org
-** Bootstrap
 #+begin_src elisp
   (use-package org :straight (:type built-in)
+    :custom
+    (org-agenda-files
+     '("/home/guerra/Projects/org-files/roam" "/home/guerra/Projects/org-files/roam/daily" "~/Dropbox/org-mode"))
+    (org-agenda-span 15)
+    (org-deadline-warning-days 0)
+    (org-icalendar-deadline-summary-prefix "")
+    (org-icalendar-timezone "")
+    (org-icalendar-use-deadline '(event-if-todo todo-due))
+    (org-icalendar-with-timestamps nil)
     :bind (("C-c a" . (lambda () (interactive) (org-agenda nil "z")) )
            ("C-c /" . 'org-capture)
            ("s-c" . 'ox-clip-formatted-copy))
     :hook (org-mode . turn-on-flyspell))
+
   (use-package org-contrib)
   (use-package org-web-tools
     :ensure-system-package (pandoc . "sudo apt install pandoc"))
@@ -525,7 +534,6 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
         org-export-with-toc nil
         org-export-with-section-numbers nil
         gac-automatically-push-p t)
-
 #+end_src
 ** Ox
 *** Slack
@@ -543,7 +551,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
         org-reveal-mathjax t)
   (use-package htmlize)
 #+end_src
-** UI
+** Look & Feel
 *** Olivetti
 #+begin_src elisp
   (use-package olivetti
@@ -656,32 +664,32 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 
 ** Super-agenda
 #+begin_src elisp
-    (use-package org-super-agenda
-      :after org-agenda
-      :config
-      (org-super-agenda-mode t)
-      (setq org-agenda-skip-scheduled-if-done t))
+  (use-package org-super-agenda
+    :after org-agenda
+    :config
+    (org-super-agenda-mode t)
+    (setq org-agenda-skip-scheduled-if-done t))
 
-    (setq org-agenda-custom-commands
-          '(("z" "Super view"
-             ((tags "meta" ((org-agenda-overriding-header "Objetivos de 2023")))
-              (agenda "" ((org-agenda-span 'week)
-                          (org-agenda-overriding-header "")
-                          ))
-              (alltodo "" ((org-agenda-overriding-header "")
-                           (org-agenda-remove-tags t)
-                           (org-super-agenda-groups
-                            '(
-                              (:name "🚨 Atrasados"
-                                     :deadline past
-                                     :order 7)
-                              (:name "Próximos eventos"
-                                     :discard (:tag ("finances"))
-                                     :deadline future
-                                     :order 8)
-                              (:name "Sem data" :deadline nil :order 9)
-                              (:discard (:tag ("Routine" "Daily" "meta" "finances")))))))
-              ))))
+  (setq org-agenda-custom-commands
+        '(("z" "Super view"
+           ((tags "meta" ((org-agenda-overriding-header "Objetivos de 2023")))
+            (agenda "" ((org-agenda-span 'week)
+                        (org-agenda-overriding-header "")
+                        ))
+            (alltodo "" ((org-agenda-overriding-header "")
+                         (org-agenda-remove-tags t)
+                         (org-super-agenda-groups
+                          '(
+                            (:name "🚨 Atrasados"
+                                   :deadline past
+                                   :order 7)
+                            (:name "Próximos eventos"
+                                   :discard (:tag ("finances"))
+                                   :deadline future
+                                   :order 8)
+                            (:name "Sem data" :deadline nil :order 9)
+                            (:discard (:tag ("Routine" "Daily" "meta" "finances")))))))
+            ))))
 #+end_src
 ** Functions
 Check if a billing is paid based on the date
