@@ -1,11 +1,33 @@
-* My Emacs configuration
-** Native Compilation
-#+begin_src elisp
-  (setq native-comp-async-report-warnings-errors nil)
-#+end_src
-** Package manager
+* Introduction
+Welcome to my Emacs configuration, at a first glance Emacs seems like a text editor, but when you take time to play around, you will see it's more than that. Took me a while to understand, and time to time I get surprise with their capabilities.
+
+I use Emacs in my daily basis to work, organize my Life, programming in [[Javascript]]/[[Typescript]], [[Elisp]], [[Lua]] and [[Flutter]].
+
+As many Emacs users I update my configuration frequently with a new tool, new language or anything new I want to try.
+
+I like to work with beautiful and [[*Nyan cat][fun]] environments, so I'm always trying to make Emacs prettier
+
+Some screenshots
+
+My Startup Screen
+[[./screenshots/dashboard.png]]
+
+Org Mode
+[[./screenshots/org-mode.png]]
+
+Typescript with autocomplete
+[[./screenshots/typescript-autocomplete.png]]
+
+Typescript erros
+[[./screenshots/typescript-errors.png]]
+
+** References
+The following list is from people I have been learning and stealing Emacs configuration ideas and chunks
+- [[https://github.com/clarete/emacs.d][Lincoln Clarete]]
+- [[https://github.com/daviwil/dotfiles][David Wilson]]
+* Package manager
 Straight.el
-#+BEGIN_SRC elisp
+#+begin_src elisp
   (setq package-enable-at-startup nil)
   (defvar bootstrap-version)
   (let ((bootstrap-file
