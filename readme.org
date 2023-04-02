@@ -1006,3 +1006,10 @@ Javascript
 #+begin_src elisp
   (use-package js-comint)
 #+end_src
+ChatGPT
+#+begin_src elisp
+    (use-package chatgpt-shell
+        :straight (chatgpt-shell :host github :repo "xenodium/chatgpt-shell")
+        :config
+        (setq chatgpt-shell-openai-key ""))
+#+end_src
