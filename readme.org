@@ -834,10 +834,6 @@ yasnippet
            (tsx-ts-mode . prettier-js-mode)))
 #+end_src
 
-** Commit
-#+begin_src elisp
-  (use-package js-comint)
-#+end_src
 * Typescript
 #+begin_src elisp
   (use-package typescript-mode
@@ -1004,4 +1000,9 @@ Original code from https://github.com/joaotavora/eglot/discussions/999
   (use-package which-key
     :init
     (which-key-mode))
+#+end_src
+* Commit
+Javascript
+#+begin_src elisp
+  (use-package js-comint)
 #+end_src
