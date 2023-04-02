@@ -366,6 +366,8 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
   (push '(javascript-mode . js-ts-mode) major-mode-remap-alist)
   (push '(js-json-mode . json-ts-mode) major-mode-remap-alist)
   (push '(typescript-mode . typescript-ts-mode) major-mode-remap-alist)
+  (push '(typescript-mode . tsx-ts-mode) major-mode-remap-alist)
+  (add-to-list 'auto-mode-alist '("\\.tsx?\\'" . tsx-ts-mode))
 #+end_src
 
 * Flymake
@@ -776,8 +778,7 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
 * Web mode
 #+begin_src elisp
   (use-package web-mode
-    :mode (("\\.html?\\'" . web-mode)
-           ("\\.js[x]?\\'" . web-mode))
+    :mode (("\\.html?\\'" . web-mode))
     :config
     (setq web-mode-markup-indent-offset 2
           web-mode-enable-auto-indentation nil
@@ -790,13 +791,14 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
           web-mode-enable-comment-keywords t
           web-mode-enable-current-element-highlight t
           web-mode-enable-current-column-highlight t
-          web-mode-content-types-alist  '(("django" . "\\.tpl\\'"))
-          web-mode-content-types-alist  '(("jsx" . "\\.js[x]?\\'")))
+          web-mode-content-types-alist  '(("django" . "\\.tpl\\'")))
     :hook (web-mode . auto-rename-tag-mode))
 #+end_src
 Auto rename tag
 #+begin_src elisp
-  (use-package auto-rename-tag)
+  (use-package auto-rename-tag
+    :hook
+      (tsx-ts-mode . auto-rename-tag-mode))
 #+end_src
 
 yasnippet
@@ -809,29 +811,27 @@ yasnippet
 * Zencoding
 #+begin_src elisp
   (use-package emmet-mode
-    :hook ((web-mode typescript-ts-mode) . emmet-mode)
+    :hook ((web-mode tsx-ts-mode typescript-ts-mode) . emmet-mode)
     :config
     (setq emmet-indent-after-insert nil
           emmet-indentation 2
           emmet-expand-jsx-className? t
           emmet-move-cursor-between-quotes t
           emmet-self-closing-tag-style " /")
-    (add-to-list 'emmet-jsx-major-modes 'typescript-ts-mode))
+    (add-to-list 'emmet-jsx-major-modes 'tsx-ts-mode))
 
 #+end_src
 * Javascript
+#+begin_src elisp
+(setq js-indent-level 2)
+#+end_src
 ** prettier
 #+begin_src elisp
   (use-package prettier-js
     :ensure-system-package (prettier . "npm i -g prettier")
-    :hook
-    (tsx-ts-mode . prettier-js-mode))
-
-  (defun enable-minor-mode (my-pair)
-    "Enable minor mode if filename match the regexp.  MY-PAIR is a cons cell (regexp . minor-mode)."
-    (if (buffer-file-name)
-        (if (string-match (car my-pair) buffer-file-name)
-        (funcall (cdr my-pair)))))
+    :hook ((typescript-ts-mode . prettier-js-mode)
+           (javascript-ts-mode . prettier-js-mode)
+           (tsx-ts-mode . prettier-js-mode)))
 #+end_src
 
 ** Commit
