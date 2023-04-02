@@ -139,17 +139,18 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
 ** Theme
 *** Doom Themes
 #+begin_src elisp
-    (use-package doom-themes
-      :config
-      (doom-themes-neotree-config)
-      (setq doom-themes-treemacs-theme "doom-colors")
-      (with-eval-after-load 'doom-themes
-        (doom-themes-treemacs-config))
-      (setq doom-variable-pitch-font (font-spec :family "Fira Code" :size 10))
-      (set-face-attribute 'default nil :font "Ubuntu Mono 15")
-      (set-face-attribute 'font-lock-keyword-face nil :slant 'italic :weight 'normal :family "CascadiaCode")
-      (set-face-attribute 'region nil :background "#000" :foreground "#ffffff")
-      (load-theme (intern "doom-tokyo-night") t))
+  (use-package doom-themes
+    :config
+    (doom-themes-neotree-config)
+    (setq doom-themes-treemacs-theme "doom-colors")
+    (with-eval-after-load 'doom-themes
+      (doom-themes-treemacs-config))
+    (setq doom-variable-pitch-font (font-spec :family "Fira Code" :size 10))
+    (set-face-attribute 'default nil :font "Ubuntu Mono 15")
+    (set-face-attribute 'font-lock-keyword-face nil :slant 'italic :weight 'normal :family "CascadiaCode")
+    (set-face-attribute 'region nil :background "#000" :foreground "#ffffff")
+    ;; (load-theme (intern "doom-tokyo-night") t)
+    (load-theme (intern "doom-nord") t))
 #+end_src
 
 ** Neotree
