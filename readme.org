@@ -99,7 +99,7 @@ Set the start point for the current buffer, this means if you will search for a 
     (setq dashboard-banner-logo-title "Olá, bem vindo ao Emacs"
           dashboard-startup-banner "~/.emacs.d/nyan-cat.png"
           dashboard-center-content t
-          dashboard-items '((projects . 5) (agenda . 5) ))
+          dashboard-items '((projects . 5)))
     (dashboard-setup-startup-hook))
 #+end_src
 
