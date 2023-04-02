@@ -3,4 +3,4 @@
 # key: clo
 # uuid: clo
 # --
-console.log('${1:object}', $1)
+console.log('🐞🐞🐞 ${1:object}', $1)
