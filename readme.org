@@ -476,6 +476,10 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
   (use-package magit)
   (use-package magit-todos)
 #+end_src
+* Git Timemachine
+#+begin_src elisp
+  (use-package git-timemachine)
+#+end_src
 * Blamer
 #+begin_src elisp :tangle no
   (use-package blamer
