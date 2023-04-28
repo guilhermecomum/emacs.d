@@ -995,22 +995,79 @@ Original code from https://github.com/joaotavora/eglot/discussions/999
 #+end_src
 * Consult
 #+begin_src elisp
-    (defun gg/get-project-root ()
-      (when (fboundp 'projectile-project-root)
-        (projectile-project-root)))
+  (use-package consult
+    :bind (("C-M-l" . consult-imenu)
+           ("C-s" . consult-line)
+           ("C-M-g" . consult-ripgrep)
+           ("C-M-o" . consult-org-heading))
+    :hook (completion-list-mode . consult-preview-at-point-mode)
+    :init
+    ;;(autoload 'projectile-project-root "projectile")
+    (setq register-preview-delay 0
+          register-preview-function #'consult-register-format))
+          ;;consult-project-function (lambda (_) (projectile-project-root))))
 
-    (use-package consult
-      :bind (("C-M-l" . consult-imenu)
-             ("C-s" . consult-line)
-             ("C-M-g" . consult-ripgrep)
-             ("C-M-o" . consult-org-heading))
-      :hook (completion-list-mode . consult-preview-at-point-mode)
-      :init
-      (setq register-preview-delay 0
-            register-preview-function #'consult-register-format)
-      :custom (consult-project-root-function #'gg/get-project-root
-                 completion-in-region-function #'consult-completion-in-region))
+#+end_src
+** Consult org
+#+begin_src elisp
+(use-package consult-org-roam
+   :ensure t
+   :after org-roam
+   :init
+   (require 'consult-org-roam)
+   ;; Activate the minor mode
+   (consult-org-roam-mode 1)
+   :custom
+   ;; Use `ripgrep' for searching with `consult-org-roam-search'
+   (consult-org-roam-grep-func #'consult-ripgrep)
+   ;; Configure a custom narrow key for `consult-buffer'
+   (consult-org-roam-buffer-narrow-key ?r)
+   ;; Display org-roam buffers right after non-org-roam buffers
+   ;; in consult-buffer (and not down at the bottom)
+   (consult-org-roam-buffer-after-buffers t)
+   :config
+   ;; Eventually suppress previewing for certain functions
+   (consult-customize
+    consult-org-roam-forward-links
+    :preview-key (kbd "M-."))
+   :bind
+   ;; Define some convenient keybindings as an addition
+   ("C-c n e" . consult-org-roam-file-find)
+   ("C-c n b" . consult-org-roam-backlinks)
+   ("C-c n l" . consult-org-roam-forward-links)
+   ("C-c n r" . consult-org-roam-search))
+#+end_src
+* Embark
+#+begin_src elisp :tangle no
+  (use-package embark
+    :ensure t
 
+    :bind
+    (("C-." . embark-act)         ;; pick some comfortable binding
+     ("C-;" . embark-dwim)        ;; good alternative: M-.
+     ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
+
+    :init
+    ;; Optionally replace the key help with a completing-read interface
+    (setq prefix-help-command #'embark-prefix-help-command)
+
+    ;; Show the Embark target at point via Eldoc.  You may adjust the Eldoc
+    ;; strategy, if you want to see the documentation from multiple providers.
+    (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
+    ;; (setq eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
+
+    :config
+    ;; Hide the mode line of the Embark live/completions buffers
+    (add-to-list 'display-buffer-alist
+                 '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                   nil
+                   (window-parameters (mode-line-format . none)))))
+
+  ;; Consult users will also want the embark-consult package.
+  (use-package embark-consult
+    :ensure t ; only need to install it, embark loads it after consult if found
+    :hook
+    (embark-collect-mode . consult-preview-at-point-mode))
 #+end_src
 * which-key
 #+begin_src elisp
