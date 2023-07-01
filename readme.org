@@ -538,12 +538,10 @@ This command =emacsclient -n -e '(yequake-toggle "terminal")'= is a keybind on G
     (yequake-frames
      '(("terminal"
         (buffer-fns . (vterm))
-        (width . 0.98)
+        (width . 1.0)
         (height . 0.5)
         (alpha . 1.0)
-        (frame-parameters . ((undecorated . t)
-                             (skip-taskbar . t)
-                             (sticky . t)))))))
+        (frame-parameters . ((undecorated . t)))))))
 #+end_src
 * Vterm
 #+begin_src elisp
