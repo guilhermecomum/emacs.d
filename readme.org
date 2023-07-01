@@ -121,6 +121,32 @@ I don't want a bunch of transient files showing up as untracked in the Git repo 
   (setq tramp-auto-save-directory temporary-file-directory)
 #+end_src
 
+* Mac OS
+#+begin_src elisp
+  (when (eq system-type 'darwin)
+    (add-to-list 'default-frame-alist '(undecorated . t))
+    (setq mac-option-modifier 'alt)
+    (setq mac-command-modifier 'meta)
+
+    ;; Keys for visiting next & previous windows
+    (global-set-key (kbd "<A-tab>") #'other-window)
+    (global-set-key (kbd "<A-S-tab>")
+                    #'(lambda () (interactive) (other-window -1)))
+
+    ;; Keys for visiting next & previous frame
+    (global-set-key (kbd "M-`") #'other-frame)
+    (global-set-key (kbd "M-~") #'(lambda () (interactive) (other-frame -1)))
+
+    ;; sets fn-delete to be right-delete
+    (global-set-key [kp-delete] 'delete-char)
+    (menu-bar-mode 1)
+
+    ;; Enable mac option to create accented characters
+    (setq ns-alternate-modifier 'none)
+    (setq ns-left-alternate-modifier 'none))
+
+#+end_src
+
 * Emacs Server
 Start the Emacs server from this instance so that all =emacsclient= calls are routed here.
 It's required to be able to use Emacs as my [[*Yequake][dropdown terminal]].
@@ -145,12 +171,9 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
     (setq doom-themes-treemacs-theme "doom-colors")
     (with-eval-after-load 'doom-themes
       (doom-themes-treemacs-config))
-    (setq doom-variable-pitch-font (font-spec :family "Fira Code" :size 10))
-    (set-face-attribute 'default nil :font "Ubuntu Mono 15")
-    (set-face-attribute 'font-lock-keyword-face nil :slant 'italic :weight 'normal :family "CascadiaCode")
+    (set-face-attribute 'default nil :font "Menlo 13")
     (set-face-attribute 'region nil :background "#000" :foreground "#ffffff")
-    ;; (load-theme (intern "doom-tokyo-night") t)
-    (load-theme (intern "doom-nord") t))
+    (load-theme (intern "doom-tokyo-night") t))
 #+end_src
 
 ** Neotree
@@ -266,8 +289,8 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 #+begin_src elisp
   (global-set-key [s-tab] 'next-buffer)
   (global-set-key [S-s-iso-lefttab] 'previous-buffer)
-  (global-set-key ["M-["] 'next-buffer)
-  (global-set-key ["M-]"] 'previous-buffer)
+  (global-set-key ["M-{"] 'next-buffer)
+  (global-set-key ["M-}"] 'previous-buffer)
 
   ;; change window
   (global-set-key [(C-tab)] 'other-window)
@@ -341,11 +364,11 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 ** Multiple cursor
 #+begin_src elisp
       (use-package multiple-cursors
-        :bind (("C-S-c C-S-c" . mc/edit-lines)
-               ("s-." . mc/mark-next-like-this)
-               ("s-," . mc/mark-previous-like-this)
-               ("s->" . mc/mark-all-like-this)
-               ("C-S-<mouse-1>" . mc/add-cursor-on-click)))
+        :bind (("A-S-c A-S-c" . mc/edit-lines)
+               ("C-." . mc/mark-next-like-this)
+               ("C-," . mc/mark-previous-like-this)
+               ("A->" . mc/mark-all-like-this)
+               ("C-A-<mouse-1>" . mc/add-cursor-on-click)))
 #+end_src
 ** Unfill paragraph
 #+begin_src elisp
