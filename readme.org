@@ -485,34 +485,25 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 * Projectile
 #+begin_src elisp
   (use-package projectile
-    :bind (("C-c p" . projectile-command-map))
+    :init
+    (projectile-mode +1)
+    :bind (
+           ("C-c p" . projectile-command-map)
+           ("M-[" . projectile-previous-project-buffer)
+           ("M-]" . projectile-next-project-buffer))
     :config
     (setq projectile-indexing-method 'hybrid
           projectile-sort-order 'recently-active
-          projectile-per-project-compilation-buffer t
-          compilation-read-command t
-          compilation-command "npx tsc"
+          compilation-read-command nil
           projectile-comint-mode t)
+
     (add-to-list 'projectile-globally-ignored-directories "node_modules")
-    (add-to-list 'projectile-globally-ignored-files "yarn.lock"))
+    (add-to-list 'projectile-globally-ignored-files "yarn.lock")
+    :custom
+    (projectile-globally-ignored-buffers '("*scratch*" "*lsp-log*" "*xref*" "*EGLOT" "*Messages*" "*compilation" "*vterm*" "*Flymake")))
 
-
-  ;; source: https://github.com/joaotavora/eglot/issues/129#issuecomment-444130367
-  (defun gg-projectile-project-find-function (dir)
-    (let ((root (projectile-project-root dir)))
-      (and root (cons 'transient root))))
-
-  (projectile-mode t)
-
-  (with-eval-after-load 'project
-    (add-to-list 'project-find-functions 'gg-projectile-project-find-function))
-
-  ;; source: https://github.com/emacs-typescript/typescript.el
-  (require 'ansi-color)
-  (defun colorize-compilation-buffer ()
-    (ansi-color-apply-on-region compilation-filter-start (point-max)))
-  (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
 #+end_src
+
 * Magit
 #+begin_src elisp
   (use-package magit)
