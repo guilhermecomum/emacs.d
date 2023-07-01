@@ -430,6 +430,23 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
               #b00000000)))
 #+end_src
 
+*** Eslint
+#+begin_src elisp
+  ;; source: https://github.com/angrybacon/dotemacs/blob/master/lisp/use-lint.el
+  (use-package flymake-eslint
+    :functions flymake-eslint-enable
+    :preface
+    (defun flymake-eslint-enable-maybe ()
+      "Enable `flymake-eslint' based on the project configuration.
+  Search for the project ESLint configuration to determine whether the buffer
+  should be checked."
+      (when-let* ((root (locate-dominating-file (buffer-file-name) "package.json"))
+                  (rc (locate-file ".eslintrc" (list root) '(".js" ".json"))))
+        (make-local-variable 'exec-path)
+        (push (file-name-concat root "node_modules" ".bin") exec-path)
+        (setq-local flymake-eslint-project-root root)
+        (flymake-eslint-enable))))
+#+end_src
 * Flyspell
 #+begin_src elisp
   (use-package flyspell)
