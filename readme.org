@@ -59,6 +59,8 @@ Straight.el
       (bury-buffer)
       nil))
   (add-hook 'kill-buffer-query-functions #'dont-kill-scratch)
+  ;; Don't ask about variables and functions from .dir-locals
+  (advice-add 'risky-local-variable-p :override #'ignore)
 #+end_src
 ** Startup Performance
 Make startup faster by reducing the frequency of garbage collection and then use a hook to measure Emacs startup time.
