@@ -1011,7 +1011,7 @@ Original code from https://github.com/joaotavora/eglot/discussions/999
            ("C-M-o" . consult-org-heading))
     :hook (completion-list-mode . consult-preview-at-point-mode)
     :init
-    ;;(autoload 'projectile-project-root "projectile")
+    (autoload 'projectile-project-root "projectile")
     (setq register-preview-delay 0
           register-preview-function #'consult-register-format))
           ;;consult-project-function (lambda (_) (projectile-project-root))))
