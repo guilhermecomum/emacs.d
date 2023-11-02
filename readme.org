@@ -858,7 +858,7 @@ yasnippet
   (use-package prettier-js
     :ensure-system-package (prettier . "npm i -g prettier")
     :hook ((typescript-ts-mode . prettier-js-mode)
-           (javascript-ts-mode . prettier-js-mode)
+           (js-ts-mode . prettier-js-mode)
            (tsx-ts-mode . prettier-js-mode)))
 #+end_src
 
