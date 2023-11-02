@@ -995,14 +995,13 @@ Original code from https://github.com/joaotavora/eglot/discussions/999
 #+begin_src elisp
   (use-package sql-indent)
   (use-package sqlformat
-    :ensure-system-package (pg_format . "sudo apt install pgformatter")
     :config
     (setq sqlformat-command 'pgformatter
           sqlformat-args '("-s2" "-g"))
     :hook (sql-mode . sqlformat-on-save-mode)
     :bind (:map sql-mode-map ("C-c C-f" . sqlformat)))
-
 #+end_src
+
 * Vertigo
 #+begin_src elisp
   (use-package vertico
