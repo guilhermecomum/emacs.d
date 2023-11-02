@@ -885,6 +885,15 @@ yasnippet
     (ansi-color-apply-on-region compilation-filter-start (point-max)))
   (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
 #+end_src
+* Ruby
+#+begin_src elisp
+  (add-hook 'ruby-mode-hook 'flymake-ruby-load)
+#+end_src
+** Rubocop
+#+begin_src elisp
+  (use-package rubocop
+    :config
+    (setq rubocop-autocorrect-on-save t))
 #+end_src
 * Deno
 #+begin_src elisp
