@@ -878,6 +878,13 @@ yasnippet
     "Predicate for determining if the open project is a Node one."
     (let ((p-root (cdr (project-current))))
       (file-exists-p (concat p-root "package.json"))))
+
+  ;; source: https://github.com/emacs-typescript/typescript.el
+  (require 'ansi-color)
+  (defun colorize-compilation-buffer ()
+    (ansi-color-apply-on-region compilation-filter-start (point-max)))
+  (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
+#+end_src
 #+end_src
 * Deno
 #+begin_src elisp
