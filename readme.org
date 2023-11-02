@@ -861,6 +861,13 @@ yasnippet
            (js-ts-mode . prettier-js-mode)
            (tsx-ts-mode . prettier-js-mode)))
 #+end_src
+** Jest mode
+#+begin_src elisp
+  (use-package jest-test-mode
+    :ensure t
+    :commands jest-test-mode
+    :hook (typescript-mode js-mode typescript-tsx-mode))
+#+end_src
 
 * Typescript
 #+begin_src elisp
