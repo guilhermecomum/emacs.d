@@ -546,7 +546,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
   (use-package org :straight (:type built-in)
     :custom
     (org-agenda-files
-     '("/home/guerra/Projects/org-files/roam" "/home/guerra/Projects/org-files/roam/daily" "~/Dropbox/org-mode"))
+     '("/Users/guerra/Projects/org-files/roam/" "/Users/guerra/Projects/org-files/roam/daily"))
     (org-agenda-span 15)
     (org-deadline-warning-days 0)
     (org-icalendar-deadline-summary-prefix "")
@@ -559,8 +559,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
     :hook (org-mode . turn-on-flyspell))
 
   (use-package org-contrib)
-  (use-package org-web-tools
-    :ensure-system-package (pandoc . "sudo apt install pandoc"))
+  (use-package org-web-tools)
 
   (use-package org-ql
     :after '(org)
@@ -789,8 +788,8 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
     :config
     (midnight-delay-set 'midnight-delay 16200)
     (setq midnight-period 2400 ;; in seconds
-          org-agenda-private-local-path "~/org.ics"
-          org-agenda-private-remote-path "/gdrive:guilherme.ga@gmail.com:/Meu Drive/org.ics")
+          org-agenda-private-local-path "~/.org.ics"
+          org-agenda-private-remote-path "~/Google Drive/My Drive/org.ics")
     :hook (midnight . org-agenda-export-to-ics)
     :bind ("C-c e i" . org-agenda-export-to-ics))
 
