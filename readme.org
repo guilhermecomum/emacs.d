@@ -1138,4 +1138,9 @@ Javascript
                     (make-llm-ollama
                      :chat-model "mistral" :embedding-model "mistral")))
 #+end_src
+* Read aloud
+#+begin_src elisp
+  (use-package read-aloud
+    :config
+    (setq read-aloud-engine "say"))
 #+end_src
