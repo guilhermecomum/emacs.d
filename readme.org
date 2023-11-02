@@ -175,7 +175,20 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
       (doom-themes-treemacs-config))
     (set-face-attribute 'default nil :font "Menlo 13")
     (set-face-attribute 'region nil :background "#000" :foreground "#ffffff")
-    (load-theme (intern "doom-tokyo-night") t))
+    (load-theme (intern "doom-rouge") t)
+
+    :init
+    (setq selected-theme "doom-rouge")
+    (load-theme (intern selected-theme) t)
+
+    (defun gg-switch-theme()
+      (interactive)
+      (let* ((theme selected-theme)
+             (change (if (string= theme "doom-rouge") "doom-solarized-light" "doom-rouge")))
+        (load-theme (intern change) t)
+        (setq selected-theme change)
+        (message "Theme switched from %s to %s" theme change)))
+    (global-set-key (kbd "<f8>") 'gg-switch-theme))
 #+end_src
 
 ** Neotree
