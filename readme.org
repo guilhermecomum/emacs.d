@@ -1127,10 +1127,15 @@ Javascript
 #+begin_src elisp
   (use-package js-comint)
 #+end_src
-ChatGPT
+* Ollama
 #+begin_src elisp
-    (use-package chatgpt-shell
-        :straight (chatgpt-shell :host github :repo "xenodium/chatgpt-shell")
-        :config
-        (setq chatgpt-shell-openai-key ""))
+  (use-package ellama
+    :init
+    (setopt ellama-language "English")
+    ;;(setopt ellama-language "Portuguese")
+    (require 'llm-ollama)
+    (setopt ellama-provider
+                    (make-llm-ollama
+                     :chat-model "mistral" :embedding-model "mistral")))
+#+end_src
 #+end_src
