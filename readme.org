@@ -541,41 +541,6 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
                     :height .9
                     :italic t))))
 #+end_src
-* Yequake
-This command =emacsclient -n -e '(yequake-toggle "terminal")'= is a keybind on Gnome, so I can use Emacs as my dropdown terminal
-#+begin_src elisp
-  (use-package yequake
-    :straight (yequake :host github :repo "alphapapa/yequake")
-
-    :custom
-    (yequake-frames
-     '(("terminal"
-        (buffer-fns . (vterm))
-        (width . 1.0)
-        (height . 0.5)
-        (alpha . 1.0)
-        (frame-parameters . ((undecorated . t)))))))
-#+end_src
-* Vterm
-#+begin_src elisp
-(use-package vterm)
-
-(global-set-key (kbd "<f3>") (lambda() (interactive)(vterm)))
-#+end_src
-* EAF
-#+begin_src elisp
-  (straight-use-package
-   '(webkit :type git :host github :repo "akirakyle/emacs-webkit"
-            :branch "main"
-            :files (:defaults "*.js" "*.css" "*.so")
-            :pre-build ("make")))
-  (use-package webkit)
-  (setq webkit-search-prefix "https://google.com/search?q=")
-#+end_src
-*** Search clipboard on google
-#+begin_src elisp
-  (global-set-key (kbd "C-c C-g") (lambda () (interactive) (webkit (car kill-ring))))
-#+end_src
 * Org
 #+begin_src elisp
   (use-package org :straight (:type built-in)
