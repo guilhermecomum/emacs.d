@@ -474,7 +474,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
       (ispell-change-dictionary change)
       (message "Dictionary switched from %s to %s" dic change)))
 
-  (global-set-key (kbd "<f5>") 'fd-switch-dictionary)
+  (global-set-key (kbd "<f7>") 'fd-switch-dictionary)
   (define-key flyspell-mode-map (kbd "C-;") 'flyspell-correct-wrapper)
 #+end_src
 * Yasnippet
