@@ -146,6 +146,7 @@ I don't want a bunch of transient files showing up as untracked in the Git repo 
 
     ;; Enable mac option to create accented characters
     (setq ns-alternate-modifier 'none)
+    (setq frame-resize-pixelwise t)
     (setq ns-left-alternate-modifier 'none))
 
 #+end_src
