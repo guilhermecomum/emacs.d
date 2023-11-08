@@ -561,7 +561,9 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
     :hook (org-mode . turn-on-flyspell))
 
   (use-package org-contrib)
-  (use-package org-web-tools)
+  (use-package org-web-tools
+    :custom
+    (org-web-tools-pandoc-sleep-time 0.6))
 
   (use-package org-ql
     :after '(org)
