@@ -773,7 +773,7 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
     :bind (("C-c n l" . org-roam-buffer-toggle)
            ("<f4>" . org-roam-node-find)
            ("C-c n i" . org-roam-node-insert)
-           ("<f12>" . org-roam-dailies-capture-today)
+           ("<f12>" . org-roam-dailies-goto-today)
            ;; :map org-mode-map
            ;; ("C-M-i" . completion-at-point)
            :map org-roam-dailies-map
