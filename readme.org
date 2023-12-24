@@ -170,31 +170,31 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
 *** Doom Themes
 #+begin_src elisp
   (use-package doom-themes
+    :preface
+    (setq
+          doom-themes-treemacs-theme "doom-colors"
+          light-theme "doom-solarized-light"
+          dark-theme "doom-tomorrow-night")
+    :init
+    (load-theme (intern light-theme) t)
+
+    (defun gg-switch-theme()
+      (interactive)
+      (let* ((theme (car custom-enabled-themes))
+             (change (if (string= theme light-theme) dark-theme light-theme)))
+        (load-theme (intern change) t)
+        (setq selected-theme change)
+        (message "Theme switched from %s to %s" theme change)))
+    (global-set-key (kbd "<f8>") 'gg-switch-theme)
+
     :config
     (doom-themes-neotree-config)
-    (setq
-     doom-themes-treemacs-theme "doom-colors"
-     light-theme "doom-solarized-light"
-     dark-theme "doom-tomorrow-night")
     (with-eval-after-load 'doom-themes
       (doom-themes-treemacs-config))
     (set-face-attribute 'default nil :font "Menlo 13")
     (set-face-attribute 'region nil :background "#000" :foreground "#ffffff")
 
-    (load-theme (intern light-theme) t)
-
-    :init
-    (setq selected-theme light-theme)
-    (load-theme (intern selected-theme) t)
-
-    (defun gg-switch-theme()
-      (interactive)
-      (let* ((theme selected-theme)
-             (change (if (string= theme light-theme) dark-theme light-theme)))
-        (load-theme (intern change) t)
-        (setq selected-theme change)
-        (message "Theme switched from %s to %s" theme change)))
-    (global-set-key (kbd "<f8>") 'gg-switch-theme))
+    (load-theme (intern light-theme) t))
 #+end_src
 
 ** Neotree
