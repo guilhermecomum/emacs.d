@@ -1152,3 +1152,7 @@ Javascript
     :config
     (setq read-aloud-engine "say"))
 #+end_src
+* CSV Mode
+#+begin_src elisp
+  (use-package csv-mode)
+#+end_src
