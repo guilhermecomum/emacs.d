@@ -411,6 +411,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
   (push '(js-json-mode . json-ts-mode) major-mode-remap-alist)
   (push '(typescript-mode . typescript-ts-mode) major-mode-remap-alist)
   (push '(typescript-mode . tsx-ts-mode) major-mode-remap-alist)
+  (push '(ruby-mode . ruby-ts-mode) major-mode-remap-alist)
   (add-to-list 'auto-mode-alist '("\\.tsx?\\'" . tsx-ts-mode))
 #+end_src
 
@@ -895,7 +896,8 @@ yasnippet
 #+end_src
 * Ruby
 #+begin_src elisp
-  (add-hook 'ruby-mode-hook 'flymake-ruby-load)
+  (use-package flymake-ruby)
+  (add-hook 'ruby-ts-mode-hook 'flymake-ruby-load)
 #+end_src
 ** Rubocop
 #+begin_src elisp
