@@ -102,7 +102,7 @@ Set the start point for the current buffer, this means if you will search for a 
           dashboard-startup-banner "~/.emacs.d/nyan-cat.png"
           dashboard-center-content t
           dashboard-agenda-release-buffers t
-          dashboard-items '((projects . 5) (agenda . 5)))
+          dashboard-items '((projects . 5)))
     (dashboard-setup-startup-hook))
 #+end_src
 
