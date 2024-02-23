@@ -492,7 +492,9 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 * Code Folding
 #+begin_src elisp
   (use-package yafolding
-    :bind ("<C-return>" . yafolding-toggle-element))
+    :hook
+    (prog-mode-hook . yafolding-mode)
+    :bind ("C-c C-f" . yafolding-toggle-element))
 #+end_src
 * Restclient
 #+begin_src elisp
