@@ -173,10 +173,10 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
     :preface
     (setq
           doom-themes-treemacs-theme "doom-colors"
-          light-theme "doom-solarized-light"
-          dark-theme "doom-tomorrow-night")
+          light-theme "doom-oksolar-light"
+          dark-theme "doom-material-dark")
     :init
-    (load-theme (intern light-theme) t)
+    (load-theme (intern dark-theme) t)
 
     (defun gg-switch-theme()
       (interactive)
@@ -192,9 +192,7 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
     (with-eval-after-load 'doom-themes
       (doom-themes-treemacs-config))
     (set-face-attribute 'default nil :font "Menlo 13")
-    (set-face-attribute 'region nil :background "#000" :foreground "#ffffff")
-
-    (load-theme (intern light-theme) t))
+    (set-face-attribute 'region nil :background "#000" :foreground "#ffffff"))
 #+end_src
 
 ** Neotree
@@ -259,7 +257,7 @@ Writing yes or no is length, type y / n instead
 #+begin_src elisp
   (use-package doom-modeline
     :config
-    (setq doom-modeline-height 25)
+    (setq doom-modeline-height 35)
     (set-face-background 'doom-modeline-bar (face-background 'mode-line))
     (setq doom-modeline-bar-width 1)
     (doom-modeline-mode 1))
@@ -1039,7 +1037,10 @@ Original code from https://github.com/joaotavora/eglot/discussions/999
 #+begin_src elisp
   (use-package vertico
     :init
-    (vertico-mode))
+    (vertico-mode)
+    :custom
+    (vertico-group-separator ((t (:inherit all-the-icons-dorange :strike-through t))))
+    (vertico-group-title ((t (:inherit all-the-icons-dorange :slant italic)))))
 
   (use-package savehist
     :init
