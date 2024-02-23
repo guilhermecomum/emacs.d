@@ -891,64 +891,66 @@ Buttercup
 * Eglot
 Original code from https://github.com/joaotavora/eglot/discussions/999
 #+begin_src elisp
-    (defun ecma-server-program (_)
-      "Decide which server to use for ECMA Script based on project characteristics."
-      (cond ((deno-project-p) '("deno" "lsp" :initializationOptions (:enable t :lint t)))
-            ((node-project-p) '("typescript-language-server" "--stdio"))
-            (t                nil)))
+  (defun ecma-server-program (_)
+    "Decide which server to use for ECMA Script based on project characteristics."
+    (cond ((deno-project-p) '("deno" "lsp" :initializationOptions (:enable t :lint t)))
+          ((node-project-p) '("typescript-language-server" "--stdio"))
+          (t                nil)))
 
-    ;; source: https://manueluberti.eu/2022/09/01/consult-xref.html
-    (defun mu-project-find-regexp ()
-      "Use `project-find-regexp' with completion."
-      (interactive)
-      (defvar xref-show-xrefs-function)
-      (let ((xref-show-xrefs-function #'consult-xref))
-        (if-let ((tap (thing-at-point 'symbol)))
-            (project-find-regexp tap)
-          (call-interactively #'project-find-regexp))))
+  ;; source: https://manueluberti.eu/2022/09/01/consult-xref.html
+  (defun mu-project-find-regexp ()
+    "Use `project-find-regexp' with completion."
+    (interactive)
+    (defvar xref-show-xrefs-function)
+    (let ((xref-show-xrefs-function #'consult-xref))
+      (if-let ((tap (thing-at-point 'symbol)))
+          (project-find-regexp tap)
+        (call-interactively #'project-find-regexp))))
 
-    (defun eglot-shutdown-project ()
-      "Kill the LSP server for the current project if it exists."
-      (when-let ((server (eglot-current-server)))
-        (ignore-errors (eglot-shutdown server))))
+  (defun eglot-shutdown-project ()
+    "Kill the LSP server for the current project if it exists."
+    (when-let ((server (eglot-current-server)))
+      (ignore-errors (eglot-shutdown server))))
 
-    (use-package eglot
-      :straight t
-      :init
-      (put 'eglot-server-programs 'safe-local-variable 'listp)
-      :hook
-      (typescript-ts-mode . eglot-ensure)
-      (js-mode . eglot-ensure)
-      (js-ts-mode . eglot-ensure)
-      (tsx-ts-mode . eglot-ensure)
-      (web-mode . eglot-ensure)
-      (prisma-mode . eglot-ensure)
-      (eglot-managed-mode . flymake-eslint-enable-maybe)
-      :bind (:map eglot-mode-map
-                  ("C-c ." . eglot-code-actions)
-                  ("C-c e r" . eglot-rename)
-                  ("C-c e f" . eglot-format)
-                  ("M-?" . xref-find-references)
-                  ("M-." . xref-find-definitions)
-                  ;;("C-c x a" . xref-find-apropos)
-                  ("C-c f n" . flymake-goto-next-error)
-                  ("C-c f p" . flymake-goto-prev-error)
-                  ("C-c f d" . flymake-show-project-diagnostics))
-      :custom
-      (eglot-autoshutdown t)
-      (eglot-menu-string "LSP")
-      ;;(eglot-ignored-server-capabilities '(:documentHighlightProvider))
-      (eglot-confirm-server-initiated-edits nil)
-      :config
-      (fset #'jsonrpc--log-event #'ignore)
-      ;;(add-to-list 'eglot-stay-out-of 'eldoc-documentation-strategy)
-      (put 'eglot-error 'flymake-overlay-control nil)
-      (put 'eglot-note 'flymake-overlay-control nil)
-      (put 'eglot-warning 'flymake-overlay-control nil)
-      (advice-add 'eglot--apply-workspace-edit :after #'me/project-save)
-      (advice-add 'project-kill-buffers :before #'me/eglot-shutdown-project)
-      (add-to-list 'eglot-server-programs '((js-ts-mode tsx-ts-mode typescript-ts-mode) . ecma-server-program)))
+  (use-package eglot
+    :straight t
+    :init
+    (put 'eglot-server-programs 'safe-local-variable 'listp)
+    :hook
+    (typescript-ts-mode . eglot-ensure)
+    (js-mode . eglot-ensure)
+    (js-ts-mode . eglot-ensure)
+    (tsx-ts-mode . eglot-ensure)
+    (web-mode . eglot-ensure)
+    (prisma-mode . eglot-ensure)
+    (eglot-managed-mode . flymake-eslint-enable-maybe)
 
+    :bind (:map eglot-mode-map
+                ("C-c ." . eglot-code-actions)
+                ("C-c e r" . eglot-rename)
+                ("C-c e f" . eglot-format)
+                ("M-?" . xref-find-references)
+                ("M-." . xref-find-definitions)
+                ("C-c f n" . flymake-goto-next-error)
+                ("C-c f p" . flymake-goto-prev-error)
+                ("C-c f d" . flymake-show-project-diagnostics))
+    :custom
+    (eglot-autoshutdown t)
+    (eglot-menu-string "LSP")
+    (eglot-confirm-server-initiated-edits nil)
+    :config
+    (fset #'jsonrpc--log-event #'ignore)
+    (put 'eglot-error 'flymake-overlay-control nil)
+    (put 'eglot-note 'flymake-overlay-control nil)
+    (put 'eglot-warning 'flymake-overlay-control nil)
+    (advice-add 'eglot--apply-workspace-edit :after #'me/project-save)
+    (advice-add 'project-kill-buffers :before #'me/eglot-shutdown-project)
+    (add-hook 'eglot-managed-mode-hook #'eldoc-box-hover-mode t)
+    (add-to-list 'eglot-server-programs '((js-ts-mode tsx-ts-mode typescript-ts-mode) . ecma-server-program)))
+#+end_src
+* Eldoc
+#+begin_src elisp
+  (use-package eldoc-box)
 #+end_src
 
 * SQL
