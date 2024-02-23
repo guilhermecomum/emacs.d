@@ -373,11 +373,10 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
   (add-hook 'conf-mode-hook #'display-line-numbers-mode)
 #+end_src
 ** Indent Guides
-#+begin_src elisp :tangle no
+#+begin_src elisp
   (use-package highlight-indent-guides
     :config
-    (setq highlight-indent-guides-method 'character)
-    :hook (prog-mode . highlight-indent-guides-mode))
+    (setq highlight-indent-guides-method 'character))
 #+end_src
 
 ** Multiple cursor
