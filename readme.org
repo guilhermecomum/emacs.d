@@ -993,9 +993,9 @@ Original code from https://github.com/joaotavora/eglot/discussions/999
     :init
     (autoload 'projectile-project-root "projectile")
     (setq register-preview-delay 0
-          register-preview-function #'consult-register-format))
-          ;;consult-project-function (lambda (_) (projectile-project-root))))
-
+          register-preview-function #'consult-register-format
+          xref-show-xrefs-function #'consult-xref
+          xref-show-definitions-function #'consult-xref))
 #+end_src
 ** Consult org
 #+begin_src elisp
