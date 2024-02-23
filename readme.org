@@ -724,6 +724,16 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
 #+begin_src elisp
   (use-package org-chef)
 #+end_src
+** Restclient
+#+begin_src elisp
+  (use-package ob-restclient
+    :init
+    (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((restclient . t))))
+
+
+#+end_src
 
 * Markdown
 #+begin_src elisp
