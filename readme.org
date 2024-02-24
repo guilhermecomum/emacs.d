@@ -946,12 +946,12 @@ Original code from https://github.com/joaotavora/eglot/discussions/999
     (put 'eglot-warning 'flymake-overlay-control nil)
     (advice-add 'eglot--apply-workspace-edit :after #'me/project-save)
     (advice-add 'project-kill-buffers :before #'me/eglot-shutdown-project)
-    (add-hook 'eglot-managed-mode-hook #'eldoc-box-hover-mode t)
     (add-to-list 'eglot-server-programs '((js-ts-mode tsx-ts-mode typescript-ts-mode) . ecma-server-program)))
 #+end_src
 * Eldoc
 #+begin_src elisp
-  (use-package eldoc-box)
+  (use-package eldoc-box
+    :bind ("C-h ." . eldoc-box-help-at-point))
 #+end_src
 
 * SQL
