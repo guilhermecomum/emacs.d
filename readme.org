@@ -552,7 +552,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
   (use-package org :straight (:type built-in)
     :custom
     (org-agenda-files
-     '("/Users/guerra/Projects/org-files/roam/" "/Users/guerra/Projects/org-files/roam/daily"))
+     '("/Users/guerra/Documents/org-files/roam/" "/Users/guerra/Documents/org-files/roam/daily"))
     (org-agenda-span 15)
     (org-deadline-warning-days 0)
     (org-icalendar-deadline-summary-prefix "")
@@ -578,7 +578,8 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
   (require 'org-tempo)
   (require 'org-collector)
   (setq org-export-coding-system 'utf-8
-        org-directory "~/Projects/org-files"
+        org-directory "~/Documents/org-files/"
+        org-mobile-directory "~/Library/Mobile Documents/iCloud~com~mobileorg~mobileorg/Documents"
         org-tag-alist '(("work" . ?w) ("personal" . ?p) ("meta" . ?m) ("emacsLove" . ?l) ("quotes" . ?q) ("finances" . ?f) ("howto" . ?h))
         org-log-done nil
         org-log-repeat nil
@@ -685,7 +686,7 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
     ;; :init
     ;; (setq org-roam-v2-ack t)
     :custom
-    (org-roam-directory "~/Projects/org-files/roam")
+    (org-roam-directory "~/Documents/org-files/roam")
     (setq org-roam-dailies-directory "daily/")
     (org-roam-completion-everywhere t)
     :bind (("C-c n l" . org-roam-buffer-toggle)
