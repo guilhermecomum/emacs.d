@@ -1091,3 +1091,47 @@ Javascript
 #+begin_src elisp
   (use-package csv-mode)
 #+end_src
+* Compile
+#+begin_src elisp
+  (use-package compile
+    :ensure nil
+    :custom
+    (compilation-scroll-output 'first-error)
+    (compilation-always-kill t)
+    (compilation-max-output-line-length nil)
+    :hook (compilation-mode . hl-line-mode)
+    :init
+                                          ; from enberg on #emacs
+    (add-hook 'compilation-finish-functions
+              (lambda (buf str)
+                (if (null (string-match ".*exited abnormally.*" str))
+                    ;;no errors, make the compilation window go away in a few seconds
+                    (progn
+                      (run-at-time
+                       "1 sec" nil 'delete-windows-on
+                       (get-buffer-create "*compilation*"))
+                      (message "No Compilation Errors!"))))))
+#+end_src
+** Fancy Compile
+#+begin_src elisp
+  (use-package fancy-compilation
+    :ensure t
+    :defer 3
+    :config
+    (fancy-compilation-mode)
+    :custom
+    (fancy-compilation-scroll-output 'first-error))
+#+end_src
+** Recompile on Save
+#+begin_src elisp
+  (use-package recompile-on-save
+    :ensure t
+    ;; Kill the buffer message that pops up after running advice on compile
+    :hook (after-init . (lambda () (run-at-time 1 nil
+                                                (lambda ()
+                                                  (when (get-buffer "*Compile-Log*")
+                                                    (kill-buffer "*Compile-Log*"))
+                                                  (delete-other-windows)))))
+    :init
+    (recompile-on-save-advice compile))
+#+end_src
