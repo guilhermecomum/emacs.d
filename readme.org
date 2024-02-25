@@ -21,32 +21,150 @@ Typescript with autocomplete
 Typescript erros
 [[./screenshots/typescript-errors.png]]
 
+#+begin_src elisp
+  (load-theme 'misterioso)
+#+end_src
 ** References
 The following list is from people I have been learning and stealing Emacs configuration ideas and chunks
 - [[https://github.com/clarete/emacs.d][Lincoln Clarete]]
 - [[https://github.com/daviwil/dotfiles][David Wilson]]
+
+* Mac OS
+#+begin_src elisp
+  (when (eq system-type 'darwin)
+    (add-to-list 'default-frame-alist '(undecorated . t))
+    (setq mac-option-modifier 'alt)
+    (setq mac-command-modifier 'meta)
+
+    ;; Keys for visiting next & previous windows
+    (global-set-key (kbd "<A-tab>") #'other-window)
+    (global-set-key (kbd "<A-S-tab>")
+                    #'(lambda () (interactive) (other-window -1)))
+
+    ;; Keys for visiting next & previous frame
+    (global-set-key (kbd "M-`") #'other-frame)
+    (global-set-key (kbd "M-~") #'(lambda () (interactive) (other-frame -1)))
+
+    ;; sets fn-delete to be right-delete
+    (global-set-key [kp-delete] 'delete-char)
+    (menu-bar-mode 1)
+
+    ;; Enable mac option to create accented characters
+    (setq ns-alternate-modifier 'none)
+    (setq frame-resize-pixelwise t)
+    (setq ns-left-alternate-modifier 'none))
+
+#+end_src
+
+* Key mapping
+** Buffer/Window
+  Before kill a modified buffer, give option to see the diff
+  Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-prompt-with-option-to-diff-the-changes/3363#3363][here]]
+#+begin_src elisp
+  (defun my/kill-this-buffer ()
+      (interactive)
+      (catch 'quit
+	(save-window-excursion
+	  (let (done)
+	    (when (and buffer-file-name (buffer-modified-p))
+	      (while (not done)
+		(let ((response (read-char-choice
+				 (format "Save file %s? (y, n, d, q) " (buffer-file-name))
+				 '(?y ?n ?d ?q))))
+		  (setq done (cond
+			      ((eq response ?q) (throw 'quit nil))
+			      ((eq response ?y) (save-buffer) t)
+			      ((eq response ?n) (set-buffer-modified-p nil) t)
+			      ((eq response ?d) (diff-buffer-with-file) nil))))))
+	    (kill-buffer (current-buffer))))))
+
+    (global-set-key [s-tab] 'next-buffer)
+    (global-set-key [S-s-iso-lefttab] 'previous-buffer)
+    (global-set-key ["M-{"] 'next-buffer)
+    (global-set-key ["M-}"] 'previous-buffer)
+
+    ;; change window
+    (global-set-key [(C-tab)] 'other-window)
+    (global-set-key [(C-M-tab)] 'other-window)
+
+    ;; Remap kill buffer to my/kill-this-buffer
+    (global-set-key (kbd "C-x k") 'my/kill-this-buffer)
+
+    ;; Revert buffer
+    (global-set-key (kbd "C-<f5>") 'revert-buffer)
+
+    ;; Go to scratch buffer
+    (global-set-key (kbd "<f2>") (lambda() (interactive)(switch-to-buffer "*scratch*")))
+#+end_src
+** Code navigation
+#+begin_src elisp
+  (global-set-key (kbd "M-g") 'goto-line)
+  (global-set-key (kbd "C-c s") 'sort-lines)
+#+end_src
+** Editing
+#+begin_src elisp
+  (global-set-key (kbd "C-c c") 'comment-region)
+  (global-set-key (kbd "C-c d") 'uncomment-region)
+#+end_src
+** Conf
+#+begin_src elisp
+  (global-set-key (kbd "<f6>") (lambda() (interactive)(find-file "~/.emacs.d/readme.org")))
+#+end_src
+
 * Package manager
-Straight.el
 #+begin_src elisp
   (setq package-enable-at-startup nil)
-  (defvar bootstrap-version)
-  (let ((bootstrap-file
-         (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-        (bootstrap-version 5))
-    (unless (file-exists-p bootstrap-file)
-      (with-current-buffer
-          (url-retrieve-synchronously
-           "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-           'silent 'inhibit-cookies)
-        (goto-char (point-max))
-        (eval-print-last-sexp)))
-    (load bootstrap-file nil 'nomessage))
+  (defvar elpaca-installer-version 0.6)
+  (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
+  (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
+  (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
+  (defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
+				:ref nil
+				:files (:defaults "elpaca-test.el" (:exclude "extensions"))
+				:build (:not elpaca--activate-package)))
+  (let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
+	 (build (expand-file-name "elpaca/" elpaca-builds-directory))
+	 (order (cdr elpaca-order))
+	 (default-directory repo))
+    (add-to-list 'load-path (if (file-exists-p build) build repo))
+    (unless (file-exists-p repo)
+      (make-directory repo t)
+      (when (< emacs-major-version 28) (require 'subr-x))
+      (condition-case-unless-debug err
+	  (if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+		   ((zerop (call-process "git" nil buffer t "clone"
+					 (plist-get order :repo) repo)))
+		   ((zerop (call-process "git" nil buffer t "checkout"
+					 (or (plist-get order :ref) "--"))))
+		   (emacs (concat invocation-directory invocation-name))
+		   ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+					 "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+		   ((require 'elpaca))
+		   ((elpaca-generate-autoloads "elpaca" repo)))
+	      (progn (message "%s" (buffer-string)) (kill-buffer buffer))
+	    (error "%s" (with-current-buffer buffer (buffer-string))))
+	((error) (warn "%s" err) (delete-directory repo 'recursive))))
+    (unless (require 'elpaca-autoloads nil t)
+      (require 'elpaca)
+      (elpaca-generate-autoloads "elpaca" repo)
+      (load "./elpaca-autoloads")))
+  (add-hook 'after-init-hook #'elpaca-process-queues)
+  (elpaca `(,@elpaca-order))
 
-  (straight-use-package 'use-package)
-  (setq straight-use-package-by-default t)
+  ;; Install use-package support
+  (elpaca elpaca-use-package
+    ;; Enable use-package :ensure support for Elpaca.
+    (elpaca-use-package-mode))
 
-  (use-package use-package-ensure-system-package)
+  ;; Block until current queue processed.
+  (elpaca-wait)
+
+  ;;Turns off elpaca-use-package-mode current declaration
+  ;;Note this will cause the declaration to be interpreted immediately (not deferred).
+  ;;Useful for configuring built-in emacs features.
+  (use-package emacs :ensure nil :config (setq ring-bell-function #'ignore))
 #+end_src
+
 * General
 #+begin_src elisp
   ;; Close all dired buffers after opening
@@ -83,10 +201,12 @@ Contrary to what many Emacs users have in their configs, you don't need more tha
 ** Path
 Load environment variables from the shell
 #+begin_src elisp
-  (use-package add-node-modules-path)
-  (use-package exec-path-from-shell)
-  (setq exec-path-from-shell-variables '("GOPATH" "PATH" "MANPATH"))
-  (exec-path-from-shell-initialize)
+  ;;(use-package add-node-modules-path)
+  (use-package exec-path-from-shell
+    :ensure t
+    :init (exec-path-from-shell-initialize)
+    :config
+    (setq exec-path-from-shell-variables '("GOPATH" "PATH" "MANPATH")))
 #+end_src
 
 Set the start point for the current buffer, this means if you will search for a file, the start point will be the default-directory value.
@@ -97,58 +217,34 @@ Set the start point for the current buffer, this means if you will search for a 
 * Startup Screen
 #+begin_src elisp
   (use-package dashboard
+    :ensure t
     :config
     (setq dashboard-banner-logo-title "Olá, bem vindo ao Emacs"
           dashboard-startup-banner "~/.emacs.d/nyan-cat.png"
           dashboard-center-content t
           dashboard-agenda-release-buffers t
           dashboard-items '((projects . 5)))
-    (dashboard-setup-startup-hook))
+    :init
+    (add-hook 'elpaca-after-init-hook #'dashboard-open))
 #+end_src
 
 * Keep .emacs.d clean
 I don't want a bunch of transient files showing up as untracked in the Git repo so I move them all to another location.
 #+begin_src elisp
   (setq custom-file
-          (if (boundp 'server-socket-dir)
-              (expand-file-name "custom.el" server-socket-dir)
-            (expand-file-name (format "emacs-custom-%s.el" (user-uid)) temporary-file-directory)))
-    (load custom-file t)
+	  (if (boundp 'server-socket-dir)
+	      (expand-file-name "custom.el" server-socket-dir)
+	    (expand-file-name (format "emacs-custom-%s.el" (user-uid)) temporary-file-directory)))
+  (add-hook 'elpaca-after-init-hook (lambda () (load custom-file 'noerror)))
+
 
   (setq backup-directory-alist
-        `((".*" . ,temporary-file-directory))
-        auto-save-file-name-transforms
-        `((".*" ,temporary-file-directory t))
-        create-lockfiles nil)
+	`((".*" . ,temporary-file-directory))
+	auto-save-file-name-transforms
+	`((".*" ,temporary-file-directory t))
+	create-lockfiles nil)
 
   (setq tramp-auto-save-directory temporary-file-directory)
-#+end_src
-
-* Mac OS
-#+begin_src elisp
-  (when (eq system-type 'darwin)
-    (add-to-list 'default-frame-alist '(undecorated . t))
-    (setq mac-option-modifier 'alt)
-    (setq mac-command-modifier 'meta)
-
-    ;; Keys for visiting next & previous windows
-    (global-set-key (kbd "<A-tab>") #'other-window)
-    (global-set-key (kbd "<A-S-tab>")
-                    #'(lambda () (interactive) (other-window -1)))
-
-    ;; Keys for visiting next & previous frame
-    (global-set-key (kbd "M-`") #'other-frame)
-    (global-set-key (kbd "M-~") #'(lambda () (interactive) (other-frame -1)))
-
-    ;; sets fn-delete to be right-delete
-    (global-set-key [kp-delete] 'delete-char)
-    (menu-bar-mode 1)
-
-    ;; Enable mac option to create accented characters
-    (setq ns-alternate-modifier 'none)
-    (setq frame-resize-pixelwise t)
-    (setq ns-left-alternate-modifier 'none))
-
 #+end_src
 
 * Emacs Server
@@ -170,11 +266,12 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
 *** Doom Themes
 #+begin_src elisp
   (use-package doom-themes
+    :ensure t
     :preface
     (setq
-          doom-themes-treemacs-theme "doom-colors"
-          light-theme "doom-oksolar-light"
-          dark-theme "doom-material-dark")
+     doom-themes-treemacs-theme "doom-colors"
+     light-theme "doom-oksolar-light"
+     dark-theme "doom-material-dark")
     :init
     (load-theme (intern dark-theme) t)
 
@@ -202,6 +299,7 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
     (progn(text-scale-adjust 0)(text-scale-decrease 2)))
 
   (use-package neotree
+    :ensure t
     :bind([f9] . neotree-toggle)
     :hook (neo-after-create . (lambda (_)(call-interactively 'text-scale-twice)))
     :config
@@ -213,30 +311,34 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
 #+end_src
 ** Icons
 #+begin_src elisp
-  (use-package all-the-icons)
+  (use-package all-the-icons :ensure t)
   (use-package all-the-icons-dired
+    :ensure t
     :hook (dired-mode . all-the-icons-dired-mode))
 #+end_src
 
 ** Nyan cat
 #+begin_src elisp
   (use-package nyan-mode
+    :ensure t
     :init
     (nyan-mode t))
 #+end_src
 ** Emoji
 #+begin_src elisp
   (use-package emojify
-      :hook (after-init . global-emojify-mode))
+    :ensure t
+    :hook (after-init . global-emojify-mode))
 #+end_src
 
 ** Dimmer
 #+begin_src elisp :tangle no
   (use-package dimmer
-      :init
-      (dimmer-mode t)
-      :config
-      (setq dimmer-fraction 0.3))
+    :ensure t
+    :init
+    (dimmer-mode t)
+    :config
+    (setq dimmer-fraction 0.3))
 #+end_src
 
 ** Emacs interface
@@ -256,6 +358,7 @@ Writing yes or no is length, type y / n instead
 ** Doom modeline
 #+begin_src elisp
   (use-package doom-modeline
+    :ensure t
     :config
     (setq doom-modeline-height 35)
     (set-face-background 'doom-modeline-bar (face-background 'mode-line))
@@ -270,75 +373,19 @@ Don't pop up UI dialogs when prompting
 ** Company
 #+begin_src elisp
   (use-package company
+    :ensure t
     :hook (prog-mode . company-mode)
     :config
-    (setq company-minimum-prefix-length 2))
-
+    (setq company-minimum-prefix-length 2)
     (global-company-mode)
-    (global-set-key (kbd "TAB") #'company-indent-or-complete-common)
+    (global-set-key (kbd "TAB") #'company-indent-or-complete-common))
 
   (setq company-tooltip-align-annotations t)
 
   (use-package company-box
+    :ensure t
     :hook (company-mode . company-box-mode))
 #+end_src
-** Buffers
-Before kill a modified buffer, give option to see the diff
-Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-prompt-with-option-to-diff-the-changes/3363#3363][here]]
-#+begin_src elisp
-  (defun my/kill-this-buffer ()
-    (interactive)
-    (catch 'quit
-      (save-window-excursion
-        (let (done)
-          (when (and buffer-file-name (buffer-modified-p))
-            (while (not done)
-              (let ((response (read-char-choice
-                               (format "Save file %s? (y, n, d, q) " (buffer-file-name))
-                               '(?y ?n ?d ?q))))
-                (setq done (cond
-                            ((eq response ?q) (throw 'quit nil))
-                            ((eq response ?y) (save-buffer) t)
-                            ((eq response ?n) (set-buffer-modified-p nil) t)
-                            ((eq response ?d) (diff-buffer-with-file) nil))))))
-          (kill-buffer (current-buffer))))))
-#+end_src
-* Key mapping
-** Buffer/Window
-#+begin_src elisp
-  (global-set-key [s-tab] 'next-buffer)
-  (global-set-key [S-s-iso-lefttab] 'previous-buffer)
-  (global-set-key ["M-{"] 'next-buffer)
-  (global-set-key ["M-}"] 'previous-buffer)
-
-  ;; change window
-  (global-set-key [(C-tab)] 'other-window)
-  (global-set-key [(C-M-tab)] 'other-window)
-
-  ;; Remap kill buffer to my/kill-this-buffer
-  (global-set-key (kbd "C-x k") 'my/kill-this-buffer)
-
-  ;; Revert buffer
-  (global-set-key (kbd "C-<f5>") 'revert-buffer)
-
-  ;; Go to scratch buffer
-  (global-set-key (kbd "<f2>") (lambda() (interactive)(switch-to-buffer "*scratch*")))
-#+end_src
-** Code navigation
-#+begin_src elisp
-  (global-set-key (kbd "M-g") 'goto-line)
-  (global-set-key (kbd "C-c s") 'sort-lines)
-#+end_src
-** Editing
-#+begin_src elisp
-  (global-set-key (kbd "C-c c") 'comment-region)
-  (global-set-key (kbd "C-c d") 'uncomment-region)
-#+end_src
-** Conf
-#+begin_src elisp
-  (global-set-key (kbd "<f6>") (lambda() (interactive)(find-file "~/.emacs.d/readme.org")))
-#+end_src
-
 * Editing
 #+begin_src elisp
   ;; Remembering the last place you visited in a file
@@ -355,15 +402,18 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 #+end_src
 ** Parenthesis
 #+begin_src elisp
-  (use-package smartparens)
-  (smartparens-global-mode t)
+  (use-package smartparens
+    :ensure t
+    :config
+    (smartparens-global-mode t))
 
   (use-package rainbow-delimiters
+    :ensure t
     :hook (prog-mode . rainbow-delimiters-mode))
 
-  (use-package rainbow-mode)
+  (use-package rainbow-mode :ensure t)
 
-  (use-package string-inflection)
+  (use-package string-inflection :ensure t)
 
   (global-hl-line-mode t)
 #+end_src
@@ -375,18 +425,20 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 ** Indent Guides
 #+begin_src elisp
   (use-package highlight-indent-guides
+    :ensure t
     :config
     (setq highlight-indent-guides-method 'character))
 #+end_src
 
 ** Multiple cursor
 #+begin_src elisp
-      (use-package multiple-cursors
-        :bind (("A-S-c A-S-c" . mc/edit-lines)
-               ("C-." . mc/mark-next-like-this)
-               ("C-," . mc/mark-previous-like-this)
-               ("A->" . mc/mark-all-like-this)
-               ("C-A-<mouse-1>" . mc/add-cursor-on-click)))
+  (use-package multiple-cursors
+    :ensure t
+    :bind (("A-S-c A-S-c" . mc/edit-lines)
+	   ("C-." . mc/mark-next-like-this)
+	   ("C-," . mc/mark-previous-like-this)
+	   ("A->" . mc/mark-all-like-this)
+	   ("C-A-<mouse-1>" . mc/add-cursor-on-click)))
 #+end_src
 ** Unfill paragraph
 #+begin_src elisp
@@ -415,6 +467,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 * Flymake
 #+begin_src elisp
   (use-package sideline-flymake
+    :ensure t
     :hook (flymake-mode . sideline-mode)
     :custom
     (flymake-error-bitmap '(my-rounded-fringe-indicator compilation-error))
@@ -422,7 +475,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
     (flymake-warning-bitmap '(my-rounded-fringe-indicator compilation-warning))
     :init
     (setq sideline-flymake-display-errors-whole-line 'point ; 'point to show errors only on point
-          sideline-backends-right '(sideline-flymake))) ; 'line to show errors on the current line
+	  sideline-backends-right '(sideline-flymake))) ; 'line to show errors on the current line
 #+end_src
 *** Custom Fringe
 #+begin_src elisp
@@ -451,6 +504,7 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 #+begin_src elisp
   ;; source: https://github.com/angrybacon/dotemacs/blob/master/lisp/use-lint.el
   (use-package flymake-eslint
+    :ensure t
     :functions flymake-eslint-enable
     :preface
     (defun flymake-eslint-enable-maybe ()
@@ -458,18 +512,24 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
   Search for the project ESLint configuration to determine whether the buffer
   should be checked."
       (when-let* ((root (locate-dominating-file (buffer-file-name) "package.json"))
-                  (rc (locate-file ".eslintrc" (list root) '(".js" ".json"))))
-        (make-local-variable 'exec-path)
-        (push (file-name-concat root "node_modules" ".bin") exec-path)
-        (setq-local flymake-eslint-project-root root)
-        (flymake-eslint-enable))))
+		  (rc (locate-file ".eslintrc" (list root) '(".js" ".json"))))
+	(make-local-variable 'exec-path)
+	(push (file-name-concat root "node_modules" ".bin") exec-path)
+	(setq-local flymake-eslint-project-root root)
+	(flymake-eslint-enable))))
 #+end_src
 * Flyspell
 #+begin_src elisp
-  (use-package flyspell)
-  (use-package flyspell-correct-popup)
-  (setq ispell-program-name "aspell")
-  (ispell-change-dictionary "pt_BR")
+  (use-package flyspell
+    :ensure nil
+    :bind (("<f7>" . 'fd-switch-dictionary)
+           ("C-;" . 'flyspell-correct-wrapper)))
+
+  (use-package flyspell-correct-popup
+    :ensure t
+    :config
+    (setq ispell-program-name "aspell")
+    (ispell-change-dictionary "pt_BR"))
 
   (defun fd-switch-dictionary()
     (interactive)
@@ -478,12 +538,13 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
       (ispell-change-dictionary change)
       (message "Dictionary switched from %s to %s" dic change)))
 
-  (global-set-key (kbd "<f7>") 'fd-switch-dictionary)
-  (define-key flyspell-mode-map (kbd "C-;") 'flyspell-correct-wrapper)
+  ;; (global-set-key (kbd "<f7>") )
+  ;; (define-key flyspell-mode-map (kbd "C-;") 'flyspell-correct-wrapper)
 #+end_src
 * Yasnippet
 #+begin_src elisp
   (use-package yasnippet
+    :ensure t
     :init
     :config
     (yas-load-directory "~/.emacs.d/snippets")
@@ -492,64 +553,67 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 * Code Folding
 #+begin_src elisp
   (use-package yafolding
+    :ensure t
     :hook
     (prog-mode-hook . yafolding-mode)
     :bind ("C-c C-f" . yafolding-toggle-element))
 #+end_src
 * Restclient
 #+begin_src elisp
-  (use-package restclient)
+  (use-package restclient :ensure t)
 #+end_src
 
 * Projectile
 #+begin_src elisp
   (use-package projectile
+    :ensure t
     :init
     (projectile-mode +1)
     :bind (
-           ("C-c p" . projectile-command-map)
-           ("M-[" . projectile-previous-project-buffer)
-           ("M-]" . projectile-next-project-buffer))
+	   ("C-c p" . projectile-command-map)
+	   ("M-[" . projectile-previous-project-buffer)
+	   ("M-]" . projectile-next-project-buffer))
     :config
     (setq projectile-indexing-method 'hybrid
-          projectile-sort-order 'recently-active
-          compilation-read-command nil
-          projectile-comint-mode t)
+	  projectile-sort-order 'recently-active
+	  compilation-read-command nil
+	  projectile-comint-mode t)
 
     (add-to-list 'projectile-globally-ignored-directories "node_modules")
     (add-to-list 'projectile-globally-ignored-files "yarn.lock")
     :custom
     (projectile-globally-ignored-buffers '("*scratch*" "*lsp-log*" "*xref*" "*EGLOT" "*Messages*" "*compilation" "*vterm*" "*Flymake")))
-
 #+end_src
 
 * Magit
 #+begin_src elisp
-  (use-package magit)
-  (use-package magit-todos)
+  (use-package magit :ensure t)
+  ;;(use-package magit-todos :ensure t)
 #+end_src
 * Git Timemachine
 #+begin_src elisp
-  (use-package git-timemachine)
+  (use-package git-timemachine :ensure t)
 #+end_src
 * Blamer
 #+begin_src elisp :tangle no
   (use-package blamer
-  :bind (("s-i" . blamer-show-commit-info)
-         ("s-n" . blamer-mode))
-  :defer 20
-  :custom
-  (blamer-idle-time 0.3)
-  (blamer-min-offset 10)
-  :custom-face
-  (blamer-face ((t :foreground "#9099AB"
-                    :background nil
-                    :height .9
-                    :italic t))))
+    :ensure t
+    :bind (("s-i" . blamer-show-commit-info)
+	   ("s-n" . blamer-mode))
+    :defer 20
+    :custom
+    (blamer-idle-time 0.3)
+    (blamer-min-offset 10)
+    :custom-face
+    (blamer-face ((t :foreground "#9099AB"
+		     :background nil
+		     :height .9
+		     :italic t))))
 #+end_src
 * Org
 #+begin_src elisp
-  (use-package org :straight (:type built-in)
+  (use-package org
+    :ensure nil
     :custom
     (org-agenda-files
      '("/Users/guerra/Documents/org-files/roam/" "/Users/guerra/Documents/org-files/roam/daily"))
@@ -564,19 +628,28 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
            ("s-c" . 'ox-clip-formatted-copy))
     :hook (org-mode . turn-on-flyspell))
 
-  (use-package org-contrib)
+  (use-package org-contrib
+    :ensure t
+    :config
+    (require 'org-inlinetask)
+    (require 'org-tempo)
+    (require 'org-collector)  )
+
   (use-package org-web-tools
+    :ensure t
     :custom
     (org-web-tools-pandoc-sleep-time 0.6))
 
   (use-package org-ql
-    :after '(org)
-    :straight (org-ql :host github :repo "alphapapa/org-ql"))
-  (use-package git-auto-commit-mode)
-  (use-package ox-clip)
-  (require 'org-inlinetask)
-  (require 'org-tempo)
-  (require 'org-collector)
+    :ensure (org-ql
+             :type git :host github
+             :repo "alphapapa/org-ql")
+    :after '(org))
+
+
+  (use-package git-auto-commit-mode :ensure t)
+  (use-package ox-clip :ensure t)
+
   (setq org-export-coding-system 'utf-8
         org-directory "~/Documents/org-files/"
         org-mobile-directory "~/Library/Mobile Documents/iCloud~com~mobileorg~mobileorg/Documents"
@@ -592,31 +665,34 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 *** Slack
 #+begin_src elisp
   (use-package ox-slack
+    :ensure t
     :bind ("C-c e s" . org-slack-export-to-clipboard-as-slack))
 
 #+end_src
 
 ** Reveal
 #+begin_src elisp
-  (use-package ox-reveal)
+  (use-package ox-reveal :ensure t)
   (setq org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js"
-        org-reveal-title-slide nil
-        org-reveal-mathjax t)
-  (use-package htmlize)
+	org-reveal-title-slide nil
+	org-reveal-mathjax t)
+  (use-package htmlize :ensure t)
 #+end_src
 ** Look & Feel
 *** Olivetti
 #+begin_src elisp
   (use-package olivetti
+    :ensure t
     :custom
     (olivetti-body-width 120)
     :config
     :hook ((markdown-mode . olivetti-mode)
-           (org-mode . olivetti-mode)))
+	   (org-mode . olivetti-mode)))
 #+end_src
 *** Org modern
 #+begin_src elisp :tangle no
   (use-package org-modern
+    :ensure t
     :config
     (setq ;; Edit settings
      org-auto-align-tags nil
@@ -636,31 +712,32 @@ Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-
 ** Super-agenda
 #+begin_src elisp
   (use-package org-super-agenda
+    :ensure t
     :after org-agenda
     :config
     (org-super-agenda-mode t)
     (setq org-agenda-skip-scheduled-if-done t))
 
   (setq org-agenda-custom-commands
-        '(("z" "Super view"
-           ((tags "meta" ((org-agenda-overriding-header "Objetivos de 2023")))
-            (agenda "" ((org-agenda-span 'week)
-                        (org-agenda-overriding-header "")
-                        ))
-            (alltodo "" ((org-agenda-overriding-header "")
-                         (org-agenda-remove-tags t)
-                         (org-super-agenda-groups
-                          '(
-                            (:name "🚨 Atrasados"
-                                   :deadline past
-                                   :order 7)
-                            (:name "Próximos eventos"
-                                   :discard (:tag ("finances"))
-                                   :deadline future
-                                   :order 8)
-                            (:name "Sem data" :deadline nil :order 9)
-                            (:discard (:tag ("Routine" "Daily" "meta" "finances")))))))
-            ))))
+	'(("z" "Super view"
+	   ((tags "meta" ((org-agenda-overriding-header "Objetivos de 2023")))
+	    (agenda "" ((org-agenda-span 'week)
+			(org-agenda-overriding-header "")
+			))
+	    (alltodo "" ((org-agenda-overriding-header "")
+			 (org-agenda-remove-tags t)
+			 (org-super-agenda-groups
+			  '(
+			    (:name "🚨 Atrasados"
+				   :deadline past
+				   :order 7)
+			    (:name "Próximos eventos"
+				   :discard (:tag ("finances"))
+				   :deadline future
+				   :order 8)
+			    (:name "Sem data" :deadline nil :order 9)
+			    (:discard (:tag ("Routine" "Daily" "meta" "finances")))))))
+	    ))))
 #+end_src
 ** Functions
 Check if a billing is paid based on the date
@@ -683,21 +760,20 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
 ** Roam
 #+begin_src elisp
   (use-package org-roam
-    ;; :init
-    ;; (setq org-roam-v2-ack t)
+    :ensure t
     :custom
     (org-roam-directory "~/Documents/org-files/roam")
     (setq org-roam-dailies-directory "daily/")
     (org-roam-completion-everywhere t)
     :bind (("C-c n l" . org-roam-buffer-toggle)
-           ("<f4>" . org-roam-node-find)
-           ("C-c n i" . org-roam-node-insert)
-           ("<f12>" . org-roam-dailies-goto-today)
-           ;; :map org-mode-map
-           ;; ("C-M-i" . completion-at-point)
-           :map org-roam-dailies-map
-           ("Y" . org-roam-dailies-capture-yesterday)
-           ("T" . org-roam-dailies-capture-tomorrow))
+	   ("<f4>" . org-roam-node-find)
+	   ("C-c n i" . org-roam-node-insert)
+	   ("<f12>" . org-roam-dailies-goto-today)
+	   ;; :map org-mode-map
+	   ;; ("C-M-i" . completion-at-point)
+	   :map org-roam-dailies-map
+	   ("Y" . org-roam-dailies-capture-yesterday)
+	   ("T" . org-roam-dailies-capture-tomorrow))
     :bind-keymap
     ("C-c n d" . org-roam-dailies-map)
     :config
@@ -711,23 +787,25 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
     (org-icalendar-combine-agenda-files)
     (copy-file org-agenda-private-local-path org-agenda-private-remote-path t))
 
-  (use-package midnight :straight (:type built-in)
+  (use-package midnight
+    :ensure nil
     :config
     (midnight-delay-set 'midnight-delay 16200)
     (setq midnight-period 2400 ;; in seconds
-          org-agenda-private-local-path "~/.org.ics"
-          org-agenda-private-remote-path "~/Google Drive/My Drive/org.ics")
+	  org-agenda-private-local-path "~/.org.ics"
+	  org-agenda-private-remote-path "~/Google Drive/My Drive/org.ics")
     :hook (midnight . org-agenda-export-to-ics)
     :bind ("C-c e i" . org-agenda-export-to-ics))
 
 #+end_src
 ** Chef
 #+begin_src elisp
-  (use-package org-chef)
+  (use-package org-chef :ensure t)
 #+end_src
 ** Restclient
 #+begin_src elisp
   (use-package ob-restclient
+    :ensure t
     :init
     (org-babel-do-load-languages
    'org-babel-load-languages
@@ -738,32 +816,34 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
 
 * Markdown
 #+begin_src elisp
-  (use-package markdown-mode)
+  (use-package markdown-mode :ensure t)
 #+end_src
 * Web mode
 #+begin_src elisp
   (use-package web-mode
+    :ensure t
     :mode (("\\.html?\\'" . web-mode))
     :config
     (setq web-mode-markup-indent-offset 2
-          web-mode-enable-auto-indentation nil
-          web-mode-css-indent-offset 2
-          web-mode-code-indent-offset 2
-          web-mode-block-padding 2
-          web-mode-comment-style 2
-          web-mode-enable-css-colorization t
-          web-mode-enable-auto-pairing t
-          web-mode-enable-comment-keywords t
-          web-mode-enable-current-element-highlight t
-          web-mode-enable-current-column-highlight t
-          web-mode-content-types-alist  '(("django" . "\\.tpl\\'")))
+	  web-mode-enable-auto-indentation nil
+	  web-mode-css-indent-offset 2
+	  web-mode-code-indent-offset 2
+	  web-mode-block-padding 2
+	  web-mode-comment-style 2
+	  web-mode-enable-css-colorization t
+	  web-mode-enable-auto-pairing t
+	  web-mode-enable-comment-keywords t
+	  web-mode-enable-current-element-highlight t
+	  web-mode-enable-current-column-highlight t
+	  web-mode-content-types-alist  '(("django" . "\\.tpl\\'")))
     :hook (web-mode . auto-rename-tag-mode))
 #+end_src
 Auto rename tag
 #+begin_src elisp
   (use-package auto-rename-tag
+    :ensure t
     :hook
-      (tsx-ts-mode . auto-rename-tag-mode))
+    (tsx-ts-mode . auto-rename-tag-mode))
 #+end_src
 
 yasnippet
@@ -776,13 +856,14 @@ yasnippet
 * Zencoding
 #+begin_src elisp
   (use-package emmet-mode
+    :ensure t
     :hook ((web-mode tsx-ts-mode typescript-ts-mode) . emmet-mode)
     :config
     (setq emmet-indent-after-insert nil
-          emmet-indentation 2
-          emmet-expand-jsx-className? t
-          emmet-move-cursor-between-quotes t
-          emmet-self-closing-tag-style " /")
+	  emmet-indentation 2
+	  emmet-expand-jsx-className? t
+	  emmet-move-cursor-between-quotes t
+	  emmet-self-closing-tag-style " /")
     (add-to-list 'emmet-jsx-major-modes 'tsx-ts-mode))
 
 #+end_src
@@ -793,10 +874,11 @@ yasnippet
 ** prettier
 #+begin_src elisp
   (use-package prettier-js
+    :ensure t
     :ensure-system-package (prettier . "npm i -g prettier")
     :hook ((typescript-ts-mode . prettier-js-mode)
-           (js-ts-mode . prettier-js-mode)
-           (tsx-ts-mode . prettier-js-mode)))
+	   (js-ts-mode . prettier-js-mode)
+	   (tsx-ts-mode . prettier-js-mode)))
 #+end_src
 ** Jest mode
 #+begin_src elisp
@@ -809,6 +891,7 @@ yasnippet
 * Typescript
 #+begin_src elisp
   (use-package typescript-ts-mode
+    :ensure nil
     :ensure-system-package (typescript-language-server . "npm i -g typescript-language-server"))
 
   (defun node-project-p ()
@@ -824,12 +907,13 @@ yasnippet
 #+end_src
 * Ruby
 #+begin_src elisp
-  (use-package flymake-ruby)
+  (use-package flymake-ruby :ensure t)
   (add-hook 'ruby-ts-mode-hook 'flymake-ruby-load)
 #+end_src
 ** Rubocop
 #+begin_src elisp
   (use-package rubocop
+    :ensure t
     :config
     (setq rubocop-autocorrect-on-save t))
 #+end_src
@@ -844,50 +928,47 @@ yasnippet
 ** Unit Test
 Buttercup
 #+begin_src elisp
-  (use-package buttercup)
+  (use-package buttercup :ensure t)
 #+end_src
 * Lua :first-quarter-moon-with-face:
 #+begin_src elisp
-  (use-package lua-mode)
-#+end_src
-* Cooklang
-#+begin_src elisp
-  (straight-use-package
-   '(el-patch :type git :host github :repo "cooklang/cook-mode"))
+  (use-package lua-mode :ensure t)
 #+end_src
 * JSON
 #+begin_src elisp
-  (use-package json-mode)
+  (use-package json-mode :ensure t)
 #+end_src
 * Prisma
-#+begin_src elisp
+#+begin_src elisp :tangle no
   (use-package prisma-mode
     :straight (prisma-mode :host github :repo "pimeys/emacs-prisma-mode")
     :ensure-system-package (prisma-language-server . "npm i -g @prisma/language-server"))
 #+end_src
 * YAML
 #+begin_src elisp
-  (use-package yaml-mode)
+  (use-package yaml-mode :ensure t)
 #+end_src
 * Dart/Flutter
 #+begin_src elisp
-    (use-package dart-mode
-      :hook (dart-mode . flutter-test-mode)
-      (dart-mode . eglot-ensure))
+  (use-package dart-mode
+    :ensure t
+    :hook (dart-mode . flutter-test-mode)
+    (dart-mode . eglot-ensure))
 
-    (use-package flutter
-      :after (dart-mode)
-      :bind (:map dart-mode-map
-                  ("C-M-x" . #'flutter-run-or-hot-reload)))
+  (use-package flutter
+    :ensure t
+    :after (dart-mode)
+    :bind (:map dart-mode-map
+		("C-M-x" . #'flutter-run-or-hot-reload)))
 
-    ;; (use-package lsp-dart
-    ;;   :ensure t
-    ;;   :hook (dart-mode . lsp)
-    ;;   :custom
-    ;;   (lsp-dart-flutter-sdk-dir "~/snap/flutter/common/flutter")
-    ;;   :config
-    ;;   (setq gc-cons-threshold (* 100 1024 1024)
-    ;;         read-process-output-max (* 1024 1024)))
+  ;; (use-package lsp-dart
+  ;;   :ensure t
+  ;;   :hook (dart-mode . lsp)
+  ;;   :custom
+  ;;   (lsp-dart-flutter-sdk-dir "~/snap/flutter/common/flutter")
+  ;;   :config
+  ;;   (setq gc-cons-threshold (* 100 1024 1024)
+  ;;         read-process-output-max (* 1024 1024)))
 #+end_src
 * Eglot
 Original code from https://github.com/joaotavora/eglot/discussions/999
@@ -914,7 +995,7 @@ Original code from https://github.com/joaotavora/eglot/discussions/999
       (ignore-errors (eglot-shutdown server))))
 
   (use-package eglot
-    :straight t
+    :ensure nil
     :init
     (put 'eglot-server-programs 'safe-local-variable 'listp)
     :hook
@@ -951,40 +1032,44 @@ Original code from https://github.com/joaotavora/eglot/discussions/999
 * Eldoc
 #+begin_src elisp
   (use-package eldoc-box
+    :ensure t
     :bind ("C-h ." . eldoc-box-help-at-point))
 #+end_src
 
 * SQL
 #+begin_src elisp
-  (use-package sql-indent)
+  (use-package sql-indent :ensure t)
   (use-package sqlformat
+    :ensure t
     :config
     (setq sqlformat-command 'pgformatter
-          sqlformat-args '("-s2" "-g"))
+	  sqlformat-args '("-s2" "-g"))
     :hook (sql-mode . sqlformat-on-save-mode)
     :bind (:map sql-mode-map ("C-c C-f" . sqlformat)))
 #+end_src
 
 * Vertigo
 #+begin_src elisp
-  (use-package vertico
-    :init
-    (vertico-mode)
-    :custom
-    (vertico-group-separator ((t (:inherit all-the-icons-dorange :strike-through t))))
-    (vertico-group-title ((t (:inherit all-the-icons-dorange :slant italic)))))
+    (use-package vertico
+      :ensure t
+      :init
+      (vertico-mode)
+      :custom
+      (vertico-group-separator ((t (:inherit all-the-icons-dorange :strike-through t))))
+      (vertico-group-title ((t (:inherit all-the-icons-dorange :slant italic)))))
 
-  (use-package savehist
-    :init
-    (savehist-mode))
+    (use-package savehist
+      :init
+      (savehist-mode))
 
-  (use-package orderless
-    :custom
-    (completion-styles '(orderless basic))
-    (completion-category-overrides '((file (styles basic partial-completion)))))
+    (use-package orderless
+      :ensure t
+      :custom
+      (completion-styles '(orderless basic))
+      (completion-category-overrides '((file (styles basic partial-completion)))))
 #+end_src
 * Consult
-#+begin_src elisp
+#+begin_src elisp :tangle no
   (use-package consult
     :bind (("C-M-l" . consult-imenu)
            ("C-s" . consult-line)
@@ -1062,20 +1147,21 @@ Original code from https://github.com/joaotavora/eglot/discussions/999
 * which-key
 #+begin_src elisp
   (use-package which-key
-    :init
+    :ensure t
+    :config
     (which-key-mode))
 #+end_src
 * Commit
 Javascript
 #+begin_src elisp
-  (use-package js-comint)
+  (use-package js-comint :ensure t)
 #+end_src
 * Ollama
 #+begin_src elisp
   (use-package ellama
-    :init
+    :ensure t
+    :config
     (setopt ellama-language "English")
-    ;;(setopt ellama-language "Portuguese")
     (require 'llm-ollama)
     (setopt ellama-provider
                     (make-llm-ollama
@@ -1084,12 +1170,13 @@ Javascript
 * Read aloud
 #+begin_src elisp
   (use-package read-aloud
+    :ensure t
     :config
     (setq read-aloud-engine "say"))
 #+end_src
 * CSV Mode
 #+begin_src elisp
-  (use-package csv-mode)
+  (use-package csv-mode :ensure t)
 #+end_src
 * Compile
 #+begin_src elisp
