@@ -1008,6 +1008,7 @@ Original code from https://github.com/joaotavora/eglot/discussions/999
     (js-ts-mode . eglot-ensure)
     (tsx-ts-mode . eglot-ensure)
     (web-mode . eglot-ensure)
+    (ruby-ts-mode . eglot-ensure)
     (prisma-mode . eglot-ensure)
     (eglot-managed-mode . flymake-eslint-enable-maybe)
 
