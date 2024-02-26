@@ -65,39 +65,40 @@ Sometimes there is a error on Emacs startup, so this following configs will enab
   Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-prompt-with-option-to-diff-the-changes/3363#3363][here]]
 #+begin_src elisp
   (defun my/kill-this-buffer ()
-      (interactive)
-      (catch 'quit
-	(save-window-excursion
-	  (let (done)
-	    (when (and buffer-file-name (buffer-modified-p))
-	      (while (not done)
-		(let ((response (read-char-choice
-				 (format "Save file %s? (y, n, d, q) " (buffer-file-name))
-				 '(?y ?n ?d ?q))))
-		  (setq done (cond
-			      ((eq response ?q) (throw 'quit nil))
-			      ((eq response ?y) (save-buffer) t)
-			      ((eq response ?n) (set-buffer-modified-p nil) t)
-			      ((eq response ?d) (diff-buffer-with-file) nil))))))
-	    (kill-buffer (current-buffer))))))
+    (interactive)
+    (catch 'quit
+      (save-window-excursion
+        (let (done)
+          (when (and buffer-file-name (buffer-modified-p))
+            (while (not done)
+              (let ((response (read-char-choice
+                               (format "Save file %s? (y, n, d, q) " (buffer-file-name))
+                               '(?y ?n ?d ?q))))
+                (setq done (cond
+                            ((eq response ?q) (throw 'quit nil))
+                            ((eq response ?y) (save-buffer) t)
+                            ((eq response ?n) (set-buffer-modified-p nil) t)
+                            ((eq response ?d) (diff-buffer-with-file) nil))))))
+          (kill-buffer (current-buffer))))))
 
-    (global-set-key [s-tab] 'next-buffer)
-    (global-set-key [S-s-iso-lefttab] 'previous-buffer)
-    (global-set-key ["M-{"] 'next-buffer)
-    (global-set-key ["M-}"] 'previous-buffer)
+  (global-set-key [s-tab] 'next-buffer)
+  (global-set-key [S-s-iso-lefttab] 'previous-buffer)
+  (global-set-key ["M-{"] 'next-buffer)
+  (global-set-key ["M-}"] 'previous-buffer)
+  (global-set-key ["C-x C-b"] 'switch-to-buffer)
 
-    ;; change window
-    (global-set-key [(C-tab)] 'other-window)
-    (global-set-key [(C-M-tab)] 'other-window)
+  ;; change window
+  (global-set-key [(C-tab)] 'other-window)
+  (global-set-key [(C-M-tab)] 'other-window)
 
-    ;; Remap kill buffer to my/kill-this-buffer
-    (global-set-key (kbd "C-x k") 'my/kill-this-buffer)
+  ;; Remap kill buffer to my/kill-this-buffer
+  (global-set-key (kbd "C-x k") 'my/kill-this-buffer)
 
-    ;; Revert buffer
-    (global-set-key (kbd "C-<f5>") 'revert-buffer)
+  ;; Revert buffer
+  (global-set-key (kbd "C-<f5>") 'revert-buffer)
 
-    ;; Go to scratch buffer
-    (global-set-key (kbd "<f2>") (lambda() (interactive)(switch-to-buffer "*scratch*")))
+  ;; Go to scratch buffer
+  (global-set-key (kbd "<f2>") (lambda() (interactive)(switch-to-buffer "*scratch*")))
 #+end_src
 *** Code navigation
 #+begin_src elisp
