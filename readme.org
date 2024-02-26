@@ -227,7 +227,7 @@ Set the start point for the current buffer, this means if you will search for a 
           dashboard-startup-banner "~/.emacs.d/nyan-cat.png"
           dashboard-center-content t
           dashboard-agenda-release-buffers t
-          dashboard-items '((projects . 5)))
+          dashboard-items '((projects . 5) (agenda . 5)))
     :init
     (add-hook 'elpaca-after-init-hook #'dashboard-open))
 #+end_src
@@ -332,7 +332,7 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
 #+begin_src elisp
   (use-package emojify
     :ensure t
-    :hook (after-init . global-emojify-mode))
+    :hook (elpaca-after-init . global-emojify-mode))
 #+end_src
 
 ** Dimmer
@@ -620,7 +620,11 @@ Don't pop up UI dialogs when prompting
     :ensure nil
     :custom
     (org-agenda-files
-     '("/Users/guerra/Documents/org-files/roam/" "/Users/guerra/Documents/org-files/roam/daily"))
+     '(
+       "/Users/guerra/Documents/org-files/roam/20230102102131-financeiro.org"
+       "/Users/guerra/Documents/org-files/roam/20230102103928-pessoal.org"
+       "/Users/guerra/Documents/org-files/roam/20230402214745-the_clear_cut.org"
+       ))
     (org-agenda-span 15)
     (org-deadline-warning-days 0)
     (org-icalendar-deadline-summary-prefix "")
