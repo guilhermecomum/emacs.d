@@ -21,15 +21,18 @@ Typescript with autocomplete
 Typescript erros
 [[./screenshots/typescript-errors.png]]
 
-#+begin_src elisp
-  (load-theme 'misterioso)
-#+end_src
 ** References
 The following list is from people I have been learning and stealing Emacs configuration ideas and chunks
 - [[https://github.com/clarete/emacs.d][Lincoln Clarete]]
 - [[https://github.com/daviwil/dotfiles][David Wilson]]
 
-* Mac OS
+* Essentials
+Sometimes there is a error on Emacs startup, so this following configs will enable to debug with some comfort.
+
+#+begin_src elisp
+  (load-theme 'misterioso)
+#+end_src
+** Mac OS
 #+begin_src elisp
   (when (eq system-type 'darwin)
     (add-to-list 'default-frame-alist '(undecorated . t))
@@ -56,8 +59,8 @@ The following list is from people I have been learning and stealing Emacs config
 
 #+end_src
 
-* Key mapping
-** Buffer/Window
+** Key mapping
+*** Buffer/Window
   Before kill a modified buffer, give option to see the diff
   Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-prompt-with-option-to-diff-the-changes/3363#3363][here]]
 #+begin_src elisp
@@ -96,17 +99,17 @@ The following list is from people I have been learning and stealing Emacs config
     ;; Go to scratch buffer
     (global-set-key (kbd "<f2>") (lambda() (interactive)(switch-to-buffer "*scratch*")))
 #+end_src
-** Code navigation
+*** Code navigation
 #+begin_src elisp
   (global-set-key (kbd "M-g") 'goto-line)
   (global-set-key (kbd "C-c s") 'sort-lines)
 #+end_src
-** Editing
+*** Editing
 #+begin_src elisp
   (global-set-key (kbd "C-c c") 'comment-region)
   (global-set-key (kbd "C-c d") 'uncomment-region)
 #+end_src
-** Conf
+*** Conf
 #+begin_src elisp
   (global-set-key (kbd "<f6>") (lambda() (interactive)(find-file "~/.emacs.d/readme.org")))
 #+end_src
