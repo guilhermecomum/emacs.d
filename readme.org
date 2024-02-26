@@ -817,9 +817,8 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
     :init
     (org-babel-do-load-languages
    'org-babel-load-languages
-   '((restclient . t))))
-
-
+   '((restclient . t)
+     (sql . t))))
 #+end_src
 
 * Markdown
