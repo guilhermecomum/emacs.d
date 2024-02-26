@@ -1073,8 +1073,9 @@ Original code from https://github.com/joaotavora/eglot/discussions/999
       (completion-category-overrides '((file (styles basic partial-completion)))))
 #+end_src
 * Consult
-#+begin_src elisp :tangle no
+#+begin_src elisp
   (use-package consult
+    :ensure t
     :bind (("C-M-l" . consult-imenu)
            ("C-s" . consult-line)
            ("C-M-g" . consult-ripgrep)
