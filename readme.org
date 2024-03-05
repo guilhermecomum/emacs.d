@@ -896,6 +896,7 @@ yasnippet
 #+end_src
 
 * Typescript
+** Mode
 #+begin_src elisp
   (use-package typescript-ts-mode
     :ensure nil
@@ -911,6 +912,13 @@ yasnippet
   (defun colorize-compilation-buffer ()
     (ansi-color-apply-on-region compilation-filter-start (point-max)))
   (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
+#+end_src
+** ts-comint
+#+begin_src elisp
+  (use-package ts-comint
+    :ensure (ts-comint
+             :type git :host github
+             :repo "nverno/ts-comint"))
 #+end_src
 * Ruby
 #+begin_src elisp
