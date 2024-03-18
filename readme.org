@@ -1247,3 +1247,13 @@ Javascript
     :init
     (recompile-on-save-advice compile))
 #+end_src
+* Elfeed
+#+begin_src elisp
+  (use-package elfeed
+    :ensure t
+    :custom
+    (elfeed-db-directory
+     (expand-file-name "elfeed" user-emacs-directory))
+    (elfeed-show-entry-switch 'display-buffer))
+
+#+end_src
