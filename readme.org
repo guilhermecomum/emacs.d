@@ -118,7 +118,7 @@ Sometimes there is a error on Emacs startup, so this following configs will enab
 * Package manager
 #+begin_src elisp
   (setq package-enable-at-startup nil)
-  (defvar elpaca-installer-version 0.6)
+  (defvar elpaca-installer-version 0.7)
   (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
   (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
   (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
