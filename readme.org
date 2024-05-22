@@ -183,6 +183,11 @@ Sometimes there is a error on Emacs startup, so this following configs will enab
   (add-hook 'kill-buffer-query-functions #'dont-kill-scratch)
   ;; Don't ask about variables and functions from .dir-locals
   (advice-add 'risky-local-variable-p :override #'ignore)
+
+  (use-package ls-lisp
+    :config
+    (setq ls-lisp-dirs-first t
+          ls-lisp-use-insert-directory-program nil))
 #+end_src
 ** Startup Performance
 Make startup faster by reducing the frequency of garbage collection and then use a hook to measure Emacs startup time.
