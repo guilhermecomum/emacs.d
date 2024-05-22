@@ -422,7 +422,9 @@ Don't pop up UI dialogs when prompting
 
   (use-package rainbow-mode :ensure t)
 
-  (use-package string-inflection :ensure t)
+  (use-package string-inflection
+    :ensure t
+    :bind ("C-c i" . string-inflection-cycle))
 
   (global-hl-line-mode t)
 #+end_src
