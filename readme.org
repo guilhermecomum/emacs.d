@@ -777,7 +777,7 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
   (use-package org-roam
     :ensure t
     :custom
-    (org-roam-directory "~/Documents/org-files/roam")
+    (org-roam-directory "~/Projects/org-files/roam")
     (setq org-roam-dailies-directory "daily/")
     (org-roam-completion-everywhere t)
     :bind (("C-c n l" . org-roam-buffer-toggle)
