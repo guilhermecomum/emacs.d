@@ -830,21 +830,20 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
     :mode (("\\.html?\\'" . web-mode))
     :config
     (setq web-mode-markup-indent-offset 2
-	  web-mode-enable-auto-indentation nil
-	  web-mode-css-indent-offset 2
-	  web-mode-code-indent-offset 2
-	  web-mode-block-padding 2
-	  web-mode-comment-style 2
-	  web-mode-enable-css-colorization t
-	  web-mode-enable-auto-pairing t
-	  web-mode-enable-comment-keywords t
-	  web-mode-enable-current-element-highlight t
-	  web-mode-enable-current-column-highlight t
-	  web-mode-content-types-alist  '(("django" . "\\.tpl\\'")))
-    :hook (web-mode . auto-rename-tag-mode))
+          web-mode-enable-auto-indentation nil
+          web-mode-css-indent-offset 2
+          web-mode-code-indent-offset 2
+          web-mode-block-padding 2
+          web-mode-comment-style 2
+          web-mode-enable-css-colorization t
+          web-mode-enable-auto-pairing t
+          web-mode-enable-comment-keywords t
+          web-mode-enable-current-element-highlight t
+          web-mode-enable-current-column-highlight t
+          web-mode-content-types-alist  '(("django" . "\\.tpl\\'") ("django" . "\\.liquid\\'"))))
 #+end_src
 Auto rename tag
-#+begin_src elisp
+#+begin_src elisp :tangle no
   (use-package auto-rename-tag
     :ensure t
     :hook
@@ -858,6 +857,15 @@ yasnippet
         (add-to-list 'yas-snippet-dirs dir)
         (yas-load-directory dir)))
 #+end_src
+
+liquid
+#+begin_src elisp
+  (define-derived-mode liquid-mode web-mode "Liquid"
+    "Use web mode to highlight liquid files.")
+  (provide 'liquid-mode)
+  (add-to-list 'auto-mode-alist '("\\.liquid\\'" . liquid-mode))
+#+end_src
+
 * Zencoding
 #+begin_src elisp
   (use-package emmet-mode
@@ -1017,6 +1025,7 @@ Original code from https://github.com/joaotavora/eglot/discussions/999
     (js-ts-mode . eglot-ensure)
     (tsx-ts-mode . eglot-ensure)
     (web-mode . eglot-ensure)
+    (liquid-mode . eglot-ensure)
     (ruby-ts-mode . eglot-ensure)
     (prisma-mode . eglot-ensure)
     (eglot-managed-mode . flymake-eslint-enable-maybe)
@@ -1042,6 +1051,7 @@ Original code from https://github.com/joaotavora/eglot/discussions/999
     (advice-add 'eglot--apply-workspace-edit :after #'me/project-save)
     (advice-add 'project-kill-buffers :before #'me/eglot-shutdown-project)
     (add-to-list 'eglot-server-programs '((js-ts-mode tsx-ts-mode typescript-ts-mode) . ecma-server-program)))
+    (add-to-list 'eglot-server-programs '((liquid-mode) . ("shopify" "theme" "language-server")))
 #+end_src
 * Eldoc
 #+begin_src elisp
