@@ -809,21 +809,16 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
     :bind ("C-c e i" . org-agenda-export-to-ics))
 
 #+end_src
-** Chef
+** Babel
 #+begin_src elisp
-  (use-package org-chef :ensure t)
-#+end_src
-** Restclient
-#+begin_src elisp
-  (use-package ob-restclient
-    :ensure t
-    :init
-    (org-babel-do-load-languages
+  (setq org-src-fontify-natively t)
+  (setq org-confirm-babel-evaluate nil)
+  (org-babel-do-load-languages
    'org-babel-load-languages
-   '((restclient . t)
-     (sql . t))))
-#+end_src
+   '((python . t)
+     (sql . t)))
 
+#+end_src
 * Markdown
 #+begin_src elisp
   (use-package markdown-mode :ensure t)
