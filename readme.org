@@ -698,10 +698,7 @@ Don't pop up UI dialogs when prompting
   (use-package olivetti
     :ensure t
     :custom
-    (olivetti-body-width 120)
-    :config
-    :hook ((markdown-mode . olivetti-mode)
-	   (org-mode . olivetti-mode)))
+    (olivetti-body-width 120))
 #+end_src
 *** Org modern
 #+begin_src elisp :tangle no
