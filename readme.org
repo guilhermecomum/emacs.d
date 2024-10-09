@@ -934,9 +934,12 @@ liquid
 ** Rubocop
 #+begin_src elisp
   (use-package rubocop
+    :ensure t)
+
+  (use-package rubocopfmt
     :ensure t
-    :config
-    (setq rubocop-autocorrect-on-save t))
+    :hook
+    (ruby-mode . rubocopfmt-mode))
 #+end_src
 * Deno
 #+begin_src elisp
