@@ -653,7 +653,7 @@ Don't pop up UI dialogs when prompting
   (use-package org-web-tools
     :ensure t
     :custom
-    (org-web-tools-pandoc-sleep-time 0.6))
+    (org-web-tools-pandoc-sleep-time 1.8))
 
   (use-package org-ql
     :ensure (org-ql
