@@ -1181,25 +1181,6 @@ Javascript
 #+begin_src elisp
   (use-package js-comint :ensure t)
 #+end_src
-* Ollama
-** Ellama
-#+begin_src elisp
-  (use-package ellama
-    :ensure t
-    :config
-    (setopt ellama-language "English")
-    (require 'llm-ollama)
-    (setopt ellama-provider
-                    (make-llm-ollama
-                     :chat-model "mistral" :embedding-model "mistral")))
-#+end_src
-** Elisa
-#+begin_src elisp
-  (use-package elisa
-    :ensure (elisa
-             :type git :host github
-             :repo "s-kostyaev/elisa"))
-#+end_src
 * Read aloud
 #+begin_src elisp
   (use-package read-aloud
