@@ -1274,3 +1274,13 @@ Javascript
     (elfeed-show-entry-switch 'display-buffer))
 
 #+end_src
+* GraphQL
+#+begin_src elisp
+  (use-package graphql-mode
+    :ensure t)
+#+end_src
+* Python
+#+begin_src elisp
+  (use-package with-venv
+    :ensure t)
+#+end_src
