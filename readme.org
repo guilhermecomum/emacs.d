@@ -1028,12 +1028,14 @@ Original code from https://github.com/joaotavora/eglot/discussions/999
     (liquid-mode . eglot-ensure)
     (ruby-ts-mode . eglot-ensure)
     (prisma-mode . eglot-ensure)
+    (sql-mode . eglot-ensure)
     (eglot-managed-mode . flymake-eslint-enable-maybe)
 
     :bind (:map eglot-mode-map
                 ("C-c ." . eglot-code-actions)
                 ("C-c e r" . eglot-rename)
                 ("C-c e f" . eglot-format)
+                ("C-c C-d" . eglot-help-at-point)
                 ("M-?" . xref-find-references)
                 ("M-." . xref-find-definitions)
                 ("C-c f n" . flymake-goto-next-error)
@@ -1044,15 +1046,38 @@ Original code from https://github.com/joaotavora/eglot/discussions/999
     (eglot-menu-string "LSP")
     (eglot-confirm-server-initiated-edits nil)
     :config
+    (setq eglot-sync-connect 1)
     (fset #'jsonrpc--log-event #'ignore)
     (put 'eglot-error 'flymake-overlay-control nil)
     (put 'eglot-note 'flymake-overlay-control nil)
     (put 'eglot-warning 'flymake-overlay-control nil)
     (advice-add 'eglot--apply-workspace-edit :after #'me/project-save)
     (advice-add 'project-kill-buffers :before #'me/eglot-shutdown-project)
-    (add-to-list 'eglot-server-programs '((js-ts-mode tsx-ts-mode typescript-ts-mode) . ecma-server-program)))
+    (defclass eglot-sqls (eglot-lsp-server) () :documentation "SQL's Language Server")
     (add-to-list 'eglot-server-programs '((liquid-mode) . ("shopify" "theme" "language-server")))
+    (add-to-list 'eglot-server-programs '(sql-mode . (eglot-sqls "sqls")))
+    (add-to-list 'eglot-server-programs '((js-ts-mode tsx-ts-mode typescript-ts-mode) . ecma-server-program))
+
+    ;; source https://github.com/joaotavora/eglot/issues/523#issuecomment-1746342643
+    (defun sloth/org-babel-edit-prep (info)
+      (setq buffer-file-name (or (alist-get :file (caddr info))
+                                 "org-src-babel-tmp"))
+      (eglot-ensure))
+
+    (advice-add 'org-edit-src-code
+            :before (defun sloth/org-edit-src-code/before (&rest args)
+                      (when-let* ((element (org-element-at-point))
+                                  (type (org-element-type element))
+                                  (lang (org-element-property :language element))
+                                  (mode (org-src-get-lang-mode lang))
+                                  ((eglot--lookup-mode mode))
+                                  (edit-pre (intern
+                                             (format "org-babel-edit-prep:%s" lang))))
+                        (if (fboundp edit-pre)
+                            (advice-add edit-pre :after #'sloth/org-babel-edit-prep)
+                          (fset edit-pre #'sloth/org-babel-edit-prep))))))
 #+end_src
+
 * Eldoc
 #+begin_src elisp
   (use-package eldoc-box
