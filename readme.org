@@ -628,9 +628,9 @@ Don't pop up UI dialogs when prompting
     :custom
     (org-agenda-files
      '(
-       "/Users/guerra/Documents/org-files/roam/20230102102131-financeiro.org"
-       "/Users/guerra/Documents/org-files/roam/20230102103928-pessoal.org"
-       "/Users/guerra/Documents/org-files/roam/20230402214745-the_clear_cut.org"
+       "/Users/guerra/Projects/org-files/roam/20230102102131-financeiro.org"
+       "/Users/guerra/Projects/org-files/roam/20230102103928-pessoal.org"
+       "/Users/guerra/Projects/org-files/roam/20230402214745-the_clear_cut.org"
        ))
     (org-agenda-span 15)
     (org-deadline-warning-days 0)
@@ -666,8 +666,7 @@ Don't pop up UI dialogs when prompting
   (use-package ox-clip :ensure t)
 
   (setq org-export-coding-system 'utf-8
-        org-directory "~/Documents/org-files/"
-        org-mobile-directory "~/Library/Mobile Documents/iCloud~com~mobileorg~mobileorg/Documents"
+        org-directory "~/Projects/org-files/"
         org-tag-alist '(("work" . ?w) ("personal" . ?p) ("meta" . ?m) ("emacsLove" . ?l) ("quotes" . ?q) ("finances" . ?f) ("howto" . ?h))
         org-log-done nil
         org-log-repeat nil
