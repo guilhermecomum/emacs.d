@@ -818,6 +818,7 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
 #+begin_src elisp
   (setq org-src-fontify-natively t)
   (setq org-confirm-babel-evaluate nil)
+  (setq org-src-window-setup 'current-window)
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((python . t)
