@@ -1,3 +1,8 @@
+:PROPERTIES:
+:header-args: :results silent
+:END:
+
+
 * Introduction
 Welcome to my Emacs configuration, at a first glance Emacs seems like a text editor, but when you take time to play around, you will see it's more than that. Took me a while to understand, and time to time I get surprise with their capabilities.
 
