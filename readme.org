@@ -414,6 +414,10 @@ Don't pop up UI dialogs when prompting
   ;; Cleanup whitespace before save
   (add-hook 'before-save-hook 'whitespace-cleanup)
 #+end_src
+Yank ring
+#+begin_src elisp
+  (global-set-key (kbd "C-M-y") 'yank-pop)
+#+end_src
 ** Parenthesis
 #+begin_src elisp
   (use-package smartparens
