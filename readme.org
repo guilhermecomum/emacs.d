@@ -1129,6 +1129,24 @@ Original code from https://github.com/joaotavora/eglot/discussions/999
       :custom
       (completion-styles '(orderless basic))
       (completion-category-overrides '((file (styles basic partial-completion)))))
+** Postframe
+#+begin_src elisp
+  (use-package vertico-posframe
+    :init (vertico-posframe-mode)
+    :ensure t
+    :config
+    (setq vertico-multiform-commands
+          '((consult-line (:not posframe))
+            (consult-theme (:not posframe))
+            (consult-ripgrep (:not posframe))
+            (consult-org-heading (:not posframe))
+            (consult-xref (:not posframe))
+            (consult-imenu (:not posframe))
+            (t posframe)))
+    (setq vertico-posframe-parameters
+          '((left-fringe . 8)
+          (right-fringe . 8)))
+    (vertico-multiform-mode t))
 #+end_src
 * Consult
 #+begin_src elisp
