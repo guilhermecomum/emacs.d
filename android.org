@@ -1,0 +1,752 @@
+:PROPERTIES:
+:header-args: :results silent
+:END:
+* Introduction
+Welcome to my Emacs configuration, at a first glance Emacs seems like a text editor, but when you take time to play around, you will see it's more than that. Took me a while to understand, and time to time I get surprise with their capabilities.
+
+I use Emacs in my daily basis to work, organize my Life, programming in [[Javascript]]/[[Typescript]], [[Elisp]], [[Lua]] and [[Flutter]].
+
+As many Emacs users I update my configuration frequently with a new tool, new language or anything new I want to try.
+
+I like to work with beautiful and [[*Nyan cat][fun]] environments, so I'm always trying to make Emacs prettier
+
+Some screenshots
+
+My Startup Screen
+[[./screenshots/dashboard.png]]
+
+Org Mode
+[[./screenshots/org-mode.png]]
+
+Typescript with autocomplete
+[[./screenshots/typescript-autocomplete.png]]
+
+Typescript erros
+[[./screenshots/typescript-errors.png]]
+
+** References
+The following list is from people I have been learning and stealing Emacs configuration ideas and chunks
+- [[https://github.com/clarete/emacs.d][Lincoln Clarete]]
+- [[https://github.com/daviwil/dotfiles][David Wilson]]
+
+* Essentials
+Sometimes there is a error on Emacs startup, so this following configs will enable to debug with some comfort.
+
+#+begin_src elisp
+  (load-theme 'misterioso)
+#+end_src
+** Key mapping
+*** Buffer/Window
+  Before kill a modified buffer, give option to see the diff
+  Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-prompt-with-option-to-diff-the-changes/3363#3363][here]]
+#+begin_src elisp
+  (defun my/kill-this-buffer ()
+    (interactive)
+    (catch 'quit
+      (save-window-excursion
+        (let (done)
+          (when (and buffer-file-name (buffer-modified-p))
+            (while (not done)
+              (let ((response (read-char-choice
+                               (format "Save file %s? (y, n, d, q) " (buffer-file-name))
+                               '(?y ?n ?d ?q))))
+                (setq done (cond
+                            ((eq response ?q) (throw 'quit nil))
+                            ((eq response ?y) (save-buffer) t)
+                            ((eq response ?n) (set-buffer-modified-p nil) t)
+                            ((eq response ?d) (diff-buffer-with-file) nil))))))
+          (kill-buffer (current-buffer))))))
+
+  (global-set-key [s-tab] 'next-buffer)
+  (global-set-key [S-s-iso-lefttab] 'previous-buffer)
+  (global-set-key ["M-{"] 'next-buffer)
+  (global-set-key ["M-}"] 'previous-buffer)
+
+
+  ;; change window
+  (global-set-key [(C-tab)] 'other-window)
+  (global-set-key [(C-M-tab)] 'other-window)
+
+  ;; Remap kill buffer to my/kill-this-buffer
+  (global-set-key (kbd "C-x k") 'my/kill-this-buffer)
+
+  ;; Revert buffer
+  (global-set-key (kbd "C-<f5>") 'revert-buffer)
+
+  ;; Go to scratch buffer
+  (global-set-key (kbd "<f2>") (lambda() (interactive)(switch-to-buffer "*scratch*")))
+#+end_src
+*** Code navigation
+#+begin_src elisp
+  (global-set-key (kbd "M-g") 'goto-line)
+  (global-set-key (kbd "C-c s") 'sort-lines)
+#+end_src
+*** Editing
+#+begin_src elisp
+  (global-set-key (kbd "C-c c") 'comment-region)
+  (global-set-key (kbd "C-c d") 'uncomment-region)
+#+end_src
+*** Conf
+#+begin_src elisp
+  (global-set-key (kbd "<f6>") (lambda() (interactive)(find-file "~/.emacs.d/readme.org")))
+#+end_src
+
+* Package manager
+#+begin_src elisp
+  (setq package-enable-at-startup nil)
+  (defvar elpaca-installer-version 0.8)
+  (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
+  (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
+  (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
+  (defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
+				:ref nil
+				:files (:defaults "elpaca-test.el" (:exclude "extensions"))
+				:build (:not elpaca--activate-package)))
+  (let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
+	 (build (expand-file-name "elpaca/" elpaca-builds-directory))
+	 (order (cdr elpaca-order))
+	 (default-directory repo))
+    (add-to-list 'load-path (if (file-exists-p build) build repo))
+    (unless (file-exists-p repo)
+      (make-directory repo t)
+      (when (< emacs-major-version 28) (require 'subr-x))
+      (condition-case-unless-debug err
+	  (if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+		   ((zerop (call-process "git" nil buffer t "clone"
+					 (plist-get order :repo) repo)))
+		   ((zerop (call-process "git" nil buffer t "checkout"
+					 (or (plist-get order :ref) "--"))))
+		   (emacs (concat invocation-directory invocation-name))
+		   ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+					 "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+		   ((require 'elpaca))
+		   ((elpaca-generate-autoloads "elpaca" repo)))
+	      (progn (message "%s" (buffer-string)) (kill-buffer buffer))
+	    (error "%s" (with-current-buffer buffer (buffer-string))))
+	((error) (warn "%s" err) (delete-directory repo 'recursive))))
+    (unless (require 'elpaca-autoloads nil t)
+      (require 'elpaca)
+      (elpaca-generate-autoloads "elpaca" repo)
+      (load "./elpaca-autoloads")))
+  (add-hook 'after-init-hook #'elpaca-process-queues)
+  (elpaca `(,@elpaca-order))
+
+  ;; Install use-package support
+  (elpaca elpaca-use-package
+    ;; Enable use-package :ensure support for Elpaca.
+    (elpaca-use-package-mode))
+
+  ;; Block until current queue processed.
+  (elpaca-wait)
+
+  ;;Turns off elpaca-use-package-mode current declaration
+  ;;Note this will cause the declaration to be interpreted immediately (not deferred).
+  ;;Useful for configuring built-in emacs features.
+  (use-package emacs :ensure nil :config (setq ring-bell-function #'ignore))
+#+end_src
+
+* General
+#+begin_src elisp
+  ;; Close all dired buffers after opening
+  (setq dired-kill-when-opening-new-dired-buffer t)
+
+  (defun dont-kill-scratch ()
+    "This function doesn't let you kill scratch by mistake."
+    (if (not (equal (buffer-name) "*scratch*"))
+        t
+      (bury-buffer)
+      nil))
+  (add-hook 'kill-buffer-query-functions #'dont-kill-scratch)
+  ;; Don't ask about variables and functions from .dir-locals
+  (advice-add 'risky-local-variable-p :override #'ignore)
+
+  (use-package ls-lisp
+    :config
+    (setq ls-lisp-dirs-first t
+          ls-lisp-use-insert-directory-program nil))
+#+end_src
+** Startup Performance
+Make startup faster by reducing the frequency of garbage collection and then use a hook to measure Emacs startup time.
+#+begin_src emacs-lisp
+  ;; The default is 800 kilobytes.  Measured in bytes.
+  (setq gc-cons-threshold (* 50 1000 1000))
+#+end_src
+
+** Native Compilation
+Silence compiler warnings as they can be pretty disruptive
+#+begin_src elisp
+  (setq native-comp-async-report-warnings-errors nil)
+#+end_src
+** Encoding
+From [[https://github.com/doomemacs/doomemacs/blob/594d70292dc134d483fbf7a427001250de07b4d2/lisp/doom-start.el#L132-L134][Doom emacs]]
+Contrary to what many Emacs users have in their configs, you don't need more than this to make UTF-8 the default coding system:
+#+begin_src elisp
+(set-language-environment "UTF-8")
+#+end_src
+** Path
+Load environment variables from the shell
+#+begin_src elisp
+  ;;(use-package add-node-modules-path)
+  (use-package exec-path-from-shell
+    :ensure t
+    :init (exec-path-from-shell-initialize)
+    :config
+    (setq exec-path-from-shell-variables '("GOPATH" "PATH" "MANPATH")))
+#+end_src
+
+Set the start point for the current buffer, this means if you will search for a file, the start point will be the default-directory value.
+#+begin_src elisp
+(setq default-directory "~/")
+#+end_src
+
+* Keep .emacs.d clean
+I don't want a bunch of transient files showing up as untracked in the Git repo so I move them all to another location.
+#+begin_src elisp
+  (setq custom-file
+	  (if (boundp 'server-socket-dir)
+	      (expand-file-name "custom.el" server-socket-dir)
+	    (expand-file-name (format "emacs-custom-%s.el" (user-uid)) temporary-file-directory)))
+  (add-hook 'elpaca-after-init-hook (lambda () (load custom-file 'noerror)))
+
+
+  (setq backup-directory-alist
+	`((".*" . ,temporary-file-directory))
+	auto-save-file-name-transforms
+	`((".*" ,temporary-file-directory t))
+	create-lockfiles nil)
+
+  (setq tramp-auto-save-directory temporary-file-directory)
+#+end_src
+
+* Look & Feel
+** Improve theme loading
+Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_you_currently_using/d43c5cw][Reddit]]
+#+begin_src elisp
+  (defadvice load-theme (before clear-previous-themes activate)
+    "Clear existing theme settings instead of layering them"
+    (mapc #'disable-theme custom-enabled-themes))
+#+end_src
+
+** Theme
+*** Doom Themes
+#+begin_src elisp
+  (use-package doom-themes
+    :ensure t
+    :preface
+    (setq
+     doom-themes-treemacs-theme "doom-colors"
+     dark-theme "doom-tokyo-night"
+     light-theme "doom-fairy-floss")
+    :init
+    (load-theme (intern dark-theme) t)
+
+    (defun gg-switch-theme()
+      (interactive)
+      (let* ((theme (car custom-enabled-themes))
+             (change (if (string= theme light-theme) dark-theme light-theme)))
+        (load-theme (intern change) t)
+        (setq selected-theme change)
+        (message "Theme switched from %s to %s" theme change)))
+    (global-set-key (kbd "<f8>") 'gg-switch-theme)
+
+    :config
+    (doom-themes-neotree-config)
+    (with-eval-after-load 'doom-themes
+      (doom-themes-treemacs-config))
+    (set-face-attribute 'default nil :font "Menlo 13")
+    (set-face-attribute 'region nil :background "#000" :foreground "#ffffff"))
+#+end_src
+
+** Neotree
+#+begin_src elisp
+  (defun text-scale-twice ()
+    (interactive)
+    (progn(text-scale-adjust 0)(text-scale-decrease 2)))
+
+  (use-package neotree
+    :ensure t
+    :bind([f9] . neotree-toggle)
+    :hook (neo-after-create . (lambda (_)(call-interactively 'text-scale-twice)))
+    :config
+    (setq neo-autorefresh nil)
+    (setq neo-smart-open t)
+    (with-eval-after-load 'neotree
+      (define-key neotree-mode-map (kbd "h") 'neotree-hidden-file-toggle)))
+
+#+end_src
+** Icons
+#+begin_src elisp
+  (use-package all-the-icons :ensure t)
+  (use-package all-the-icons-dired
+    :ensure t
+    :hook (dired-mode . all-the-icons-dired-mode))
+#+end_src
+
+** Nyan cat
+#+begin_src elisp
+  (use-package nyan-mode
+    :ensure t
+    :init
+    (nyan-mode t))
+#+end_src
+** Emoji
+#+begin_src elisp
+  (use-package emojify
+    :ensure t
+    :hook (elpaca-after-init . global-emojify-mode))
+#+end_src
+
+
+** Emacs interface
+#+begin_src elisp
+  (scroll-bar-mode 0)
+  (menu-bar-mode 0)
+  (tool-bar-mode 0)
+  (column-number-mode)
+  (setq ring-bell-function 'ignore)
+#+end_src
+
+Writing yes or no is length, type y / n instead
+#+begin_src elisp
+(defalias 'yes-or-no-p 'y-or-n-p)
+#+end_src
+
+** Doom modeline
+#+begin_src elisp
+  (use-package doom-modeline
+    :ensure t
+    :config
+    (setq doom-modeline-height 35)
+    (set-face-background 'doom-modeline-bar (face-background 'mode-line))
+    (setq doom-modeline-bar-width 1)
+    (doom-modeline-mode 1))
+#+end_src
+** Dialog
+Don't pop up UI dialogs when prompting
+#+begin_src elisp
+  (setq use-dialog-box nil)
+#+end_src
+** Company
+#+begin_src elisp
+  (use-package company
+    :ensure t
+    :hook (prog-mode . company-mode)
+    :config
+    (setq company-minimum-prefix-length 2)
+    (global-company-mode)
+    (global-set-key (kbd "TAB") #'company-indent-or-complete-common))
+
+  (setq company-tooltip-align-annotations t)
+
+  (use-package company-box
+    :ensure t
+    :hook (company-mode . company-box-mode))
+#+end_src
+* Editing
+#+begin_src elisp
+  ;; Remembering the last place you visited in a file
+  (save-place-mode 1)
+
+  (setq-default truncate-lines t ;; Do not wrap lines
+                indent-tabs-mode nil) ;; spaces instead of tabs
+
+  (setq show-trailing-whitespace t ;; Complain about trailing white spaces
+        whitespace-style '(face trailing lines tabs big-indent)) ;; Cleanup white spaces before save
+
+  ;; Cleanup whitespace before save
+  (add-hook 'before-save-hook 'whitespace-cleanup)
+#+end_src
+Yank ring
+#+begin_src elisp
+  (global-set-key (kbd "C-M-y") 'yank-pop)
+#+end_src
+** Parenthesis
+#+begin_src elisp
+  (use-package smartparens
+    :ensure t
+    :config
+    (smartparens-global-mode t))
+
+  (use-package rainbow-delimiters
+    :ensure t
+    :hook (prog-mode . rainbow-delimiters-mode))
+
+  (use-package rainbow-mode :ensure t)
+
+  (use-package string-inflection
+    :ensure t
+    :bind ("C-c i" . string-inflection-cycle))
+
+  (global-hl-line-mode t)
+#+end_src
+** Display line numbers
+#+begin_src elisp
+  (add-hook 'prog-mode-hook #'display-line-numbers-mode)
+  (add-hook 'conf-mode-hook #'display-line-numbers-mode)
+#+end_src
+** Indent Guides
+#+begin_src elisp
+  (use-package highlight-indent-guides
+    :ensure t
+    :config
+    (setq highlight-indent-guides-method 'character))
+#+end_src
+
+** Multiple cursor
+#+begin_src elisp
+  (use-package multiple-cursors
+    :ensure t
+    :bind (("A-S-c A-S-c" . mc/edit-lines)
+	   ("C-." . mc/mark-next-like-this)
+	   ("C-," . mc/mark-previous-like-this)
+	   ("A->" . mc/mark-all-like-this)
+	   ("C-A-<mouse-1>" . mc/add-cursor-on-click)))
+#+end_src
+** Unfill paragraph
+#+begin_src elisp
+  (defun unfill-paragraph (&optional region)
+    "Takes a multi-line paragraph or (REGION) and make it into a single line of text."
+    (interactive (progn (barf-if-buffer-read-only) '(t)))
+    (let ((fill-column (point-max))
+          ;; This would override `fill-column' if it's an integer.
+          (emacs-lisp-docstring-fill-column t))
+      (fill-paragraph nil region)))
+#+end_src
+** Treesiter
+#+begin_src elisp
+  (require 'treesit)
+  ;; modules build from https://github.com/casouri/tree-sitter-module
+  (setq treesit-extra-load-path '("~/Projects/tree-sitter-module/dist"))
+  (push '(css-mode . css-ts-mode) major-mode-remap-alist)
+  (push '(javascript-mode . js-ts-mode) major-mode-remap-alist)
+  (push '(js-json-mode . json-ts-mode) major-mode-remap-alist)
+  (push '(typescript-mode . typescript-ts-mode) major-mode-remap-alist)
+  (push '(typescript-mode . tsx-ts-mode) major-mode-remap-alist)
+  (push '(ruby-mode . ruby-ts-mode) major-mode-remap-alist)
+  (add-to-list 'auto-mode-alist '("\\.tsx?\\'" . tsx-ts-mode))
+#+end_src
+
+* Flyspell
+#+begin_src elisp
+  (use-package flyspell
+    :ensure nil
+    :bind (("<f7>" . 'fd-switch-dictionary)
+           ("C-;" . 'flyspell-correct-wrapper)))
+
+  (use-package flyspell-correct-popup
+    :ensure t
+    :config
+    (setq ispell-program-name "aspell")
+    (ispell-change-dictionary "pt_BR"))
+
+  (defun fd-switch-dictionary()
+    (interactive)
+    (let* ((dic ispell-current-dictionary)
+           (change (if (string= dic "pt_BR") "english" "pt_BR")))
+      (ispell-change-dictionary change)
+      (message "Dictionary switched from %s to %s" dic change)))
+
+  ;; (global-set-key (kbd "<f7>") )
+  ;; (define-key flyspell-mode-map (kbd "C-;") 'flyspell-correct-wrapper)
+#+end_src
+* Yasnippet
+#+begin_src elisp
+  (use-package yasnippet
+    :ensure t
+    :init
+    :config
+    (yas-load-directory "~/.emacs.d/snippets")
+    (yas-global-mode 1))
+#+end_src
+* Org
+#+begin_src elisp
+  (use-package org
+    :ensure nil
+    :custom
+    (org-agenda-files
+     '(
+       "/Users/guerra/Projects/org-files/roam/20230102102131-financeiro.org"
+       "/Users/guerra/Projects/org-files/roam/20230102103928-pessoal.org"
+       "/Users/guerra/Projects/org-files/roam/20230402214745-the_clear_cut.org"
+       ))
+    (org-agenda-span 15)
+    (org-deadline-warning-days 0)
+    (org-icalendar-deadline-summary-prefix "")
+    (org-icalendar-timezone "")
+    (org-icalendar-use-deadline '(event-if-todo todo-due))
+    (org-icalendar-with-timestamps nil)
+    :bind (("C-c a" . (lambda () (interactive) (org-agenda nil "z")) )
+           ("C-c /" . 'org-capture)
+           ("s-c" . 'ox-clip-formatted-copy))
+    :hook (org-mode . turn-on-flyspell))
+
+  (use-package org-contrib
+    :ensure t
+    :config
+    (require 'org-inlinetask)
+    (require 'org-tempo)
+    (require 'org-collector)  )
+
+  (use-package org-web-tools
+    :ensure t
+    :custom
+    (org-web-tools-pandoc-sleep-time 1.8))
+
+  (use-package org-ql
+    :ensure (org-ql
+             :type git :host github
+             :repo "alphapapa/org-ql")
+    :after '(org))
+
+
+  (use-package git-auto-commit-mode :ensure t)
+  (use-package ox-clip :ensure t)
+
+  (setq org-export-coding-system 'utf-8
+        org-directory "~/Projects/org-files/"
+        org-tag-alist '(("work" . ?w) ("personal" . ?p) ("meta" . ?m) ("emacsLove" . ?l) ("quotes" . ?q) ("finances" . ?f) ("howto" . ?h))
+        org-log-done nil
+        org-log-repeat nil
+        org-startup-indented t
+        org-export-with-toc nil
+        org-export-with-section-numbers nil
+        gac-automatically-push-p t)
+#+end_src
+** Ox
+*** Slack
+#+begin_src elisp
+  (use-package ox-slack
+    :ensure t
+    :bind ("C-c e s" . org-slack-export-to-clipboard-as-slack))
+
+#+end_src
+
+** Reveal
+#+begin_src elisp
+  (use-package ox-reveal :ensure t)
+  (setq org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js"
+	org-reveal-title-slide nil
+	org-reveal-mathjax t)
+  (use-package htmlize :ensure t)
+#+end_src
+** Look & Feel
+*** Olivetti
+#+begin_src elisp
+  (use-package olivetti
+    :ensure t
+    :custom
+    (olivetti-body-width 120))
+#+end_src
+** Super-agenda
+#+begin_src elisp
+  (use-package org-super-agenda
+    :ensure t
+    :after org-agenda
+    :config
+    (org-super-agenda-mode t)
+    (setq org-agenda-skip-scheduled-if-done t))
+
+  (setq org-agenda-custom-commands
+	'(("z" "Super view"
+	   ((tags "meta" ((org-agenda-overriding-header "Objetivos de 2023")))
+	    (agenda "" ((org-agenda-span 'week)
+			(org-agenda-overriding-header "")
+			))
+	    (alltodo "" ((org-agenda-overriding-header "")
+			 (org-agenda-remove-tags t)
+			 (org-super-agenda-groups
+			  '(
+			    (:name "🚨 Atrasados"
+				   :deadline past
+				   :order 7)
+			    (:name "Próximos eventos"
+				   :discard (:tag ("finances"))
+				   :deadline future
+				   :order 8)
+			    (:name "Sem data" :deadline nil :order 9)
+			    (:discard (:tag ("Routine" "Daily" "meta" "finances")))))))
+	    ))))
+#+end_src
+** Functions
+Check if a billing is paid based on the date
+#+begin_src elisp
+  (defun is-paid? (time)
+    (if (eq (string-to-number (format-time-string "%m")) (nth 4 (org-parse-time-string time)))
+        "-" "pago"))
+#+end_src
+Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids-to-every-entry-in-org-mode][source]]
+#+begin_src elisp
+  (defun add-id-to-tasks-in-file ()
+    "Add ID properties to all tasks in the current file which
+    do not already have one."
+    (interactive)
+    (org-ql-select (buffer-file-name)
+      '(and
+        (todo))
+      :action #'org-id-get-create))
+#+end_src
+** Roam
+#+begin_src elisp
+  (use-package org-roam
+    :ensure t
+    :custom
+    (org-roam-directory "~/Projects/org-files/roam")
+    (setq org-roam-dailies-directory "daily/")
+    (org-roam-completion-everywhere t)
+    :bind (("C-c n l" . org-roam-buffer-toggle)
+	   ("<f4>" . org-roam-node-find)
+	   ("C-c n i" . org-roam-node-insert)
+	   ("<f12>" . org-roam-dailies-goto-today)
+	   ;; :map org-mode-map
+	   ;; ("C-M-i" . completion-at-point)
+	   :map org-roam-dailies-map
+	   ("Y" . org-roam-dailies-capture-yesterday)
+	   ("T" . org-roam-dailies-capture-tomorrow))
+    :bind-keymap
+    ("C-c n d" . org-roam-dailies-map)
+    :config
+    (require 'org-roam-dailies) ;; Ensure the keymap is available
+    (org-roam-db-autosync-mode))
+#+end_src
+** Sync
+#+begin_src elisp
+  (defun org-agenda-export-to-ics ()
+    (interactive)
+    (org-icalendar-combine-agenda-files)
+    (copy-file org-agenda-private-local-path org-agenda-private-remote-path t))
+
+  (use-package midnight
+    :ensure nil
+    :config
+    (midnight-delay-set 'midnight-delay 16200)
+    (setq midnight-period 2400 ;; in seconds
+	  org-agenda-private-local-path "~/.org.ics"
+	  org-agenda-private-remote-path "~/Google Drive/My Drive/org.ics")
+    :hook (midnight . org-agenda-export-to-ics)
+    :bind ("C-c e i" . org-agenda-export-to-ics))
+
+#+end_src
+** Babel
+#+begin_src elisp
+  (setq org-src-fontify-natively t)
+  (setq org-confirm-babel-evaluate nil)
+  (setq org-src-window-setup 'current-window)
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((python . t)
+     (sql . t)))
+
+#+end_src
+* Markdown
+#+begin_src elisp
+  (use-package markdown-mode :ensure t)
+#+end_src
+* Vertigo
+#+begin_src elisp
+    (use-package vertico
+      :ensure t
+      :init
+      (vertico-mode)
+      :custom
+      (vertico-group-separator ((t (:inherit all-the-icons-dorange :strike-through t))))
+      (vertico-group-title ((t (:inherit all-the-icons-dorange :slant italic)))))
+
+    (use-package savehist
+      :init
+      (savehist-mode))
+
+    (use-package orderless
+      :ensure t
+      :custom
+      (completion-styles '(orderless basic))
+      (completion-category-overrides '((file (styles basic partial-completion)))))
+** Postframe
+#+begin_src elisp
+  (use-package vertico-posframe
+    :init (vertico-posframe-mode)
+    :ensure t
+    :config
+    (setq vertico-multiform-commands
+          '((consult-line (:not posframe))
+            (consult-theme (:not posframe))
+            (consult-ripgrep (:not posframe))
+            (consult-org-heading (:not posframe))
+            (consult-xref (:not posframe))
+            (consult-imenu (:not posframe))
+            (t posframe)))
+    (setq vertico-posframe-parameters
+          '((left-fringe . 8)
+          (right-fringe . 8)))
+    (vertico-multiform-mode t))
+#+end_src
+* Consult
+#+begin_src elisp
+  (use-package consult
+    :ensure t
+    :bind (("C-M-l" . consult-imenu)
+           ("C-s" . consult-line)
+           ("C-M-g" . consult-ripgrep)
+           ("C-M-o" . consult-org-heading)
+           ("C-x C-b" . consult-buffer)
+           ("C-x b" . consult-project-buffer))
+    :hook (completion-list-mode . consult-preview-at-point-mode)
+    :init
+    (autoload 'projectile-project-root "projectile")
+    (setq register-preview-delay 0
+          register-preview-function #'consult-register-format
+          xref-show-xrefs-function #'consult-xref
+          xref-show-definitions-function #'consult-xref))
+#+end_src
+** Consult org
+#+begin_src elisp
+(use-package consult-org-roam
+   :ensure t
+   :after org-roam
+   :init
+   (require 'consult-org-roam)
+   ;; Activate the minor mode
+   (consult-org-roam-mode 1)
+   :custom
+   ;; Use `ripgrep' for searching with `consult-org-roam-search'
+   (consult-org-roam-grep-func #'consult-ripgrep)
+   ;; Configure a custom narrow key for `consult-buffer'
+   (consult-org-roam-buffer-narrow-key ?r)
+   ;; Display org-roam buffers right after non-org-roam buffers
+   ;; in consult-buffer (and not down at the bottom)
+   (consult-org-roam-buffer-after-buffers t)
+   :config
+   ;; Eventually suppress previewing for certain functions
+   (consult-customize
+    consult-org-roam-forward-links
+    :preview-key (kbd "M-."))
+   :bind
+   ;; Define some convenient keybindings as an addition
+   ("C-c n e" . consult-org-roam-file-find)
+   ("C-c n b" . consult-org-roam-backlinks)
+   ("C-c n l" . consult-org-roam-forward-links)
+   ("C-c n r" . consult-org-roam-search))
+#+end_src
+* which-key
+#+begin_src elisp
+  (use-package which-key
+    :ensure t
+    :config
+    (which-key-mode))
+#+end_src
+* Commit
+Javascript
+#+begin_src elisp
+  (use-package js-comint :ensure t)
+#+end_src
+* Read aloud
+#+begin_src elisp
+  (use-package read-aloud
+    :ensure t
+    :config
+    (setq read-aloud-engine "say"))
+#+end_src
+
+
+
+
+
