@@ -231,8 +231,6 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
 ** Emacs interface
 #+begin_src elisp
   (scroll-bar-mode 0)
-  (menu-bar-mode 0)
-  (tool-bar-mode 0)
   (column-number-mode)
   (setq ring-bell-function 'ignore)
 #+end_src
@@ -242,38 +240,7 @@ Writing yes or no is length, type y / n instead
 (defalias 'yes-or-no-p 'y-or-n-p)
 #+end_src
 
-** Doom modeline
-#+begin_src elisp
-  (use-package doom-modeline
-    :ensure t
-    :config
-    (setq doom-modeline-height 35)
-    (set-face-background 'doom-modeline-bar (face-background 'mode-line))
-    (setq doom-modeline-bar-width 1)
-    (doom-modeline-mode 1))
-#+end_src
-** Dialog
-Don't pop up UI dialogs when prompting
-#+begin_src elisp
-  (setq use-dialog-box nil)
-#+end_src
-** Company
-#+begin_src elisp
-  (use-package company
-    :ensure t
-    :hook (prog-mode . company-mode)
-    :config
-    (setq company-minimum-prefix-length 2)
-    (global-company-mode)
-    (global-set-key (kbd "TAB") #'company-indent-or-complete-common))
-
-  (setq company-tooltip-align-annotations t)
-
-  (use-package company-box
-    :ensure t
-    :hook (company-mode . company-box-mode))
-#+end_src
-** Android toolbar
+*** Android toolbar
 #+begin_src elisp
   (defun android-toggle-keyboard()
     (interactive)
@@ -324,6 +291,37 @@ Don't pop up UI dialogs when prompting
   (define-key key-translation-map [tool-bar keyboard-esc] [escape])
   (define-key key-translation-map [tool-bar keyboard-tab]  (kbd "TAB"))
 
+#+end_src
+** Doom modeline
+#+begin_src elisp
+  (use-package doom-modeline
+    :ensure t
+    :config
+    (setq doom-modeline-height 35)
+    (set-face-background 'doom-modeline-bar (face-background 'mode-line))
+    (setq doom-modeline-bar-width 1)
+    (doom-modeline-mode 1))
+#+end_src
+** Dialog
+Don't pop up UI dialogs when prompting
+#+begin_src elisp
+  (setq use-dialog-box nil)
+#+end_src
+** Company
+#+begin_src elisp
+  (use-package company
+    :ensure t
+    :hook (prog-mode . company-mode)
+    :config
+    (setq company-minimum-prefix-length 2)
+    (global-company-mode)
+    (global-set-key (kbd "TAB") #'company-indent-or-complete-common))
+
+  (setq company-tooltip-align-annotations t)
+
+  (use-package company-box
+    :ensure t
+    :hook (company-mode . company-box-mode))
 #+end_src
 * Editing
 #+begin_src elisp
