@@ -1,0 +1,205 @@
+#+begin_src elisp
+  (load-theme 'misterioso)
+#+end_src
+
+** Mac OS
+#+begin_src elisp
+  (when (eq system-type 'darwin)
+    (add-to-list 'default-frame-alist '(undecorated . t))
+    (setq mac-option-modifier 'alt)
+    (setq mac-command-modifier 'meta)
+
+    ;; Keys for visiting next & previous windows
+    (global-set-key (kbd "<A-tab>") #'other-window)
+    (global-set-key (kbd "<A-S-tab>")
+                    #'(lambda () (interactive) (other-window -1)))
+
+    ;; Keys for visiting next & previous frame
+    (global-set-key (kbd "M-`") #'other-frame)
+    (global-set-key (kbd "M-~") #'(lambda () (interactive) (other-frame -1)))
+
+    ;; sets fn-delete to be right-delete
+    (global-set-key [kp-delete] 'delete-char)
+    (menu-bar-mode 1)
+
+    ;; Enable mac option to create accented characters
+    (setq ns-alternate-modifier 'none)
+    (setq frame-resize-pixelwise t)
+    (setq ns-left-alternate-modifier 'none))
+
+#+end_src
+
+* Key mapping
+** Buffer/Window
+  Before kill a modified buffer, give option to see the diff
+  Original code from [[https://emacs.stackexchange.com/questions/3245/kill-buffer-prompt-with-option-to-diff-the-changes/3363#3363][here]]
+
+#+begin_src elisp
+  (defun my/kill-this-buffer ()
+    (interactive)
+    (catch 'quit
+      (save-window-excursion
+        (let (done)
+          (when (and buffer-file-name (buffer-modified-p))
+            (while (not done)
+              (let ((response (read-char-choice
+                               (format "Save file %s? (y, n, d, q) " (buffer-file-name))
+                               '(?y ?n ?d ?q))))
+                (setq done (cond
+                            ((eq response ?q) (throw 'quit nil))
+                            ((eq response ?y) (save-buffer) t)
+                            ((eq response ?n) (set-buffer-modified-p nil) t)
+                            ((eq response ?d) (diff-buffer-with-file) nil))))))
+          (kill-buffer (current-buffer))))))
+
+  (global-set-key [s-tab] 'next-buffer)
+  (global-set-key [S-s-iso-lefttab] 'previous-buffer)
+  (global-set-key ["M-{"] 'next-buffer)
+  (global-set-key ["M-}"] 'previous-buffer)
+
+
+  ;; change window
+  (global-set-key [(C-tab)] 'other-window)
+  (global-set-key [(C-M-tab)] 'other-window)
+
+  ;; Remap kill buffer to my/kill-this-buffer
+  (global-set-key (kbd "C-x k") 'my/kill-this-buffer)
+
+  ;; Revert buffer
+  (global-set-key (kbd "C-<f5>") 'revert-buffer)
+
+  ;; Go to scratch buffer
+  (global-set-key (kbd "<f2>") (lambda() (interactive)(switch-to-buffer "*scratch*")))
+#+end_src
+
+** Code navigation
+#+begin_src elisp
+  (global-set-key (kbd "M-g") 'goto-line)
+  (global-set-key (kbd "C-c s") 'sort-lines)
+#+end_src
+** Editing
+#+begin_src elisp
+  (global-set-key (kbd "C-c c") 'comment-region)
+  (global-set-key (kbd "C-c d") 'uncomment-region)
+#+end_src
+** Conf
+#+begin_src elisp
+  (global-set-key (kbd "<f6>") (lambda() (interactive)(find-file "~/.emacs.d/readme.org")))
+#+end_src
+* General
+
+#+begin_src elisp
+(setq default-directory "~/")
+#+end_src
+
+#+begin_src elisp
+  ;; Close all dired buffers after opening
+  (setq dired-kill-when-opening-new-dired-buffer t)
+
+  (defun dont-kill-scratch ()
+    "This function doesn't let you kill scratch by mistake."
+    (if (not (equal (buffer-name) "*scratch*"))
+        t
+      (bury-buffer)
+      nil))
+  (add-hook 'kill-buffer-query-functions #'dont-kill-scratch)
+
+  ;; Don't ask about variables and functions from .dir-locals
+  (advice-add 'risky-local-variable-p :override #'ignore)
+
+  (use-package ls-lisp
+    :config
+    (setq ls-lisp-dirs-first t
+          ls-lisp-use-insert-directory-program nil))
+#+end_src
+
+* Look & Feel
+** Improve theme loading
+Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_you_currently_using/d43c5cw][Reddit]]
+#+begin_src elisp
+  (defadvice load-theme (before clear-previous-themes activate)
+    "Clear existing theme settings instead of layering them"
+    (mapc #'disable-theme custom-enabled-themes))
+#+end_src
+
+** Startup Screen
+#+begin_src elisp
+  (use-package dashboard
+    :ensure t
+    :config
+    (setq dashboard-banner-logo-title "Olá, bem vindo ao Emacs"
+          dashboard-startup-banner "~/.emacs.d/nyan-cat.png"
+          dashboard-center-content t
+          dashboard-agenda-release-buffers t
+          dashboard-items '((projects . 5) (agenda . 5)))
+    (dashboard-setup-startup-hook))
+#+end_src
+
+** Theme
+*** Doom Themes
+#+begin_src elisp
+  (use-package doom-themes
+    :ensure t
+    :preface
+    (setq
+     doom-themes-treemacs-theme "doom-colors"
+     dark-theme "doom-tokyo-night"
+     light-theme "doom-fairy-floss")
+    :init
+    (load-theme (intern light-theme) t)
+
+    (defun gg-switch-theme()
+      (interactive)
+      (let* ((theme (car custom-enabled-themes))
+             (change (if (string= theme light-theme) dark-theme light-theme)))
+        (load-theme (intern change) t)
+        (setq selected-theme change)
+        (message "Theme switched from %s to %s" theme change)))
+    (global-set-key (kbd "<f8>") 'gg-switch-theme)
+
+    :config
+    (doom-themes-neotree-config)
+    (with-eval-after-load 'doom-themes
+      (doom-themes-treemacs-config))
+    (set-face-attribute 'default nil :font "Menlo 13")
+    (set-face-attribute 'region nil :background "#000" :foreground "#ffffff"))
+#+end_src
+
+** Emacs interface
+#+begin_src elisp
+  (scroll-bar-mode 0)
+  (menu-bar-mode 0)
+  (tool-bar-mode 0)
+  (column-number-mode)
+  (setq ring-bell-function 'ignore)
+#+end_src
+
+Writing yes or no is length, type y / n instead
+#+begin_src elisp
+(defalias 'yes-or-no-p 'y-or-n-p)
+#+end_src
+
+** Doom modeline
+#+begin_src elisp
+  (use-package doom-modeline
+    :ensure t
+    :config
+    (setq doom-modeline-height 35)
+    (set-face-background 'doom-modeline-bar (face-background 'mode-line))
+    (setq doom-modeline-bar-width 1)
+    (doom-modeline-mode 1))
+#+end_src
+
+** Emoji
+#+begin_src elisp
+  (use-package emojify
+    :ensure t
+    :hook (elpaca-after-init . global-emojify-mode))
+#+end_src
+
+
+* Magit
+#+begin_src elisp
+    (use-package magit
+      :ensure t)
+#+end_src
