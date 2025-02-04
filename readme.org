@@ -261,12 +261,6 @@ I don't want a bunch of transient files showing up as untracked in the Git repo 
   (setq tramp-auto-save-directory temporary-file-directory)
 #+end_src
 
-* Emacs Server
-Start the Emacs server from this instance so that all =emacsclient= calls are routed here.
-It's required to be able to use Emacs as my [[*Yequake][dropdown terminal]].
-#+begin_src elisp
-(server-start)
-#+end_src
 * Look & Feel
 ** Improve theme loading
 Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_you_currently_using/d43c5cw][Reddit]]
@@ -610,10 +604,7 @@ Yank ring
   (use-package magit :ensure t)
   ;;(use-package magit-todos :ensure t)
 #+end_src
-* Git Timemachine
-#+begin_src elisp
-  (use-package git-timemachine :ensure t)
-#+end_src
+
 * Blamer
 #+begin_src elisp :tangle no
   (use-package blamer
@@ -1129,6 +1120,7 @@ Original code from https://github.com/joaotavora/eglot/discussions/999
       :custom
       (completion-styles '(orderless basic))
       (completion-category-overrides '((file (styles basic partial-completion)))))
+#+end_src
 ** Postframe
 #+begin_src elisp
   (use-package vertico-posframe
@@ -1271,16 +1263,7 @@ Javascript
                        (get-buffer-create "*compilation*"))
                       (message "No Compilation Errors!"))))))
 #+end_src
-** Fancy Compile
-#+begin_src elisp
-  (use-package fancy-compilation
-    :ensure t
-    :defer 3
-    :config
-    (fancy-compilation-mode)
-    :custom
-    (fancy-compilation-scroll-output 'first-error))
-#+end_src
+
 ** Recompile on Save
 #+begin_src elisp
   (use-package recompile-on-save
