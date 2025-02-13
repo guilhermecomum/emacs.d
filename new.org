@@ -1,8 +1,4 @@
-#+begin_src elisp
-  (load-theme 'misterioso)
-#+end_src
-
-** Mac OS
+* Mac OS
 #+begin_src elisp
   (when (eq system-type 'darwin)
     (add-to-list 'default-frame-alist '(undecorated . t))
@@ -26,7 +22,6 @@
     (setq ns-alternate-modifier 'none)
     (setq frame-resize-pixelwise t)
     (setq ns-left-alternate-modifier 'none))
-
 #+end_src
 
 * Key mapping
@@ -84,33 +79,28 @@
 #+end_src
 ** Conf
 #+begin_src elisp
-  (global-set-key (kbd "<f6>") (lambda() (interactive)(find-file "~/.emacs.d/readme.org")))
+  (global-set-key (kbd "<f6>") (lambda() (interactive)(find-file "~/.emacs.d/new.org")))
 #+end_src
-* General
-
+* Package Manager
 #+begin_src elisp
-(setq default-directory "~/")
-#+end_src
+  (defvar bootstrap-version)
+  (let ((bootstrap-file
+         (expand-file-name
+          "straight/repos/straight.el/bootstrap.el"
+          (or (bound-and-true-p straight-base-dir)
+              user-emacs-directory)))
+        (bootstrap-version 7))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+          (url-retrieve-synchronously
+           "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+           'silent 'inhibit-cookies)
+        (goto-char (point-max))
+        (eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage))
+  (straight-use-package 'use-package)
+  ;;(setq straight-use-package-by-default t)
 
-#+begin_src elisp
-  ;; Close all dired buffers after opening
-  (setq dired-kill-when-opening-new-dired-buffer t)
-
-  (defun dont-kill-scratch ()
-    "This function doesn't let you kill scratch by mistake."
-    (if (not (equal (buffer-name) "*scratch*"))
-        t
-      (bury-buffer)
-      nil))
-  (add-hook 'kill-buffer-query-functions #'dont-kill-scratch)
-
-  ;; Don't ask about variables and functions from .dir-locals
-  (advice-add 'risky-local-variable-p :override #'ignore)
-
-  (use-package ls-lisp
-    :config
-    (setq ls-lisp-dirs-first t
-          ls-lisp-use-insert-directory-program nil))
 #+end_src
 
 * Look & Feel
@@ -125,7 +115,7 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
 ** Startup Screen
 #+begin_src elisp
   (use-package dashboard
-    :ensure t
+    :straight t
     :config
     (setq dashboard-banner-logo-title "Olá, bem vindo ao Emacs"
           dashboard-startup-banner "~/.emacs.d/nyan-cat.png"
@@ -139,7 +129,7 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
 *** Doom Themes
 #+begin_src elisp
   (use-package doom-themes
-    :ensure t
+    :straight t
     :preface
     (setq
      doom-themes-treemacs-theme "doom-colors"
@@ -182,7 +172,7 @@ Writing yes or no is length, type y / n instead
 ** Doom modeline
 #+begin_src elisp
   (use-package doom-modeline
-    :ensure t
+    :straight t
     :config
     (setq doom-modeline-height 35)
     (set-face-background 'doom-modeline-bar (face-background 'mode-line))
@@ -193,13 +183,707 @@ Writing yes or no is length, type y / n instead
 ** Emoji
 #+begin_src elisp
   (use-package emojify
-    :ensure t
-    :hook (elpaca-after-init . global-emojify-mode))
+    :straight t
+    :config
+    (global-emojify-mode))
+
 #+end_src
 
+** Neotree
+#+begin_src elisp
+  (defun text-scale-twice ()
+    (interactive)
+    (progn(text-scale-adjust 0)(text-scale-decrease 2)))
+
+  (use-package neotree
+    :straight t
+    :bind([f9] . neotree-toggle)
+    :hook (neo-after-create . (lambda (_)(call-interactively 'text-scale-twice)))
+    :config
+    (setq neo-autorefresh nil)
+    (setq neo-smart-open t)
+    (with-eval-after-load 'neotree
+      (define-key neotree-mode-map (kbd "h") 'neotree-hidden-file-toggle)))
+
+#+end_src
+
+* General
+#+begin_src elisp
+  (setq default-directory "~/")
+#+end_src
+
+#+begin_src elisp
+  ;; Close all dired buffers after opening
+  (setq dired-kill-when-opening-new-dired-buffer t)
+
+  (defun dont-kill-scratch ()
+    "This function doesn't let you kill scratch by mistake."
+    (if (not (equal (buffer-name) "*scratch*"))
+        t
+      (bury-buffer)
+      nil))
+  (add-hook 'kill-buffer-query-functions #'dont-kill-scratch)
+
+  ;; Don't ask about variables and functions from .dir-locals
+  (advice-add 'risky-local-variable-p :override #'ignore)
+#+end_src
+* Keep .emacs.d clean
+I don't want a bunch of transient files showing up as untracked in the Git repo so I move them all to another location.
+#+begin_src elisp
+  (setq custom-file
+        (if (boundp 'server-socket-dir)
+            (expand-file-name "custom.el" server-socket-dir)
+          (expand-file-name (format "emacs-custom-%s.el" (user-uid)) temporary-file-directory)))
+  (add-hook 'elpaca-after-init-hook (lambda () (load custom-file 'noerror)))
+
+
+  (setq backup-directory-alist
+        `((".*" . ,temporary-file-directory))
+        auto-save-file-name-transforms
+        `((".*" ,temporary-file-directory t))
+        create-lockfiles nil)
+
+  (setq tramp-auto-save-directory temporary-file-directory)
+  (setq make-backup-files nil)
+#+end_src
+
+* Editing
+#+begin_src elisp
+  ;; Remembering the last place you visited in a file
+  (save-place-mode 1)
+
+  (setq-default truncate-lines t ;; Do not wrap lines
+                indent-tabs-mode nil) ;; spaces instead of tabs
+
+  (setq show-trailing-whitespace t ;; Complain about trailing white spaces
+        whitespace-style '(face trailing lines tabs big-indent)) ;; Cleanup white spaces before save
+
+  ;; Cleanup whitespace before save
+  (add-hook 'before-save-hook 'whitespace-cleanup)
+#+end_src
+Yank ring
+#+begin_src elisp
+  (global-set-key (kbd "C-M-y") 'yank-pop)
+#+end_src
+** Parenthesis
+#+begin_src elisp
+  (use-package smartparens
+    :straight t
+    :config
+    (smartparens-global-mode t))
+
+  (use-package rainbow-delimiters
+    :straight t
+    :hook (prog-mode . rainbow-delimiters-mode))
+
+  (use-package rainbow-mode :straight t)
+  (global-hl-line-mode t)
+#+end_src
+** Display line numbers
+#+begin_src elisp
+  (add-hook 'prog-mode-hook #'display-line-numbers-mode)
+  (add-hook 'conf-mode-hook #'display-line-numbers-mode)
+#+end_src
+** Indent Guides
+#+begin_src elisp
+  (use-package highlight-indent-guides
+    :straight t
+    :config
+    (setq highlight-indent-guides-method 'character))
+#+end_src
+
+** Multiple cursor
+#+begin_src elisp
+  (use-package multiple-cursors
+    :straight t
+    :bind (("A-S-c A-S-c" . mc/edit-lines)
+	   ("C-." . mc/mark-next-like-this)
+	   ("C-," . mc/mark-previous-like-this)
+	   ("A->" . mc/mark-all-like-this)
+	   ("C-A-<mouse-1>" . mc/add-cursor-on-click)))
+#+end_src
+** Unfill paragraph
+#+begin_src elisp
+  (defun unfill-paragraph (&optional region)
+    "Takes a multi-line paragraph or (REGION) and make it into a single line of text."
+    (interactive (progn (barf-if-buffer-read-only) '(t)))
+    (let ((fill-column (point-max))
+          ;; This would override `fill-column' if it's an integer.
+          (emacs-lisp-docstring-fill-column t))
+      (fill-paragraph nil region)))
+#+end_src
 
 * Magit
 #+begin_src elisp
     (use-package magit
-      :ensure t)
+      :straight t)
 #+end_src
+
+* Treesit
+#+begin_src elisp
+  (use-package treesit
+    :straight (:type built-in)
+    :mode (("\\.tsx\\'" . tsx-ts-mode)
+           ("\\.js\\'"  . typescript-ts-mode)
+           ("\\.mjs\\'" . typescript-ts-mode)
+           ("\\.mts\\'" . typescript-ts-mode)
+           ("\\.cjs\\'" . typescript-ts-mode)
+           ("\\.ts\\'"  . typescript-ts-mode)
+           ("\\.jsx\\'" . tsx-ts-mode)
+           ("\\.json\\'" .  json-ts-mode)
+           ("\\.Dockerfile\\'" . dockerfile-ts-mode)
+           ("\\.prisma\\'" . prisma-ts-mode))
+    :preface
+    (defun os/setup-install-grammars ()
+      "Install Tree-sitter grammars if they are absent."
+      (interactive)
+      (dolist (grammar
+               '((css . ("https://github.com/tree-sitter/tree-sitter-css" "v0.20.0"))
+                 (bash "https://github.com/tree-sitter/tree-sitter-bash")
+                 (html . ("https://github.com/tree-sitter/tree-sitter-html" "v0.20.1"))
+                 (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript" "v0.21.2" "src"))
+                 (json . ("https://github.com/tree-sitter/tree-sitter-json" "v0.20.2"))
+                 (python . ("https://github.com/tree-sitter/tree-sitter-python" "v0.20.4"))
+                 (go "https://github.com/tree-sitter/tree-sitter-go" "v0.20.0")
+                 (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+                 (make "https://github.com/alemuller/tree-sitter-make")
+                 (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+                 (cmake "https://github.com/uyha/tree-sitter-cmake")
+                 (c "https://github.com/tree-sitter/tree-sitter-c")
+                 (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
+                 (toml "https://github.com/tree-sitter/tree-sitter-toml")
+                 (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "v0.20.3" "tsx/src"))
+                 (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "v0.20.3" "typescript/src"))
+                 (yaml . ("https://github.com/ikatyang/tree-sitter-yaml" "v0.5.0"))
+                 (prisma "https://github.com/victorhqc/tree-sitter-prisma")))
+        (add-to-list 'treesit-language-source-alist grammar)
+        ;; Only install `grammar' if we don't already have it
+        ;; installed. However, if you want to *update* a grammar then
+        ;; this obviously prevents that from happening.
+        (unless (treesit-language-available-p (car grammar))
+          (treesit-install-language-grammar (car grammar)))))
+
+    ;; Optional, but recommended. Tree-sitter enabled major modes are
+    ;; distinct from their ordinary counterparts.
+    ;;
+    ;; You can remap major modes with `major-mode-remap-alist'. Note
+    ;; that this does *not* extend to hooks! Make sure you migrate them
+    ;; also
+    (dolist (mapping
+             '((python-mode . python-ts-mode)
+               (css-mode . css-ts-mode)
+               (typescript-mode . typescript-ts-mode)
+               (js-mode . typescript-ts-mode)
+               (js2-mode . typescript-ts-mode)
+               (c-mode . c-ts-mode)
+               (c++-mode . c++-ts-mode)
+               (c-or-c++-mode . c-or-c++-ts-mode)
+               (bash-mode . bash-ts-mode)
+               (css-mode . css-ts-mode)
+               (json-mode . json-ts-mode)
+               (js-json-mode . json-ts-mode)
+               (sh-mode . bash-ts-mode)
+               (sh-base-mode . bash-ts-mode)))
+      (add-to-list 'major-mode-remap-alist mapping))
+    :config
+    (os/setup-install-grammars))
+#+end_src
+
+* Corfu
+#+begin_src elisp
+  (use-package corfu
+    :straight t
+    ;; Optional customizations
+    :custom
+    (corfu-cycle t)                 ; Allows cycling through candidates
+    (corfu-auto t)                  ; Enable auto completion
+    (corfu-auto-prefix 2)           ; Minimum length of prefix for completion
+    (corfu-auto-delay 0)            ; No delay for completion
+    (corfu-popupinfo-delay '(0.5 . 0.2))  ; Automatically update info popup after that numver of seconds
+    (corfu-preview-current 'insert) ; insert previewed candidate
+    (corfu-preselect 'prompt)
+    (corfu-on-exact-match nil)      ; Don't auto expand tempel snippets
+    ;; Optionally use TAB for cycling, default is `corfu-complete'.
+    :bind (:map corfu-map
+                ("M-SPC"      . corfu-insert-separator)
+                ("TAB"        . corfu-next)
+                ([tab]        . corfu-next)
+                ("S-TAB"      . corfu-previous)
+                ([backtab]    . corfu-previous)
+                ("S-<return>" . corfu-insert)
+                ("RET"        . corfu-insert))
+
+    :init
+    (global-corfu-mode)
+    (corfu-history-mode)
+    (corfu-popupinfo-mode) ; Popup completion info
+    :config
+    (add-hook 'eshell-mode-hook
+              (lambda () (setq-local corfu-quit-at-boundary t
+                                     corfu-quit-no-match t
+                                     corfu-auto nil)
+                (corfu-mode))
+              nil
+              t))
+#+end_src
+
+* Org
+#+begin_src elisp
+    (use-package org
+      :straight (:type built-in)
+      :custom
+      (org-agenda-files
+       '(
+         "/Users/guerra/Projects/org-files/roam/20230102102131-financeiro.org"
+         "/Users/guerra/Projects/org-files/roam/20230102103928-pessoal.org"
+         "/Users/guerra/Projects/org-files/roam/20230402214745-the_clear_cut.org"
+         ))
+      (org-agenda-span 15)
+      (org-deadline-warning-days 0)
+      (org-icalendar-deadline-summary-prefix "")
+      (org-icalendar-timezone "")
+      (org-icalendar-use-deadline '(event-if-todo todo-due))
+      (org-icalendar-with-timestamps nil)
+      :bind (("C-c a" . (lambda () (interactive) (org-agenda nil "z")) )
+             ("C-c /" . 'org-capture)
+             ("s-c" . 'ox-clip-formatted-copy))
+      :hook (org-mode . turn-on-flyspell))
+
+    (use-package org-contrib
+      :straight t
+      :config
+      (require 'org-inlinetask)
+      (require 'org-tempo)
+      (require 'org-collector)  )
+
+    (use-package org-web-tools
+      :straight t
+      :custom
+      (org-web-tools-pandoc-sleep-time 1.8))
+
+    (use-package git-auto-commit-mode :straight t)
+    (use-package ox-clip :straight t)
+
+    (setq org-export-coding-system 'utf-8
+          org-directory "~/Projects/org-files/"
+          org-tag-alist '(("work" . ?w) ("personal" . ?p) ("meta" . ?m) ("emacsLove" . ?l) ("quotes" . ?q) ("finances" . ?f) ("howto" . ?h))
+          org-log-done nil
+          org-log-repeat nil
+          org-startup-indented t
+          org-export-with-toc nil
+          org-export-with-section-numbers nil
+          gac-automatically-push-p t)
+#+end_src
+** Babel
+#+begin_src elisp
+  (setq org-src-fontify-natively t)
+  (setq org-confirm-babel-evaluate nil)
+  (setq org-src-window-setup 'current-window)
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((python . t)
+     (sql . t)))
+
+#+end_src
+
+** Functions
+Check if a billing is paid based on the date
+#+begin_src elisp
+  (defun is-paid? (time)
+    (if (eq (string-to-number (format-time-string "%m")) (nth 4 (org-parse-time-string time)))
+        "-" "pago"))
+#+end_src
+Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids-to-every-entry-in-org-mode][source]]
+#+begin_src elisp
+  (defun add-id-to-tasks-in-file ()
+    "Add ID properties to all tasks in the current file which
+    do not already have one."
+    (interactive)
+    (org-ql-select (buffer-file-name)
+      '(and
+        (todo))
+      :action #'org-id-get-create))
+#+end_src
+** Super-agenda
+#+begin_src elisp
+  (use-package org-super-agenda
+    :straight t
+    :after org-agenda
+    :config
+    (org-super-agenda-mode t)
+    (setq org-agenda-skip-scheduled-if-done t))
+
+  (setq org-agenda-custom-commands
+	'(("z" "Super view"
+	   ((tags "meta" ((org-agenda-overriding-header "Objetivos de 2023")))
+	    (agenda "" ((org-agenda-span 'week)
+			(org-agenda-overriding-header "")
+			))
+	    (alltodo "" ((org-agenda-overriding-header "")
+			 (org-agenda-remove-tags t)
+			 (org-super-agenda-groups
+			  '(
+			    (:name "🚨 Atrasados"
+				   :deadline past
+				   :order 7)
+			    (:name "Próximos eventos"
+				   :discard (:tag ("finances"))
+				   :deadline future
+				   :order 8)
+			    (:name "Sem data" :deadline nil :order 9)
+			    (:discard (:tag ("Routine" "Daily" "meta" "finances")))))))
+	    ))))
+#+end_src
+** Roam
+#+begin_src elisp
+  (use-package org-roam
+    :straight t
+    :custom
+    (org-roam-directory "~/Projects/org-files/roam")
+    (setq org-roam-dailies-directory "daily/")
+    (org-roam-completion-everywhere t)
+    :bind (("C-c n l" . org-roam-buffer-toggle)
+	   ("<f4>" . org-roam-node-find)
+	   ("C-c n i" . org-roam-node-insert)
+	   ("<f12>" . org-roam-dailies-goto-today)
+	   ;; :map org-mode-map
+	   ;; ("C-M-i" . completion-at-point)
+	   :map org-roam-dailies-map
+	   ("Y" . org-roam-dailies-capture-yesterday)
+	   ("T" . org-roam-dailies-capture-tomorrow))
+    :bind-keymap
+    ("C-c n d" . org-roam-dailies-map)
+    :config
+    (require 'org-roam-dailies) ;; Ensure the keymap is available
+    (org-roam-db-autosync-mode))
+#+end_src
+* Flycheck
+#+begin_src elisp
+  (use-package flycheck
+    :straight t
+    :init
+    (global-flycheck-mode)
+    :bind (:map flycheck-mode-map
+                ("C-c f n" . flycheck-next-error) ; optional but recommended error navigation
+                ("C-c f p" . flycheck-previous-error))
+    :config
+    ;; (setq-default flycheck-highlighting-mode 'lines)
+    ;; (when (fboundp 'define-fringe-bitmap)
+    ;;   (define-fringe-bitmap 'my-flycheck-fringe-indicator
+    ;;     (vector #b00000000
+    ;;             #b00000000
+    ;;             #b00000000
+    ;;             #b00000000
+    ;;             #b00000000
+    ;;             #b00000000
+    ;;             #b00000000
+    ;;             #b00011100
+    ;;             #b00111110
+    ;;             #b00111110
+    ;;             #b00111110
+    ;;             #b00011100
+    ;;             #b00000000
+    ;;             #b00000000
+    ;;             #b00000000
+    ;;             #b00000000
+    ;;             #b00000000)))
+
+    ;; (flycheck-define-error-level 'error
+    ;;   :severity 2
+    ;;   :overlay-category 'flycheck-error-overlay
+    ;;   :fringe-bitmap 'my-flycheck-fringe-indicator
+    ;;   :fringe-face 'flycheck-fringe-error)
+    ;; (flycheck-define-error-level 'warning
+    ;;   :severity 1
+    ;;   :overlay-category 'flycheck-warning-overlay
+    ;;   :fringe-bitmap 'my-flycheck-fringe-indicator
+    ;;   :fringe-face 'flycheck-fringe-warning)
+    ;; (flycheck-define-error-level 'info
+    ;;   :severity
+    ;;   :overlay-category 'flycheck-info-overlay
+    ;;   :fringe-bitmap 'my-flycheck-fringe-indicator
+    ;;   :fringe-face 'flycheck-fringe-info)
+    ;; (setq-default flycheck-disabled-checkers
+    ;;               (append flycheck-disabled-checkers
+    ;;                       '(javascript-jshint json-jsonlist)))
+
+    ;; ;;Get rid of the background color in the Fringe area
+    ;; (set-face-attribute 'fringe nil
+    ;;                     :foreground (face-foreground 'default)
+    ;;                     :background (face-background 'default))
+    ;; (fringe-mode 15)
+    )
+
+#+end_src
+
+* Language Servers
+#+begin_src elisp
+  (use-package lsp-mode
+    :straight t
+    :diminish "LSP"
+    :hook ((lsp-mode . lsp-diagnostics-mode)
+           (lsp-mode . lsp-enable-which-key-integration)
+           ((tsx-ts-mode
+             typescript-ts-mode
+             js-ts-mode) . lsp-deferred))
+    ;;:commands (lsp lsp-deferred)
+    :custom
+    (lsp-keymap-prefix "C-c l")           ; Prefix for LSP actions
+    (lsp-completion-provider :none)       ; Using Corfu as the provider
+    (lsp-diagnostics-provider :flycheck)
+    (lsp-session-file (locate-user-emacs-file ".lsp-session"))
+    (lsp-log-io nil)                      ; IMPORTANT! Use only for debugging! Drastically affects performance
+    (lsp-keep-workspace-alive nil)        ; Close LSP server if all project buffers are closed
+    (lsp-idle-delay 0.5)                  ; Debounce timer for `after-change-function'
+    ;; core
+    (lsp-enable-xref t)                   ; Use xref to find references
+    (lsp-auto-configure t)                ; Used to decide between current active servers
+    (lsp-eldoc-enable-hover t)            ; Display signature information in the echo area
+    (lsp-enable-dap-auto-configure t)     ; Debug support
+    (lsp-enable-file-watchers nil)
+    (lsp-enable-folding t)              ; I disable folding since I use origami
+    (lsp-enable-imenu t)
+    (lsp-enable-indentation nil)          ; I use prettier
+    (lsp-enable-links nil)                ; No need since we have `browse-url'
+    (lsp-enable-on-type-formatting nil)   ; Prettier handles this
+    (lsp-enable-suggest-server-download t) ; Useful prompt to download LSP providers
+    (lsp-enable-symbol-highlighting t)     ; Shows usages of symbol at point in the current buffer
+    (lsp-enable-text-document-color nil)   ; This is Treesitter's job
+
+    (lsp-ui-sideline-show-hover nil)      ; Sideline used only for diagnostics
+    (lsp-ui-sideline-diagnostic-max-lines 20) ; 20 lines since typescript errors can be quite big
+    ;; completion
+    (lsp-completion-enable t)
+    (lsp-completion-enable-additional-text-edit t) ; Ex: auto-insert an import for a completion candidate
+    (lsp-enable-snippet t)                         ; Important to provide full JSX completion
+    (lsp-completion-show-kind t)                   ; Optional
+    ;; headerline
+    (lsp-headerline-breadcrumb-enable nil)  ; Optional, I like the breadcrumbs
+    (lsp-headerline-breadcrumb-enable-diagnostics nil) ; Don't make them red, too noisy
+    (lsp-headerline-breadcrumb-enable-symbol-numbers nil)
+    (lsp-headerline-breadcrumb-icons-enable nil)
+    ;; modeline
+    (lsp-modeline-code-actions-enable nil) ; Modeline should be relatively clean
+    (lsp-modeline-diagnostics-enable nil)  ; Already supported through `flycheck'
+    (lsp-modeline-workspace-status-enable nil) ; Modeline displays "LSP" when lsp-mode is enabled
+    (lsp-signature-auto-active t)
+    (lsp-signature-doc-lines 1)                ; Don't raise the echo area. It's distracting
+    (lsp-ui-doc-use-childframe t)              ; Show docs for symbol at point
+    (lsp-eldoc-render-all nil)            ; This would be very useful if it would respect `lsp-signature-doc-lines', currently it's distracting
+    ;; lens
+    (lsp-lens-enable nil)                 ; Optional, I don't need it
+    ;; semantic
+    (lsp-semantic-tokens-enable nil)      ; Related to highlighting, and we defer to treesitter
+
+    :init
+    (setq lsp-use-plists nil))
+
+  (use-package lsp-completion
+        :hook ((lsp-mode . lsp-completion-mode)))
+
+  (use-package lsp-ui
+    :straight t
+    :commands
+    (lsp-ui-doc-show
+     lsp-ui-doc-glance)
+    :bind (:map lsp-mode-map
+                ("C-c C-d" . 'lsp-ui-doc-glance)
+                ("C-c ." . 'lsp-execute-code-action))
+    :after (lsp-mode)
+    :config (setq lsp-ui-doc-enable t
+                  lsp-ui-doc-show-with-cursor nil      ; Don't show doc when cursor is over symbol - too distracting
+                  lsp-ui-doc-include-signature t       ; Show signature
+                  lsp-ui-doc-position 'at-point))
+#+end_src
+
+** Tailwind
+#+begin_src elisp
+  (use-package lsp-tailwindcss
+    :straight '(lsp-tailwindcss :type git :host github :repo "merrickluo/lsp-tailwindcss")
+    :init (setq lsp-tailwindcss-add-on-mode t)
+    :config
+    (dolist (tw-major-mode
+             '(css-mode
+               css-ts-mode
+               typescript-mode
+               typescript-ts-mode
+               tsx-ts-mode
+               js2-mode
+               js-ts-mode
+               clojure-mode))
+      (add-to-list 'lsp-tailwindcss-major-modes tw-major-mode)))
+#+end_src
+
+** Typescript
+#+begin_src elisp
+  (use-package pretty-ts-errors
+    :defer t
+    :straight '(pretty-ts-errors :type git  :host github :repo "artawower/pretty-ts-errors.el"))
+#+end_src
+* Eslint
+#+begin_src elisp
+  (use-package lsp-eslint
+        :after lsp-mode)
+#+end_src
+
+* Yasnippet
+#+begin_src elisp
+  (use-package yasnippet
+    :straight t
+    :init
+    :config
+    (yas-load-directory "~/.emacs.d/snippets")
+    (yas-global-mode 1))
+#+end_src
+* Projectile
+#+begin_src elisp
+  (use-package projectile
+    :straight t
+    :init
+    (projectile-mode +1)
+    :bind (
+	   ("C-c p" . projectile-command-map)
+	   ("M-[" . projectile-previous-project-buffer)
+	   ("M-]" . projectile-next-project-buffer))
+    :config
+    (setq projectile-indexing-method 'hybrid
+	  projectile-sort-order 'recently-active
+	  compilation-read-command nil
+	  projectile-comint-mode t)
+
+    (add-to-list 'projectile-globally-ignored-directories "node_modules")
+    (add-to-list 'projectile-globally-ignored-files "yarn.lock")
+    :custom
+    (projectile-globally-ignored-buffers '("*scratch*" "*lsp-log*" "*xref*" "*EGLOT" "*Messages*" "*compilation" "*vterm*" "*Flymake")))
+#+end_src
+
+* Vertigo
+#+begin_src elisp
+    (use-package vertico
+      :straight t
+      :init
+      (vertico-mode)
+      :custom
+      (vertico-group-separator ((t (:inherit all-the-icons-dorange :strike-through t))))
+      (vertico-group-title ((t (:inherit all-the-icons-dorange :slant italic)))))
+
+    (use-package savehist
+      :init
+      (savehist-mode))
+
+    (use-package orderless
+      :straight t
+      :custom
+      (completion-styles '(orderless basic))
+      (completion-category-overrides '((file (styles basic partial-completion)))))
+#+end_src
+** Postframe
+#+begin_src elisp
+  (use-package vertico-posframe
+    :init (vertico-posframe-mode)
+    :straight t
+    :config
+    (setq vertico-multiform-commands
+          '((consult-line (:not posframe))
+            (consult-theme (:not posframe))
+            (consult-ripgrep (:not posframe))
+            (consult-org-heading (:not posframe))
+            (consult-xref (:not posframe))
+            (consult-imenu (:not posframe))
+            (t posframe)))
+    (setq vertico-posframe-parameters
+          '((left-fringe . 8)
+          (right-fringe . 8)))
+    (vertico-multiform-mode t))
+#+end_src
+
+* Consult
+#+begin_src elisp
+  (use-package consult
+    :straight t
+    :bind (("C-M-l" . consult-imenu)
+           ("C-s" . consult-line)
+           ("C-M-g" . consult-ripgrep)
+           ("C-M-o" . consult-org-heading)
+           ("C-x C-b" . consult-buffer)
+           ("C-x b" . consult-project-buffer))
+    :hook (completion-list-mode . consult-preview-at-point-mode)
+    :init
+    (autoload 'projectile-project-root "projectile")
+    (setq register-preview-delay 0
+          register-preview-function #'consult-register-format
+          xref-show-xrefs-function #'consult-xref
+          xref-show-definitions-function #'consult-xref))
+#+end_src
+** Consult org
+#+begin_src elisp
+  (use-package consult-org-roam
+     :straight t
+     :after org-roam
+     :init
+     (require 'consult-org-roam)
+     ;; Activate the minor mode
+     (consult-org-roam-mode 1)
+     :custom
+     ;; Use `ripgrep' for searching with `consult-org-roam-search'
+     (consult-org-roam-grep-func #'consult-ripgrep)
+     ;; Configure a custom narrow key for `consult-buffer'
+     (consult-org-roam-buffer-narrow-key ?r)
+     ;; Display org-roam buffers right after non-org-roam buffers
+     ;; in consult-buffer (and not down at the bottom)
+     (consult-org-roam-buffer-after-buffers t)
+     :config
+     ;; Eventually suppress previewing for certain functions
+     (consult-customize
+      consult-org-roam-forward-links
+      :preview-key (kbd "M-."))
+     :bind
+     ;; Define some convenient keybindings as an addition
+     ("C-c n e" . consult-org-roam-file-find)
+     ("C-c n b" . consult-org-roam-backlinks)
+     ("C-c n l" . consult-org-roam-forward-links)
+     ("C-c n r" . consult-org-roam-search))
+#+end_src
+* Prettier
+#+begin_src elisp
+  (use-package prettier-js
+    :straight t
+    :ensure-system-package (prettier . "npm i -g prettier")
+    :hook ((typescript-ts-mode . prettier-js-mode)
+	   (js-ts-mode . prettier-js-mode)
+	   (tsx-ts-mode . prettier-js-mode)))
+#+end_src
+
+* Zencoding
+#+begin_src elisp
+  (use-package emmet-mode
+    :straight t
+    :hook ((web-mode tsx-ts-mode typescript-ts-mode) . emmet-mode)
+    :config
+    (setq emmet-indent-after-insert nil
+	  emmet-indentation 2
+	  emmet-expand-jsx-className? t
+	  emmet-move-cursor-between-quotes t
+	  emmet-self-closing-tag-style " /")
+    (add-to-list 'emmet-jsx-major-modes 'tsx-ts-mode))
+
+#+end_src
+
+* Aider
+#+begin_src elisp
+  (use-package aidermacs
+    :straight (:host github :repo "MatthewZMD/aidermacs" :files ("*.el"))
+    :config
+    (setq aidermacs-args '("--model" "openai/mlx-community/deepseek-r1-distill-qwen-7b"))
+    (setenv "OPENAI_API_BASE" "http://127.0.0.1:1234/v1")
+    (setenv "OPENAI_API_KEY" "lm-studio")
+    (setenv "OLLAMA_API_BASE" "http://127.0.0.1:11434")
+    (global-set-key (kbd "C-c i") 'aidermacs-transient-menu))
+#+end_src
+* Eldoc
+#+begin_src elisp
+  (use-package eldoc-box
+    :straight t
+    :bind ("C-h ." . eldoc-box-help-at-point))
+#+end_src
+

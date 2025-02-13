@@ -1,1 +1,1 @@
-(org-babel-load-file "~/.emacs.d/readme.org")
+(org-babel-load-file "~/.emacs.d/new.org")
