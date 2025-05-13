@@ -230,13 +230,6 @@ Writing yes or no is length, type y / n instead
 * Keep .emacs.d clean
 I don't want a bunch of transient files showing up as untracked in the Git repo so I move them all to another location.
 #+begin_src elisp
-  (setq custom-file
-        (if (boundp 'server-socket-dir)
-            (expand-file-name "custom.el" server-socket-dir)
-          (expand-file-name (format "emacs-custom-%s.el" (user-uid)) temporary-file-directory)))
-  (add-hook 'elpaca-after-init-hook (lambda () (load custom-file 'noerror)))
-
-
   (setq backup-directory-alist
         `((".*" . ,temporary-file-directory))
         auto-save-file-name-transforms
