@@ -1,0 +1,15 @@
+diff a/new.org b/new.org	(rejected hunks)
+@@ -384,6 +384,13 @@ Yank ring
+     (os/setup-install-grammars))
+ #+end_src
+ 
++yasnippet
++#+begin_src elisp
++  (eval-after-load 'yasnippet
++    '(let ((dir "~/.emacs.d/snippets/web-mode"))
++        (add-to-list 'yas-snippet-dirs dir)
++        (yas-load-directory dir)))
++#+end_src
+ * Corfu
+ #+begin_src elisp
+   (use-package corfu

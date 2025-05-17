@@ -43,13 +43,13 @@
 (use-package doom-themes
   :config
   ;; Global settings (defaults)
-  (setq doom-themes-enable-bold t      ; if nil, bold is universally disabled
-        doom-themes-enable-italic t)   ; if nil, italics is universally disabled
+  (setq doom-themes-treemacs-theme "doom-colors"
+   dark-theme "doom-tokyo-night"
+   light-theme "doom-fairy-floss"
+   doom-themes-enable-bold t      ; if nil, bold is universally disabled
+   doom-themes-enable-italic t)   ; if nil, italics is universally disabled
   (load-theme 'doom-one t)
-
-  ;; Enable flashing mode-line on errors
-  (doom-themes-visual-bell-config)
-
+  (set-face-attribute 'default nil :font "Menlo 13")
   ;; Corrects (and improves) org-mode's native fontification
   (doom-themes-org-config))
 
@@ -62,14 +62,6 @@
         doom-modeline-project-detection 'projectile
         doom-modeline-buffer-file-name-style 'truncate-with-project))
 
-;; File management
-(recentf-mode 1)
-(setq recentf-max-menu-items 25
-      recentf-max-saved-items 25)
-
-;; Save minibuffer history
-(savehist-mode 1)
-(setq history-length 1000)
 
 ;; Remember cursor position
 (save-place-mode 1)
@@ -79,7 +71,9 @@
 
 ;; Buffer Navigation
 (global-set-key (kbd "C-x C-b") 'ibuffer)
-(global-set-key (kbd "M-o") 'other-window)
+(global-set-key (kbd "<C-tab>") #'other-window)
+(global-set-key (kbd "<C-S-tab>") #'(lambda () (interactive) (other-window -1)))
+
 
 ;; Better help
 (use-package helpful
@@ -99,7 +93,6 @@
 (when (eq system-type 'darwin)
   (setq mac-option-modifier 'alt
         mac-command-modifier 'meta
-        mac-right-option-modifier 'none ; use right option for special chars
         ns-use-native-fullscreen t)
 
   ;; Set up exec-path-from-shell to get environment variables from the shell
@@ -114,17 +107,21 @@
 (use-package projectile
   :diminish projectile-mode
   :config (projectile-mode)
-  :bind-keymap
-  ("C-c p" . projectile-command-map)
-  :init
+  :bind (
+	 ("C-c p" . projectile-command-map)
+	 ("M-[" . projectile-previous-project-buffer)
+	 ("M-]" . projectile-next-project-buffer))
+  :config
   (setq projectile-project-search-path '("~/Projects")
         projectile-sort-order 'recently-active
         projectile-indexing-method 'hybrid)
-  (add-to-list 'projectile-globally-ignored-directories "node_modules")
-  (add-to-list 'projectile-globally-ignored-directories "dist")
-  (add-to-list 'projectile-globally-ignored-directories ".cache")
+  (add-to-list 'projectile-globally-ignored-directories "*node_modules")
+  (add-to-list 'projectile-globally-ignored-directories "*dist")
+  (add-to-list 'projectile-globally-ignored-directories "*.cache")
   (add-to-list 'projectile-globally-ignored-files "yarn.lock")
-  (add-to-list 'projectile-globally-ignored-files "package-lock.json"))
+  (add-to-list 'projectile-globally-ignored-files "package-lock.json")
+  :custom
+  (projectile-globally-ignored-buffers '("*scratch*" "*lsp-log*" "*xref*" "*EGLOT" "*Messages*" "*compilation" "*vterm*" "*Flymake")))
 
 ;; Git integration
 (use-package magit
@@ -147,39 +144,56 @@
 ;; Completion systems
 (use-package vertico
   :init
-  (vertico-mode))
+  (vertico-mode)
+  :custom
+  (vertico-group-separator ((t (:inherit all-the-icons-dorange :strike-through t))))
+  (vertico-group-title ((t (:inherit all-the-icons-dorange :slant italic)))))
 
 (use-package savehist
   :init
   (savehist-mode))
 
 (use-package orderless
-  :init
+  :config
   (setq completion-styles '(orderless basic)
         completion-category-defaults nil
         completion-category-overrides '((file (styles partial-completion)))))
 
-(use-package marginalia
-  :after vertico
-  :init
-  (marginalia-mode))
-
 (use-package consult
-  :bind (("C-s" . consult-line)
-         ("C-M-l" . consult-imenu)
-         ("C-x b" . consult-buffer)
-         ("C-x 4 b" . consult-buffer-other-window)
-         ("C-x 5 b" . consult-buffer-other-frame)
-         ("C-x r b" . consult-bookmark)
-         ("M-g g" . consult-goto-line)
-         ("M-g M-g" . consult-goto-line)
-         ("C-c s" . consult-ripgrep))
-  :hook (completion-list-mode . consult-preview-at-point-mode))
+  :bind (("C-M-l" . consult-imenu)
+         ("C-s" . consult-line)
+         ("C-M-g" . consult-ripgrep)
+         ("C-M-o" . consult-org-heading)
+         ("C-x C-b" . consult-buffer)
+         ("C-x b" . consult-project-buffer))
+  :hook (completion-list-mode . consult-preview-at-point-mode)
+  :init
+  (autoload 'projectile-project-root "projectile")
+  (setq register-preview-delay 0
+        register-preview-function #'consult-register-format
+        xref-show-xrefs-function #'consult-xref
+        xref-show-definitions-function #'consult-xref))
 
 ;; Provide better documentation
 (use-package eldoc
   :diminish eldoc-mode
   :init
   (global-eldoc-mode))
+
+(use-package vertico-posframe
+    :init (vertico-posframe-mode)
+    :config
+    (setq vertico-multiform-commands
+          '((consult-line (:not posframe))
+            (consult-theme (:not posframe))
+            (consult-ripgrep (:not posframe))
+            (consult-org-heading (:not posframe))
+            (consult-xref (:not posframe))
+            (consult-imenu (:not posframe))
+            (t posframe)))
+    (setq vertico-posframe-parameters
+          '((left-fringe . 8)
+          (right-fringe . 8)))
+    (vertico-multiform-mode t))
 
 ;;; base.el ends here

@@ -1,0 +1,26 @@
+;;;; Emacs Bookmark Format Version 1;;;; -*- coding: utf-8-emacs; mode: lisp-data -*-
+;;; This format is meant to be slightly human-readable;
+;;; nevertheless, you probably don't want to edit it.
+;;; -*- End Of Bookmark File Format Version Stamp -*-
+(("scratch.org" (filename . "~/Projects/TheClearCut/scratch.org")
+ (front-context-string . "password\n#+begin")
+ (rear-context-string . "\n\n* Reset users ") (position . 3259)
+ (last-modified 26632 59952 349851 0))
+("org-capture-last-stored"
+ (filename . "~/Projects/org-files/roam/20250430175345-luis.org")
+ (front-context-string . "\n* 1. Framing - ")
+ (rear-context-string . ":\n#+title: Luis\n") (position . 82)
+ (last-modified 26642 36336 971795 0))
+("org-capture-last-stored<2>"
+ (filename
+  . "~/Projects/org-files/roam/20250214091629-vaporizador.org")
+ (front-context-string . "\n* Sessão Escalo")
+ (rear-context-string . "le: Vaporizador\n") (position . 89)
+ (last-modified 26543 13381 989840 0))
+("org-capture-last-stored<3>"
+ (filename
+  . "~/Projects/org-files/roam/20250214091629-vaporizador.org")
+ (front-context-string . "\n* Sessão Escalo")
+ (rear-context-string . "le: Vaporizador\n") (position . 89)
+ (last-modified 26543 13381 989840 0))
+)

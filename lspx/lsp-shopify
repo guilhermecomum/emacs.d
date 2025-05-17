@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+# astro-ls (wrapper)
+deno run -E --allow-run jsr:@frontside/lspx \
+     --lsp "tailwindcss-language-server --stdio" \
+     --lsp "typescript-language-server --stdio" \
+     --lsp "shopify theme language-server"
+
+

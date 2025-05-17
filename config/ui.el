@@ -4,6 +4,7 @@
 ;; ==============
 
 ;; Font settings
+
 (set-face-attribute 'default nil :font "Menlo" :height 130)
 (set-face-attribute 'variable-pitch nil :font "Verdana" :height 130)
 
@@ -16,16 +17,15 @@
 
 ;; Dashboard - a nicer startup screen
 (use-package dashboard
+  :ensure t
   :config
-  (setq dashboard-banner-logo-title "Welcome to Emacs!")
-  (setq dashboard-startup-banner 'logo)
-  (setq dashboard-items '((recents . 5)
-                          (projects . 5)
-                          (agenda . 5)))
-  (setq dashboard-center-content t)
-  (setq dashboard-set-heading-icons t)
-  (setq dashboard-set-file-icons t)
+  (setq dashboard-banner-logo-title "Olá, bem vindo ao Emacs"
+        dashboard-startup-banner "~/.emacs.d/nyan-cat.png"
+        dashboard-center-content t
+        dashboard-agenda-release-buffers t
+        dashboard-items '((projects . 5) (agenda . 5)))
   (dashboard-setup-startup-hook))
+
 
 ;; Rainbow delimiters for clearer code
 (use-package rainbow-delimiters
@@ -41,20 +41,15 @@
   :config
   (require 'smartparens-config))
 
-;; Highlight indentation for clearer code structure
-(use-package highlight-indent-guides
-  :hook (prog-mode . highlight-indent-guides-mode)
-  :config
-  (setq highlight-indent-guides-method 'character
-        highlight-indent-guides-responsive 'top))
-
 ;; File tree navigation
 (use-package neotree
-  :bind ([f9] . neotree-toggle)
+  :bind([f9] . neotree-toggle)
+  :hook (neo-after-create . (lambda (_)(call-interactively 'text-scale-twice)))
   :config
-  (setq neo-theme (if (display-graphic-p) 'icons 'arrow)
-        neo-smart-open t
-        neo-window-fixed-size nil))
+  (setq neo-autorefresh nil)
+  (setq neo-smart-open t)
+  (with-eval-after-load 'neotree
+    (define-key neotree-mode-map (kbd "h") 'neotree-hidden-file-toggle)))
 
 ;; Multiple cursors for efficient editing
 (use-package multiple-cursors
@@ -62,13 +57,6 @@
   (("C->" . mc/mark-next-like-this)
    ("C-<" . mc/mark-previous-like-this)
    ("C-c C->" . mc/mark-all-like-this)))
-
-;; Visual filling for docs and text
-(use-package visual-fill-column
-  :hook (org-mode . visual-fill-column-mode)
-  :config
-  (setq-default visual-fill-column-width 100)
-  (setq-default visual-fill-column-center-text t))
 
 ;; Display line numbers in programming modes
 (add-hook 'prog-mode-hook 'display-line-numbers-mode)
@@ -89,15 +77,6 @@
 (setq scroll-margin 0
       scroll-conservatively 100000
       scroll-preserve-screen-position 1)
-
-;; Posframe - floating windows for vertico, corfu, etc.
-(use-package vertico-posframe
-  :after vertico
-  :config
-  (vertico-posframe-mode 1)
-  (setq vertico-posframe-parameters
-        '((left-fringe . 8)
-          (right-fringe . 8))))
 
 ;; Nyan cat - because why not?
 (use-package nyan-mode

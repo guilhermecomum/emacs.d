@@ -55,13 +55,13 @@
   (add-to-list 'completion-at-point-functions #'cape-keyword))
 
 ;; Popup documentation
-(use-package corfu-doc
+(use-package corfu-popupinfo
   :after corfu
-  :hook (corfu-mode . corfu-doc-mode)
+  :hook (corfu-mode . corfu-popupinfo-mode)
   :custom
-  (corfu-doc-delay 0.5)
-  (corfu-doc-max-width 70)
-  (corfu-doc-max-height 20))
+  (corfu-popupinfo-delay 0.5)
+  (corfu-popupinfo-max-width 70)
+  (corfu-popupinfo-max-height 20))
 
 ;; Snippets
 (use-package yasnippet
@@ -73,13 +73,6 @@
 ;; Predefined snippets
 (use-package yasnippet-snippets
   :after yasnippet)
-
-;; Create a directory for custom snippets
-(unless (file-directory-p "~/.emacs.d/snippets")
-  (make-directory "~/.emacs.d/snippets"))
-
-;; Add the directory to the snippets path
-(add-to-list 'yas-snippet-dirs "~/.emacs.d/snippets")
 
 ;; Enhanced text selection
 (use-package expand-region

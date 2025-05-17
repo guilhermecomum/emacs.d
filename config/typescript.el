@@ -56,25 +56,7 @@
   :mode ("\\.json\\'" . json-ts-mode)
   :hook (json-ts-mode . prettier-js-mode))
 
-;; Console log snippets
-(use-package js-console-log
-  :straight (:host github :repo "xuchunyang/js-console-log")
-  :bind (("C-c C-l" . js-console-log-insert-log)))
 
-;; Add the ability to import from node_modules using import-js
-(use-package import-js
-  :hook ((typescript-ts-mode js-ts-mode tsx-ts-mode) . import-js-mode))
-
-;; ESLint integration
-(use-package flycheck-eslint
-  :after flycheck
-  :config
-  (add-hook 'flycheck-mode-hook
-            (lambda ()
-              (when (or (eq major-mode 'typescript-ts-mode)
-                        (eq major-mode 'js-ts-mode)
-                        (eq major-mode 'tsx-ts-mode))
-                (flycheck-add-next-checker 'lsp 'javascript-eslint)))))
 
 ;; Better JSX editing support
 (use-package rjsx-mode
@@ -96,11 +78,6 @@
   :hook ((typescript-ts-mode js-ts-mode tsx-ts-mode) . npm-mode)
   :config
   (npm-global-mode))
-
-;; Add Jest support
-(use-package jest
-  :straight (:host github :repo "Emiller88/jest-test-mode")
-  :hook ((typescript-ts-mode js-ts-mode tsx-ts-mode) . jest-minor-mode))
 
 ;; Auto rename paired tags
 (use-package auto-rename-tag

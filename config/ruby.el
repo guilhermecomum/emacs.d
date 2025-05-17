@@ -99,14 +99,6 @@
   :config
   (setq ruby-test-rspec-options '("--format documentation")))
 
-;; Seeing is Believing integration for inline evaluation
-(use-package seeing-is-believing
-  :straight (:host github :repo "justinbarclay/seeing-is-believing-mode")
-  :hook (ruby-ts-mode . seeing-is-believing)
-  :bind (:map seeing-is-believing-keymap
-              ("C-c C-c" . seeing-is-believing-run)
-              ("C-c C-x" . seeing-is-believing-clear)))
-
 ;; Language server setup for Ruby
 (use-package lsp-mode
   :config

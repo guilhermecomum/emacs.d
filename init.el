@@ -1,4 +1,5 @@
 ;;; init.el --- Emacs configuration -*- lexical-binding: t -*-
+(load-theme 'misterioso)
 
 ;; Set up straight.el package manager
 (defvar bootstrap-version)
@@ -27,11 +28,11 @@
 (load-config-file "config/base.el")        ;; Base configuration
 (load-config-file "config/ui.el")          ;; UI configuration
 (load-config-file "config/editor.el")      ;; Editing enhancements
-(load-config-file "config/dev-core.el")    ;; Core development tools
-(load-config-file "config/typescript.el")  ;; TypeScript/JavaScript config
-(load-config-file "config/ruby.el")        ;; Ruby config
-(load-config-file "config/web.el")         ;; Web development (HTML, CSS, Shopify)
-(load-config-file "config/org.el")         ;; Org-mode configuration
+;; (load-config-file "config/dev-core.el")    ;; Core development tools
+;; (load-config-file "config/typescript.el")  ;; TypeScript/JavaScript config
+;; (load-config-file "config/ruby.el")        ;; Ruby config
+;; (load-config-file "config/web.el")         ;; Web development (HTML, CSS, Shopify)
+;; (load-config-file "config/org.el")         ;; Org-mode configuration
 
 ;; Keep customization settings in a separate file
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))

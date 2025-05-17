@@ -1,0 +1,7 @@
+;;; Elfeed Database Index (version 4)
+
+;; Dummy index for backwards compatablity:
+(:version "0.0.3" :feeds #s(hash-table test equal) :entries #s(hash-table test equal) :index [cl-struct-avl-tree- [nil nil nil 0] elfeed-db-compare])
+
+;; Real index:
+(:version 4 :feeds #s(hash-table test equal) :entries #s(hash-table test equal) :index #s(avl-tree- [nil nil nil 0] elfeed-db-compare))
