@@ -1,13 +1,41 @@
-(org-babel-load-file "~/.emacs.d/new.org")
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(safe-local-variable-values '((projectile-project-compilation-cmd . "tsc"))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+;;; init.el --- Emacs configuration -*- lexical-binding: t -*-
+
+;; Set up straight.el package manager
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 6))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+
+;; Configure use-package with straight.el
+(straight-use-package 'use-package)
+(setq straight-use-package-by-default t) ;; Always use straight.el for use-package
+
+;; Load modular configuration files
+(defun load-config-file (file)
+  "Load the configuration file FILE."
+  (load (expand-file-name file user-emacs-directory)))
+
+;; Load configuration modules
+(load-config-file "config/base.el")        ;; Base configuration
+(load-config-file "config/ui.el")          ;; UI configuration
+(load-config-file "config/editor.el")      ;; Editing enhancements
+(load-config-file "config/dev-core.el")    ;; Core development tools
+(load-config-file "config/typescript.el")  ;; TypeScript/JavaScript config
+(load-config-file "config/ruby.el")        ;; Ruby config
+(load-config-file "config/web.el")         ;; Web development (HTML, CSS, Shopify)
+(load-config-file "config/org.el")         ;; Org-mode configuration
+
+;; Keep customization settings in a separate file
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+(when (file-exists-p custom-file)
+  (load custom-file))
+
+;;; init.el ends here
