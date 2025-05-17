@@ -384,6 +384,26 @@ Yank ring
     (os/setup-install-grammars))
 #+end_src
 
+* Web mode
+#+begin_src elisp
+  (use-package web-mode
+    :straight t
+    :mode (("\\.html?\\'" . web-mode)
+           ("\\.liquid\\'" . web-mode)
+           ("\\.json\\'" . web-mode))
+    :config
+    (setq web-mode-block-padding 2
+          web-mode-code-indent-offset 2
+          web-mode-comment-style 2
+          web-mode-css-indent-offset 2
+          web-mode-enable-auto-closing t
+          web-mode-enable-auto-indentation nil
+          web-mode-enable-auto-pairing t
+          web-mode-enable-comment-keywords t
+          web-mode-enable-css-colorization t
+          web-mode-enable-current-column-highlight t
+          web-mode-markup-indent-offset 2))
+#+end_src
 * Corfu
 #+begin_src elisp
   (use-package corfu
@@ -615,12 +635,75 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
 #+begin_src elisp
   (use-package lsp-mode
     :straight t
+    :preface
+    (defun lsp-booster--advice-json-parse (old-fn &rest args)
+      "Try to parse bytecode instead of json."
+      (or
+       (when (equal (following-char) ?#)
+
+         (let ((bytecode (read (current-buffer))))
+           (when (byte-code-function-p bytecode)
+             (funcall bytecode))))
+       (apply old-fn args)))
+    (defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
+      "Prepend emacs-lsp-booster command to lsp CMD."
+      (let ((orig-result (funcall old-fn cmd test?)))
+        (if (and (not test?)                             ;; for check lsp-server-present?
+                 (not (file-remote-p default-directory)) ;; see lsp-resolve-final-command, it would add extra shell wrapper
+                 lsp-use-plists
+                 (not (functionp 'json-rpc-connection))  ;; native json-rpc
+                 (executable-find "emacs-lsp-booster"))
+            (progn
+              (message "Using emacs-lsp-booster for %s!" orig-result)
+              (cons "emacs-lsp-booster" orig-result))
+
+          orig-result)))
+    :init
+    (setq lsp-use-plists t)
+    ;; Initiate https://github.com/blahgeek/emacs-lsp-booster for performance
+    (advice-add (if (progn (require 'json)
+                           (fboundp 'json-parse-buffer))
+                    'json-parse-buffer
+                  'json-read)
+                :around
+                #'lsp-booster--advice-json-parse)
+    (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
     :diminish "LSP"
-    :hook ((lsp-mode . lsp-diagnostics-mode)
-           (lsp-mode . lsp-enable-which-key-integration)
+
+    :hook ((web-mode . (lambda ()
+                         (when (string-match-p "\\.liquid\\'" (buffer-file-name))
+                           (lsp))))
+           (json-mode . (lambda ()
+                          (when (string-match-p "\\.json\\'" (buffer-file-name))
+                            (lsp))))
+           (lsp-mode . lsp-diagnostics-mode)
            ((tsx-ts-mode
              typescript-ts-mode
-             js-ts-mode) . lsp-deferred))
+             js-ts-mode) . lsp-deferred)
+           (lsp-mode . lsp-enable-which-key-integration))
+
+    :config
+    (lsp-register-client
+     (make-lsp-client :new-connection (lsp-stdio-connection '("shopify" "theme" "language-server"))
+                      :activation-fn (lambda (file-name major-mode)
+                                       (or (string-match-p "\\.liquid\\'" file-name)
+                                           (and (string-match-p "\\.json\\'" file-name)
+                                                (string-match-p "/assets/" file-name))))
+                      :priority -1
+                      :server-id 'shopify-theme-ls))
+
+
+    (advice-add 'json-parse-string :around
+              (lambda (orig string &rest args)
+                (let ((json-object-type 'plist)
+                      (json-array-type 'vector)
+                      (json-false :false))
+                  (apply orig string args))))
+
+
+    ;; Adjust LSP configuration for Shopify theme files
+    (add-to-list 'lsp-language-id-configuration '("\\.liquid\\'" . "liquid"))
+
     ;;:commands (lsp lsp-deferred)
     :custom
     (lsp-keymap-prefix "C-c l")           ; Prefix for LSP actions
@@ -668,13 +751,11 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
     ;; lens
     (lsp-lens-enable nil)                 ; Optional, I don't need it
     ;; semantic
-    (lsp-semantic-tokens-enable nil)      ; Related to highlighting, and we defer to treesitter
+    (lsp-semantic-tokens-enable nil))      ; Related to highlighting, and we defer to treesitter
 
-    :init
-    (setq lsp-use-plists nil))
 
   (use-package lsp-completion
-        :hook ((lsp-mode . lsp-completion-mode)))
+    :hook ((lsp-mode . lsp-completion-mode)))
 
   (use-package lsp-ui
     :straight t
@@ -709,6 +790,20 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
       (add-to-list 'lsp-tailwindcss-major-modes tw-major-mode)))
 #+end_src
 
+
+
+** Shopify
+#+begin_src elisp
+  (with-eval-after-load 'lsp-mode
+    (add-to-list 'lsp-language-id-configuration
+      '(web-mode . "\\.liquid\\'"))
+
+    (lsp-register-client
+      (make-lsp-client :new-connection (lsp-stdio-connection '("shopify" "theme" "language-server"))
+                       :activation-fn (lsp-activate-on "\\.liquid\\'")
+                       :server-id 'theme-check)))
+#+end_src
+
 ** Typescript
 #+begin_src elisp
   (use-package pretty-ts-errors
@@ -718,7 +813,9 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
 * Eslint
 #+begin_src elisp
   (use-package lsp-eslint
-        :after lsp-mode)
+    :config
+    (setq lsp-eslint-server-command '("vscode-eslint-language-server" "--stdio"))
+    :after lsp-mode)
 #+end_src
 
 * Yasnippet
@@ -845,8 +942,9 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
     :straight t
     :ensure-system-package (prettier . "npm i -g prettier")
     :hook ((typescript-ts-mode . prettier-js-mode)
-	   (js-ts-mode . prettier-js-mode)
-	   (tsx-ts-mode . prettier-js-mode)))
+           (js-ts-mode . prettier-js-mode)
+           (web-mode . prettier-js-mode)
+           (tsx-ts-mode . prettier-js-mode)))
 #+end_src
 
 * Zencoding
@@ -864,17 +962,7 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
 
 #+end_src
 
-* Aider
-#+begin_src elisp
-  (use-package aidermacs
-    :straight (:host github :repo "MatthewZMD/aidermacs" :files ("*.el"))
-    :config
-    (setq aidermacs-args '("--model" "openai/mlx-community/deepseek-r1-distill-qwen-7b"))
-    (setenv "OPENAI_API_BASE" "http://127.0.0.1:1234/v1")
-    (setenv "OPENAI_API_KEY" "lm-studio")
-    (setenv "OLLAMA_API_BASE" "http://127.0.0.1:11434")
-    (global-set-key (kbd "C-c i") 'aidermacs-transient-menu))
-#+end_src
+
 * Eldoc
 #+begin_src elisp
   (use-package eldoc-box
@@ -882,3 +970,126 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
     :bind ("C-h ." . eldoc-box-help-at-point))
 #+end_src
 
+* which-key
+#+begin_src elisp
+  (use-package which-key
+    :straight t
+    :config
+    (which-key-mode))
+#+end_src
+
+* Code Folding
+#+begin_src elisp
+  ;; (use-package yafolding
+  ;;   :straight t
+  ;;   :hook
+  ;;   (prog-mode-hook . yafolding-mode)
+  ;;   :bind ("C-c C-f" . yafolding-toggle-element))
+  (use-package treesit-fold
+    :straight (treesit-fold :type git :host github :repo "emacs-tree-sitter/treesit-fold")
+    :init (global-treesit-fold-mode)
+    :bind ("C-c C-f" . treesit-fold-toggle))
+
+#+end_src
+
+* Restclient
+#+begin_src elisp
+  (use-package restclient :straight t)
+#+end_src
+
+* Languages
+** Ruby
+*** Rubocop
+#+begin_src elisp
+  (use-package rubocop
+    :straight t)
+
+  (use-package rubocopfmt
+    :straight t
+    :hook
+    (ruby-mode . rubocopfmt-mode))
+#+end_src
+
+* SQL
+#+begin_src elisp
+  (use-package sql-indent :straight t)
+  (use-package sqlformat
+    :straight t
+    :config
+    (setq sqlformat-command 'pgformatter
+	  sqlformat-args '("-s2" "-g"))
+    :hook (sql-mode . sqlformat-on-save-mode)
+    :bind (:map sql-mode-map ("C-c C-f" . sqlformat)))
+#+end_src
+* Claude Code
+#+begin_src elisp :tangle no
+  (use-package claude-code
+    :straight (:type git :host github :repo "stevemolitor/claude-code.el" :branch "main"
+                     :files ("*.el" (:exclude "demo.gif")))
+    :bind-keymap
+    ("C-c k" . claude-code-command-map)
+    :hook ((claude-code--start . sm-setup-claude-faces))
+    :config
+    (claude-code-mode))
+#+end_src
+* Compile
+#+begin_src elisp
+  (use-package compile
+    :straight t
+    :custom
+    (compilation-scroll-output 'first-error)
+    (compilation-always-kill t)
+    (compilation-max-output-line-length nil)
+    :hook (compilation-mode . hl-line-mode)
+    :init
+                                          ; from enberg on #emacs
+    (add-hook 'compilation-finish-functions
+              (lambda (buf str)
+                (if (null (string-match ".*exited abnormally.*" str))
+                    ;;no errors, make the compilation window go away in a few seconds
+                    (progn
+                      (run-at-time
+                       "1 sec" nil 'delete-windows-on
+                       (get-buffer-create "*compilation*"))
+                      (message "No Compilation Errors!"))))))
+#+end_src
+
+** Recompile on Save
+#+begin_src elisp
+  (use-package recompile-on-save
+    :straight t
+    ;; Kill the buffer message that pops up after running advice on compile
+    :hook (after-init . (lambda () (run-at-time 1 nil
+                                                (lambda ()
+                                                  (when (get-buffer "*Compile-Log*")
+                                                    (kill-buffer "*Compile-Log*"))
+                                                  (delete-other-windows)))))
+    :init
+    (recompile-on-save-advice compile))
+#+end_src
+
+
+** Fancy Compilation
+#+begin_src elisp
+  (use-package fancy-compilation
+    :straight t
+    :commands (fancy-compilation-mode))
+
+  (with-eval-after-load 'compile
+    (fancy-compilation-mode))
+#+end_src
+* Git fringe
+#+begin_src elisp
+  (use-package git-gutter
+    :straight t
+    :hook (prog-mode . git-gutter-mode)
+    :config
+    (setq git-gutter:update-interval 0.02))
+
+  (use-package git-gutter-fringe
+    :straight t
+    :config
+    (define-fringe-bitmap 'git-gutter-fr:added [224] nil nil '(center repeated))
+    (define-fringe-bitmap 'git-gutter-fr:modified [224] nil nil '(center repeated))
+    (define-fringe-bitmap 'git-gutter-fr:deleted [128 192 224 240] nil nil 'bottom))
+#+end_src
