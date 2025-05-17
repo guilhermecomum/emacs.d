@@ -89,25 +89,9 @@
 
 ;; Add eslint and typescript to path if needed
 (use-package exec-path-from-shell
+  :ensure t
+  :init (exec-path-from-shell-initialize)
   :config
-  (when (memq window-system '(mac ns x))
-    (dolist (cmd '("eslint" "typescript"))
-      (unless (executable-find cmd)
-        (warn "%s not found in exec-path, linting/typechecking might not work properly" cmd)))))
-
-;; Create custom function for running npm/yarn scripts easily
-(defun run-npm-script ()
-  "Run an npm script from package.json"
-  (interactive)
-  (let* ((default-directory (or (project-root (project-current))
-                               default-directory))
-         (cmd (if (file-exists-p (concat default-directory "yarn.lock"))
-                  "yarn"
-                "npm"))
-         (scripts (shell-command-to-string (concat cmd " run")))
-         (script (completing-read "Run script: " (split-string scripts "\n" t))))
-    (compile (concat cmd " run " script))))
-
-(global-set-key (kbd "C-c n r") 'run-npm-script)
+  (setq exec-path-from-shell-variables '("GOPATH" "PATH" "MANPATH")))
 
 ;;; typescript.el ends here

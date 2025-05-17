@@ -35,9 +35,21 @@
   (corfu-auto-delay 0.0)          ; No delay for completion
   (corfu-echo-documentation 0.25) ; Show documentation in echo area
   (corfu-preview-current 'insert) ; Insert the current candidate
-  (corfu-preselect-first t)       ; Preselect first candidate
+  (corfu-preselect 'prompt)
+  (corfu-on-exact-match nil)      ; Don't auto expand tempel snippets
+  (corfu-popupinfo-mode)
+  :bind (:map corfu-map
+              ("M-SPC"      . corfu-insert-separator)
+              ("TAB"        . corfu-next)
+              ([tab]        . corfu-next)
+              ("S-TAB"      . corfu-previous)
+              ([backtab]    . corfu-previous)
+              ("S-<return>" . corfu-insert)
+              ("RET"        . corfu-insert))
   :init
   (global-corfu-mode)
+  (corfu-history-mode)
+  (corfu-popupinfo-mode) ; Popup completion info
   :config
   ;; Enable Corfu more generally
   (add-hook 'eshell-mode-hook
@@ -54,14 +66,6 @@
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
   (add-to-list 'completion-at-point-functions #'cape-keyword))
 
-;; Popup documentation
-(use-package corfu-popupinfo
-  :after corfu
-  :hook (corfu-mode . corfu-popupinfo-mode)
-  :custom
-  (corfu-popupinfo-delay 0.5)
-  (corfu-popupinfo-max-width 70)
-  (corfu-popupinfo-max-height 20))
 
 ;; Snippets
 (use-package yasnippet
@@ -142,4 +146,23 @@
   :config
   (which-key-mode))
 
+
+(defun my/kill-this-buffer ()
+  (interactive)
+  (catch 'quit
+    (save-window-excursion
+      (let (done)
+        (when (and buffer-file-name (buffer-modified-p))
+          (while (not done)
+            (let ((response (read-char-choice
+                             (format "Save file %s? (y, n, d, q) " (buffer-file-name))
+                             '(?y ?n ?d ?q))))
+              (setq done (cond
+                          ((eq response ?q) (throw 'quit nil))
+                          ((eq response ?y) (save-buffer) t)
+                          ((eq response ?n) (set-buffer-modified-p nil) t)
+                          ((eq response ?d) (diff-buffer-with-file) nil))))))
+        (kill-buffer (current-buffer))))))
+;; Remap kill buffer to my/kill-this-buffer
+(global-set-key (kbd "C-x k") 'my/kill-this-buffer)
 ;;; editor.el ends here

@@ -25,7 +25,8 @@
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
    '("32f22d075269daabc5e661299ca9a08716aa8cda7e85310b9625c434041916af"
-     default)))
+     default))
+ '(safe-local-variable-values '((projectile-project-compilation-cmd . "tsc"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
