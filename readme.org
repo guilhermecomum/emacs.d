@@ -112,8 +112,12 @@ Sometimes there is a error on Emacs startup, so this following configs will enab
 #+end_src
 *** Editing
 #+begin_src elisp
-  (global-set-key (kbd "C-c c") 'comment-region)
-  (global-set-key (kbd "C-c d") 'uncomment-region)
+  ;; Enhanced region commenting
+  (use-package evil-nerd-commenter
+    :ensure t
+    :bind ("M-/" . evilnc-comment-or-uncomment-lines))
+  ;; (global-set-key (kbd "C-c c") 'comment-region)
+  ;; (global-set-key (kbd "C-c d") 'uncomment-region)
 #+end_src
 *** Conf
 #+begin_src elisp
@@ -891,8 +895,9 @@ liquid
     :ensure t
     :ensure-system-package (prettier . "npm i -g prettier")
     :hook ((typescript-ts-mode . prettier-js-mode)
-	   (js-ts-mode . prettier-js-mode)
-	   (tsx-ts-mode . prettier-js-mode)))
+           (js-ts-mode . prettier-js-mode)
+           (web-mode . prettier-js-mode)
+           (tsx-ts-mode . prettier-js-mode)))
 #+end_src
 ** Jest mode
 #+begin_src elisp
@@ -921,11 +926,28 @@ liquid
   (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
 #+end_src
 ** ts-comint
+First, we need xterm-color for proper ANSI color handling in comint buffers:
 #+begin_src elisp
+  (use-package xterm-color
+    :ensure t
+    :config
+    ;; Disable the default ansi-color handling in compilation buffers
+    (setq compilation-environment '("TERM=xterm-256color"))
+
+    ;; Remove the default ansi-color handling
+    (defun advice-compilation-filter (f proc string)
+      (funcall f proc (xterm-color-filter string)))
+
+    (advice-add 'compilation-filter :around #'advice-compilation-filter))
+
   (use-package ts-comint
     :ensure (ts-comint
              :type git :host github
-             :repo "nverno/ts-comint"))
+             :repo "nverno/ts-comint")
+    :after xterm-color
+    :config
+    ;; Configure ts-comint to use xterm-color for better ANSI color support
+    (setenv "NODE_NO_READLINE" "1"))
 #+end_src
 * Ruby
 #+begin_src elisp
@@ -1096,7 +1118,7 @@ Original code from https://github.com/joaotavora/eglot/discussions/999
     :ensure t
     :config
     (setq sqlformat-command 'pgformatter
-	  sqlformat-args '("-s2" "-g"))
+          sqlformat-args '("-s2" "-g"))
     :hook (sql-mode . sqlformat-on-save-mode)
     :bind (:map sql-mode-map ("C-c C-f" . sqlformat)))
 #+end_src
