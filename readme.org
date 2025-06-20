@@ -115,7 +115,7 @@ Sometimes there is a error on Emacs startup, so this following configs will enab
   ;; Enhanced region commenting
   (use-package evil-nerd-commenter
     :ensure t
-    :bind ("M-/" . evilnc-comment-or-uncomment-lines))
+    :bind ("C-c c" . evilnc-comment-or-uncomment-lines))
   ;; (global-set-key (kbd "C-c c") 'comment-region)
   ;; (global-set-key (kbd "C-c d") 'uncomment-region)
 #+end_src
