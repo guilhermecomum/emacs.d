@@ -897,6 +897,7 @@ liquid
     :hook ((typescript-ts-mode . prettier-js-mode)
            (js-ts-mode . prettier-js-mode)
            (web-mode . prettier-js-mode)
+           (css-mode . prettier-js-mode)
            (tsx-ts-mode . prettier-js-mode)))
 #+end_src
 ** Jest mode
