@@ -282,8 +282,8 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
     :preface
     (setq
      doom-themes-treemacs-theme "doom-colors"
-     dark-theme "doom-tokyo-night"
-     light-theme "doom-fairy-floss")
+     dark-theme "doom-fairy-floss"
+     light-theme "doom-solarized-light")
     :init
     (load-theme (intern light-theme) t)
 
