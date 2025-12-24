@@ -187,8 +187,18 @@ The following list is from people I have been learning and stealing Emacs config
       (bury-buffer)
       nil))
   (add-hook 'kill-buffer-query-functions #'dont-kill-scratch)
-  ;; Don't ask about variables and functions from .dir-locals
-  (advice-add 'risky-local-variable-p :override #'ignore)
+
+  ;; SECURITY: Don't disable risky variable checks - it's dangerous!
+  ;; Instead, use one of these safer alternatives:
+  ;;
+  ;; Option 1: Automatically accept safe local variables without prompting
+  ;; (setq enable-local-variables :safe)
+  ;;
+  ;; Option 2: Mark specific variables as safe (recommended)
+  ;; (put 'variable-name 'safe-local-variable #'functionp)
+  ;;
+  ;; Option 3: If you really trust all .dir-locals in your projects:
+  ;; (setq enable-local-variables :all)  ; Still safer than disabling checks entirely
 
   (use-package ls-lisp
     :config
@@ -450,9 +460,11 @@ Yank ring
   (use-package multiple-cursors
     :ensure t
     :bind (("A-S-c A-S-c" . mc/edit-lines)
-	   ("C-." . mc/mark-next-like-this)
-	   ("C-," . mc/mark-previous-like-this)
-	   ("A->" . mc/mark-all-like-this)
+	   ("C-S-n" . mc/mark-next-like-this)
+	   ("C-S-p" . mc/mark-previous-like-this)
+	   ("C-c m a" . mc/mark-all-like-this)
+	   ("C-c m n" . mc/mark-next-lines)
+	   ("C-c m p" . mc/mark-previous-lines)
 	   ("C-A-<mouse-1>" . mc/add-cursor-on-click)))
 #+end_src
 ** Unfill paragraph
@@ -775,7 +787,7 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
     :ensure t
     :custom
     (org-roam-directory "~/Projects/org-files/roam")
-    (setq org-roam-dailies-directory "daily/")
+    (org-roam-dailies-directory "daily/")
     (org-roam-completion-everywhere t)
     :bind (("C-c n l" . org-roam-buffer-toggle)
 	   ("<f4>" . org-roam-node-find)
@@ -1075,8 +1087,7 @@ Original code from https://github.com/joaotavora/eglot/discussions/999
     (put 'eglot-error 'flymake-overlay-control nil)
     (put 'eglot-note 'flymake-overlay-control nil)
     (put 'eglot-warning 'flymake-overlay-control nil)
-    (advice-add 'eglot--apply-workspace-edit :after #'me/project-save)
-    (advice-add 'project-kill-buffers :before #'me/eglot-shutdown-project)
+    (advice-add 'project-kill-buffers :before #'eglot-shutdown-project)
     (defclass eglot-sqls (eglot-lsp-server) () :documentation "SQL's Language Server")
     (add-to-list 'eglot-server-programs '((liquid-mode) . ("shopify" "theme" "language-server")))
     (add-to-list 'eglot-server-programs '(sql-mode . (eglot-sqls "sqls")))
