@@ -28,3 +28,4 @@ webkit/
 history
 elpaca
 local.el
+tree-sitter/*
