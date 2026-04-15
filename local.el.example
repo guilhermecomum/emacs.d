@@ -1,0 +1,84 @@
+;;; local.el.example --- Template for per-machine config -*- lexical-binding: t; -*-
+
+;; Copy this file to ~/.emacs.d/local.el on each machine and adjust paths.
+;; It is loaded at the end of the config, so any value set here overrides
+;; the base setup in readme.org.
+;;
+;; =============================================================================
+;;  FIRST-TIME SETUP ON A NEW MACHINE
+;; =============================================================================
+;;
+;; 1) System dependencies (macOS / Homebrew)
+;; -----------------------------------------
+;;   brew install enchant          # required by jinx (spell checker)
+;;   brew install hunspell         # dictionaries engine
+;;   brew install ripgrep          # required by consult-ripgrep
+;;   brew install aspell           # fallback spell engine
+;;   brew install pgformatter      # used by sqlformat for SQL buffers
+;;   brew install sqls             # SQL language server (used by eglot)
+;;   brew install deno             # TS/JS runtime + LSP (optional)
+;;   brew install node             # required by typescript-language-server etc.
+;;   brew install shopify-cli      # needed for liquid-mode LSP
+;;
+;; 2) Global npm packages
+;; ----------------------
+;;   npm i -g typescript-language-server
+;;   npm i -g prettier
+;;   npm i -g @prisma/language-server   # only if using Prisma
+;;
+;; 3) Ruby gems (for Rails/Ruby projects)
+;; --------------------------------------
+;;   gem install rubocop
+;;   gem install ruby-lsp               # preferred over solargraph
+;;
+;; 4) Spell-check dictionaries
+;; ---------------------------
+;; Place pt_BR + en_US dictionaries in ~/Library/Spelling/
+;; (Hunspell dicts: .aff + .dic files). Free source:
+;;   https://github.com/wooorm/dictionaries
+;;
+;; 5) Fonts
+;; --------
+;; Inside Emacs, run once:
+;;   M-x nerd-icons-install-fonts RET
+;; (Provides glyphs for doom-modeline, dashboard, dirvish, etc.)
+;;
+;; 6) Tree-sitter grammars
+;; -----------------------
+;; Inside Emacs, run once after first startup (eval in scratch buffer):
+;;
+;;   (mapc #'treesit-install-language-grammar
+;;         (mapcar #'car treesit-language-source-alist))
+;;
+;; Or install individually with:  M-x treesit-install-language-grammar RET
+;;
+;; 7) Jinx languages (if the defaults aren't enough)
+;; -------------------------------------------------
+;;   M-x jinx-languages
+;;
+;; =============================================================================
+;;  PER-MACHINE OVERRIDES
+;; =============================================================================
+
+;; --- Org agenda ------------------------------------------------------------
+;; List of org files that feed `org-agenda'. Typically absolute paths that
+;; differ between machines (work laptop vs personal).
+(setq org-agenda-files
+      '("~/path/to/your/personal.org"
+        "~/path/to/your/work.org"))
+
+;; --- Org directories (optional) --------------------------------------------
+;; Override if your org files live somewhere other than ~/Projects/org-files/
+;; (setq org-directory "~/Documents/org/")
+;; (setq org-roam-directory "~/Documents/org/roam")
+
+;; --- Agenda .ics export (optional) -----------------------------------------
+;; Paths used by `org-agenda-export-to-ics' (see Sync section).
+;; (setq org-agenda-private-local-path  "~/.org.ics")
+;; (setq org-agenda-private-remote-path "~/Google Drive/My Drive/org.ics")
+
+;; --- UI preferences (optional) ---------------------------------------------
+;; Fonts/sizes often differ between a laptop screen and external monitor.
+;; (set-face-attribute 'default nil :font "Menlo 15")
+
+;;; local.el.example ends here

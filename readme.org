@@ -676,15 +676,10 @@ Magit requires transient >= 0.8.8, but Emacs ships an older built-in version. We
 #+end_src
 * Org
 #+begin_src elisp
+  ;; org-agenda-files is machine-specific and set in ~/.emacs.d/local.el
   (use-package org
     :ensure nil
     :custom
-    (org-agenda-files
-     '(
-       "/Users/guerra/Projects/org-files/roam/20230102102131-financeiro.org"
-       "/Users/guerra/Projects/org-files/roam/20230102103928-pessoal.org"
-       "/Users/guerra/Projects/org-files/roam/20230402214745-the_clear_cut.org"
-       ))
     (org-agenda-span 15)
     (org-deadline-warning-days 0)
     (org-icalendar-deadline-summary-prefix "")
@@ -1336,4 +1331,11 @@ Javascript
 #+begin_src elisp
   (use-package graphql-mode
     :ensure t)
+#+end_src
+* Local Config
+Per-machine overrides live in =~/.emacs.d/local.el= (gitignored). See =local.el.example= for a template. Loaded last so any setting here overrides the base config.
+#+begin_src elisp
+  (let ((local-config (expand-file-name "local.el" user-emacs-directory)))
+    (when (file-exists-p local-config)
+      (load local-config)))
 #+end_src
