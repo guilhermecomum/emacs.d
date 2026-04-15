@@ -11,11 +11,4 @@
 (push '(tool-bar-lines . 0) default-frame-alist)
 (push '(vertical-scroll-bars) default-frame-alist)
 
-;; Prevent unwanted runtime builds in gccemacs; packages are compiled ahead of time
-(setq comp-deferred-compilation nil)
-
-;; Load a built-in theme early to avoid flash of unstyled Emacs
-;; This will be replaced by doom-themes later in readme.org
-(load-theme 'misterioso t)
-
 ;;; early-init.el ends here
