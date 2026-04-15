@@ -1,2 +1,0 @@
-format = ["./run_format.sh"]
-test = ["./run_test.sh"]
