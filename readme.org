@@ -713,7 +713,6 @@ Magit requires transient >= 0.8.8, but Emacs ships an older built-in version. We
   (use-package ox-clip :ensure t)
 
   (setq org-export-coding-system 'utf-8
-        org-directory "~/Projects/org-files/"
         org-tag-alist '(("work" . ?w) ("personal" . ?p) ("meta" . ?m) ("emacsLove" . ?l) ("quotes" . ?q) ("finances" . ?f) ("howto" . ?h))
         org-log-done nil
         org-log-repeat nil
@@ -820,7 +819,6 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
   (use-package org-roam
     :ensure t
     :custom
-    (org-roam-directory "~/Projects/org-files/roam")
     (org-roam-dailies-directory "daily/")
     (org-roam-completion-everywhere t)
     :bind (("C-c n l" . org-roam-buffer-toggle)
@@ -849,9 +847,6 @@ Add ID to all headings [[https://stackoverflow.com/questions/13340616/assign-ids
     :ensure nil
     :config
     (midnight-delay-set 'midnight-delay 16200)
-    (setq midnight-period 2400 ;; in seconds
-	  org-agenda-private-local-path "~/.org.ics"
-	  org-agenda-private-remote-path "~/Google Drive/My Drive/org.ics")
     :hook (midnight . org-agenda-export-to-ics)
     :bind ("C-c e i" . org-agenda-export-to-ics))
 
