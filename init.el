@@ -1195,15 +1195,6 @@ should be checked."
   :init
   (recompile-on-save-advice compile))
 
-;;; Elfeed
-
-(use-package elfeed
-  :ensure t
-  :custom
-  (elfeed-db-directory
-   (expand-file-name "elfeed" user-emacs-directory))
-  (elfeed-show-entry-switch 'display-buffer))
-
 ;;; GraphQL
 
 (use-package graphql-mode
@@ -1217,6 +1208,3 @@ should be checked."
 (let ((local-config (expand-file-name "local.el" user-emacs-directory)))
   (when (file-exists-p local-config)
     (load local-config)))
-
-(provide 'readme)
-;;; readme.el ends here
