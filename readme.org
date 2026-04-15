@@ -350,9 +350,6 @@ First run: =M-x nerd-icons-install-fonts= to install the glyph font.
     :ensure (nerd-icons :type git :host github
                         :repo "rainstormstudio/nerd-icons.el"
                         :files (:defaults "data")))
-  (use-package nerd-icons-dired
-    :ensure t
-    :hook (dired-mode . nerd-icons-dired-mode))
 #+end_src
 
 ** Nyan cat
