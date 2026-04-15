@@ -81,6 +81,13 @@ The following list is from people I have been learning and stealing Emacs config
   ;; Block until current queue processed.
   (elpaca-wait)
 
+  ;; Use the built-in Org instead of pulling a newer one from ELPA.
+  ;; Without these entries, packages like org-roam / org-contrib / org-ql
+  ;; declare `org' as a dependency and elpaca installs it, clashing with the
+  ;; built-in version that `org-babel-load-file' already loaded from init.el.
+  (add-to-list 'elpaca-ignored-dependencies 'org)
+  (add-to-list 'elpaca-ignored-dependencies 'org-mode)
+
   ;;Turns off elpaca-use-package-mode current declaration
   ;;Note this will cause the declaration to be interpreted immediately (not deferred).
   ;;Useful for configuring built-in emacs features.
@@ -169,8 +176,6 @@ The following list is from people I have been learning and stealing Emacs config
   (use-package evil-nerd-commenter
     :ensure t
     :bind ("C-c c" . evilnc-comment-or-uncomment-lines))
-  ;; (global-set-key (kbd "C-c c") 'comment-region)
-  ;; (global-set-key (kbd "C-c d") 'uncomment-region)
 #+end_src
 *** Conf
 #+begin_src elisp
@@ -245,11 +250,15 @@ Set the start point for the current buffer, this means if you will search for a 
 #+begin_src elisp
   (use-package dashboard
     :ensure t
+    :after nerd-icons
     :config
     (setq dashboard-banner-logo-title "Olá, bem vindo ao Emacs"
           dashboard-startup-banner "~/.emacs.d/nyan-cat.png"
           dashboard-center-content t
           dashboard-agenda-release-buffers t
+          dashboard-icon-type 'nerd-icons
+          dashboard-set-heading-icons t
+          dashboard-set-file-icons t
           dashboard-items '((projects . 5) (agenda . 5)))
     :init
     (add-hook 'elpaca-after-init-hook #'dashboard-open))
@@ -290,10 +299,9 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
     :ensure t
     :preface
     (setq
-     doom-themes-treemacs-theme "doom-colors"
      dark-theme "doom-fairy-floss"
      light-theme "doom-solarized-light")
-    :init
+    :config
     (load-theme (intern dark-theme) t)
 
     (defun gg-switch-theme()
@@ -305,37 +313,46 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
         (message "Theme switched from %s to %s" theme change)))
     (global-set-key (kbd "<f8>") 'gg-switch-theme)
 
-    :config
-    (doom-themes-neotree-config)
-    (with-eval-after-load 'doom-themes
-      (doom-themes-treemacs-config))
     (set-face-attribute 'default nil :font "Menlo 13")
     (set-face-attribute 'region nil :background "#000" :foreground "#ffffff"))
 #+end_src
 
-** Neotree
+** Dirvish (file tree / dired)
+Modern dired replacement with sidebar mode. =[f9]= toggles a side panel like neotree did.
 #+begin_src elisp
-  (defun text-scale-twice ()
-    (interactive)
-    (progn(text-scale-adjust 0)(text-scale-decrease 2)))
-
-  (use-package neotree
+  (use-package dirvish
     :ensure t
-    :bind([f9] . neotree-toggle)
-    :hook (neo-after-create . (lambda (_)(call-interactively 'text-scale-twice)))
+    :after nerd-icons
+    :init
+    (dirvish-override-dired-mode)
+    :custom
+    (dirvish-quick-access-entries
+     '(("h" "~/"                  "Home")
+       ("p" "~/Projects/"         "Projects")
+       ("o" "~/Projects/org-files/" "Org files")
+       ("e" "~/.emacs.d/"         "Emacs config")))
     :config
-    (setq neo-autorefresh nil)
-    (setq neo-smart-open t)
-    (with-eval-after-load 'neotree
-      (define-key neotree-mode-map (kbd "h") 'neotree-hidden-file-toggle)))
-
+    (setq dirvish-attributes
+          '(nerd-icons file-time file-size collapse subtree-state vc-state git-msg))
+    (setq dirvish-side-width 32)
+    :bind (([f9] . dirvish-side)
+           :map dirvish-mode-map
+           ("a" . dirvish-quick-access)
+           ("h" . dired-up-directory)
+           ("y" . dirvish-yank-menu)
+           ("N" . dirvish-narrow)
+           ("?" . dirvish-dispatch)))
 #+end_src
 ** Icons
+First run: =M-x nerd-icons-install-fonts= to install the glyph font.
 #+begin_src elisp
-  (use-package all-the-icons :ensure t)
-  (use-package all-the-icons-dired
+  (use-package nerd-icons
+    :ensure (nerd-icons :type git :host github
+                        :repo "rainstormstudio/nerd-icons.el"
+                        :files (:defaults "data")))
+  (use-package nerd-icons-dired
     :ensure t
-    :hook (dired-mode . all-the-icons-dired-mode))
+    :hook (dired-mode . nerd-icons-dired-mode))
 #+end_src
 
 ** Nyan cat
@@ -345,13 +362,6 @@ Source: [[https://www.reddit.com/r/emacs/comments/4mzynd/what_emacs_theme_are_yo
     :init
     (nyan-mode t))
 #+end_src
-** Emoji
-#+begin_src elisp
-  (use-package emojify
-    :ensure t
-    :hook (elpaca-after-init . global-emojify-mode))
-#+end_src
-
 ** Dimmer
 #+begin_src elisp :tangle no
   (use-package dimmer
@@ -380,10 +390,12 @@ Writing yes or no is length, type y / n instead
 #+begin_src elisp
   (use-package doom-modeline
     :ensure t
+    :after nerd-icons
     :config
-    (setq doom-modeline-height 35)
+    (setq doom-modeline-height 35
+          doom-modeline-bar-width 1
+          doom-modeline-icon t)
     (set-face-background 'doom-modeline-bar (face-background 'mode-line))
-    (setq doom-modeline-bar-width 1)
     (doom-modeline-mode 1))
 #+end_src
 ** Dialog
@@ -391,21 +403,39 @@ Don't pop up UI dialogs when prompting
 #+begin_src elisp
   (setq use-dialog-box nil)
 #+end_src
-** Company
+** Completion (Corfu)
+Modern in-buffer completion stack: corfu (UI) + cape (extra capfs) + kind-icon (icons).
 #+begin_src elisp
-  (use-package company
+  (use-package corfu
     :ensure t
-    :hook (prog-mode . company-mode)
+    :custom
+    (corfu-cycle t)
+    (corfu-auto t)
+    (corfu-auto-delay 0.1)
+    (corfu-auto-prefix 2)
+    (corfu-quit-no-match 'separator)
+    :init
+    (global-corfu-mode)
     :config
-    (setq company-minimum-prefix-length 2)
-    (global-company-mode)
-    (global-set-key (kbd "TAB") #'company-indent-or-complete-common))
+    (corfu-popupinfo-mode 1)
+    (setq corfu-popupinfo-delay '(0.5 . 0.2)))
 
-  (setq company-tooltip-align-annotations t)
-
-  (use-package company-box
+  (use-package cape
     :ensure t
-    :hook (company-mode . company-box-mode))
+    :init
+    (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+    (add-to-list 'completion-at-point-functions #'cape-file))
+
+  (use-package kind-icon
+    :ensure t
+    :after corfu
+    :custom
+    (kind-icon-default-face 'corfu-default)
+    :config
+    (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
+
+  ;; Make TAB do completion when there's nothing to indent.
+  (setq tab-always-indent 'complete)
 #+end_src
 * Editing
 #+begin_src elisp
@@ -427,10 +457,9 @@ Yank ring
 #+end_src
 ** Parenthesis
 #+begin_src elisp
-  (use-package smartparens
-    :ensure t
-    :config
-    (smartparens-global-mode t))
+  (use-package elec-pair
+    :ensure nil
+    :hook (prog-mode . electric-pair-local-mode))
 
   (use-package rainbow-delimiters
     :ensure t
@@ -480,17 +509,32 @@ Yank ring
       (fill-paragraph nil region)))
 #+end_src
 ** Treesiter
+Use the built-in Emacs 29+ grammar installer. Run =M-x treesit-install-language-grammar= per language, or evaluate ~(mapc #'treesit-install-language-grammar (mapcar #'car treesit-language-source-alist))~ to install all at once.
 #+begin_src elisp
   (require 'treesit)
-  ;; modules build from https://github.com/casouri/tree-sitter-module
-  (setq treesit-extra-load-path '("~/Projects/tree-sitter-module/dist"))
-  (push '(css-mode . css-ts-mode) major-mode-remap-alist)
-  (push '(javascript-mode . js-ts-mode) major-mode-remap-alist)
-  (push '(js-json-mode . json-ts-mode) major-mode-remap-alist)
-  (push '(typescript-mode . typescript-ts-mode) major-mode-remap-alist)
-  (push '(typescript-mode . tsx-ts-mode) major-mode-remap-alist)
-  (push '(ruby-mode . ruby-ts-mode) major-mode-remap-alist)
-  (add-to-list 'auto-mode-alist '("\\.tsx?\\'" . tsx-ts-mode))
+
+  (setq treesit-language-source-alist
+        '((bash       . ("https://github.com/tree-sitter/tree-sitter-bash"))
+          (css        . ("https://github.com/tree-sitter/tree-sitter-css"))
+          (html       . ("https://github.com/tree-sitter/tree-sitter-html"))
+          (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript" "master" "src"))
+          (json       . ("https://github.com/tree-sitter/tree-sitter-json"))
+          (ruby       . ("https://github.com/tree-sitter/tree-sitter-ruby"))
+          (tsx        . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src"))
+          (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src"))
+          (yaml       . ("https://github.com/ikatyang/tree-sitter-yaml"))))
+
+  ;; Remap classic modes to their tree-sitter counterparts.
+  (dolist (mapping '((css-mode        . css-ts-mode)
+                     (javascript-mode . js-ts-mode)
+                     (js-json-mode    . json-ts-mode)
+                     (typescript-mode . typescript-ts-mode)
+                     (ruby-mode       . ruby-ts-mode)))
+    (add-to-list 'major-mode-remap-alist mapping))
+
+  ;; .tsx files use tsx-ts-mode (typescript-ts-mode handles plain .ts).
+  (add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-ts-mode))
+  (add-to-list 'auto-mode-alist '("\\.ts\\'"  . typescript-ts-mode))
 #+end_src
 
 * Flymake
@@ -547,28 +591,18 @@ Yank ring
 	(setq-local flymake-eslint-project-root root)
 	(flymake-eslint-enable))))
 #+end_src
-* Flyspell
+* Jinx (spell check)
+Modern, fast spell checker via enchant. Requires =brew install enchant= on macOS.
+On first run install dictionaries (e.g. =brew install hunspell= and place pt_BR + en_US dicts in =~/Library/Spelling/=).
 #+begin_src elisp
-  (use-package flyspell
-    :ensure nil
-    :bind (("<f7>" . 'fd-switch-dictionary)
-           ("C-;" . 'flyspell-correct-wrapper)))
-
-  (use-package flyspell-correct-popup
+  (use-package jinx
     :ensure t
-    :config
-    (setq ispell-program-name "aspell")
-    (ispell-change-dictionary "pt_BR"))
-
-  (defun fd-switch-dictionary()
-    (interactive)
-    (let* ((dic ispell-current-dictionary)
-           (change (if (string= dic "pt_BR") "english" "pt_BR")))
-      (ispell-change-dictionary change)
-      (message "Dictionary switched from %s to %s" dic change)))
-
-  ;; (global-set-key (kbd "<f7>") )
-  ;; (define-key flyspell-mode-map (kbd "C-;") 'flyspell-correct-wrapper)
+    :hook (emacs-startup . global-jinx-mode)
+    :bind (("C-;"  . jinx-correct)
+           ("<f7>" . jinx-languages)
+           ("C-M-$" . jinx-languages))
+    :custom
+    (jinx-languages "pt_BR en_US"))
 #+end_src
 * Yasnippet
 #+begin_src elisp
@@ -581,11 +615,11 @@ Yank ring
 #+end_src
 * Code Folding
 #+begin_src elisp
-  (use-package yafolding
-    :ensure t
-    :hook
-    (prog-mode-hook . yafolding-mode)
-    :bind ("C-c C-f" . yafolding-toggle-element))
+  (use-package treesit-fold
+    :ensure (treesit-fold :type git :host github :repo "emacs-tree-sitter/treesit-fold")
+    :hook (prog-mode . treesit-fold-mode)
+    :bind (("C-c C-f" . treesit-fold-toggle)
+           ("C-c C-S-f" . treesit-fold-close-all)))
 #+end_src
 * Restclient
 #+begin_src elisp
@@ -615,8 +649,12 @@ Yank ring
 #+end_src
 
 * Magit
+Magit requires transient >= 0.8.8, but Emacs ships an older built-in version. We install transient explicitly so Magit picks the newer one.
 #+begin_src elisp
-  (use-package magit :ensure t)
+  (use-package transient :ensure t)
+  (use-package magit
+    :ensure t
+    :after transient)
   ;;(use-package magit-todos :ensure t)
 #+end_src
 
@@ -639,7 +677,7 @@ Yank ring
 * Org
 #+begin_src elisp
   (use-package org
-    :ensure (:wait t)
+    :ensure nil
     :custom
     (org-agenda-files
      '(
@@ -655,8 +693,7 @@ Yank ring
     (org-icalendar-with-timestamps nil)
     :bind (("C-c a" . (lambda () (interactive) (org-agenda nil "z")) )
            ("C-c /" . 'org-capture)
-           ("s-c" . 'ox-clip-formatted-copy))
-    :hook (org-mode . turn-on-flyspell))
+           ("s-c" . 'ox-clip-formatted-copy)))
 
   (use-package org-contrib
     :ensure t
@@ -900,16 +937,13 @@ liquid
 #+begin_src elisp
 (setq js-indent-level 2)
 #+end_src
-** prettier
+** Apheleia (formatting)
+Async formatting that doesn't fight the cursor. Auto-detects prettier, biome, rubocop, etc. from project config.
 #+begin_src elisp
-  (use-package prettier-js
+  (use-package apheleia
     :ensure t
-    :ensure-system-package (prettier . "npm i -g prettier")
-    :hook ((typescript-ts-mode . prettier-js-mode)
-           (js-ts-mode . prettier-js-mode)
-           (web-mode . prettier-js-mode)
-           (css-mode . prettier-js-mode)
-           (tsx-ts-mode . prettier-js-mode)))
+    :config
+    (apheleia-global-mode +1))
 #+end_src
 ** Jest mode
 #+begin_src elisp
@@ -967,14 +1001,10 @@ First, we need xterm-color for proper ANSI color handling in comint buffers:
   (add-hook 'ruby-ts-mode-hook 'flymake-ruby-load)
 #+end_src
 ** Rubocop
+Linting via rubocop interactive commands; formatting handled by apheleia.
 #+begin_src elisp
   (use-package rubocop
     :ensure t)
-
-  (use-package rubocopfmt
-    :ensure t
-    :hook
-    (ruby-mode . rubocopfmt-mode))
 #+end_src
 * Deno
 #+begin_src elisp
@@ -989,10 +1019,6 @@ Buttercup
 #+begin_src elisp
   (use-package buttercup :ensure t)
 #+end_src
-* Lua :first-quarter-moon-with-face:
-#+begin_src elisp
-  (use-package lua-mode :ensure t)
-#+end_src
 * JSON
 #+begin_src elisp
   (use-package json-mode :ensure t)
@@ -1006,28 +1032,6 @@ Buttercup
 * YAML
 #+begin_src elisp
   (use-package yaml-mode :ensure t)
-#+end_src
-* Dart/Flutter
-#+begin_src elisp
-  (use-package dart-mode
-    :ensure t
-    :hook (dart-mode . flutter-test-mode)
-    (dart-mode . eglot-ensure))
-
-  (use-package flutter
-    :ensure t
-    :after (dart-mode)
-    :bind (:map dart-mode-map
-		("C-M-x" . #'flutter-run-or-hot-reload)))
-
-  ;; (use-package lsp-dart
-  ;;   :ensure t
-  ;;   :hook (dart-mode . lsp)
-  ;;   :custom
-  ;;   (lsp-dart-flutter-sdk-dir "~/snap/flutter/common/flutter")
-  ;;   :config
-  ;;   (setq gc-cons-threshold (* 100 1024 1024)
-  ;;         read-process-output-max (* 1024 1024)))
 #+end_src
 * Eglot
 Original code from https://github.com/joaotavora/eglot/discussions/999
@@ -1154,24 +1158,39 @@ Original code from https://github.com/joaotavora/eglot/discussions/999
       (completion-styles '(orderless basic))
       (completion-category-overrides '((file (styles basic partial-completion)))))
 #+end_src
-** Postframe
+** Mini-frame
+Centered child-frame for any minibuffer prompt (M-x, find-file, vertico completion, etc). Replaces the previous vertico-posframe setup.
 #+begin_src elisp
-  (use-package vertico-posframe
-    :init (vertico-posframe-mode)
+  (use-package mini-frame
     :ensure t
+    :custom
+    (mini-frame-show-parameters
+     (lambda ()
+       `((top    . 0.3)
+         (width  . 0.7)
+         (left   . 0.5)
+         (left-fringe  . 8)
+         (right-fringe . 8)
+         (child-frame-border-width . 3)
+         ;; Subtle background tint so the frame reads as a dropdown.
+         (background-color . ,(face-attribute 'mode-line :background nil t)))))
+    ;; Mirror old vertico-posframe behavior: commands that benefit from
+    ;; seeing surrounding buffer context keep the regular minibuffer.
+    (mini-frame-ignore-commands
+     '(eval-expression
+       "edebug-eval-expression"
+       debugger-eval-expression
+       consult-line
+       consult-theme
+       consult-ripgrep
+       consult-org-heading
+       consult-xref
+       consult-imenu))
     :config
-    (setq vertico-multiform-commands
-          '((consult-line (:not posframe))
-            (consult-theme (:not posframe))
-            (consult-ripgrep (:not posframe))
-            (consult-org-heading (:not posframe))
-            (consult-xref (:not posframe))
-            (consult-imenu (:not posframe))
-            (t posframe)))
-    (setq vertico-posframe-parameters
-          '((left-fringe . 8)
-          (right-fringe . 8)))
-    (vertico-multiform-mode t))
+    ;; Border color — picks up the theme's mode-line foreground for contrast.
+    (set-face-background 'child-frame-border
+                         (face-attribute 'mode-line :foreground nil t))
+    (mini-frame-mode 1))
 #+end_src
 * Consult
 #+begin_src elisp
@@ -1264,13 +1283,6 @@ Javascript
 #+begin_src elisp
   (use-package js-comint :ensure t)
 #+end_src
-* Read aloud
-#+begin_src elisp
-  (use-package read-aloud
-    :ensure t
-    :config
-    (setq read-aloud-engine "say"))
-#+end_src
 * CSV Mode
 #+begin_src elisp
   (use-package csv-mode :ensure t)
@@ -1323,10 +1335,5 @@ Javascript
 * GraphQL
 #+begin_src elisp
   (use-package graphql-mode
-    :ensure t)
-#+end_src
-* Python
-#+begin_src elisp
-  (use-package with-venv
     :ensure t)
 #+end_src
