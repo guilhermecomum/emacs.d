@@ -809,6 +809,10 @@ should be checked."
  '((python . t)
    (sql . t)))
 
+;;;; Weblorg
+(use-package weblorg
+  :ensure t)
+
 ;;; Markdown
 
 (use-package markdown-mode :ensure t)
