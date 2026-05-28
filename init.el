@@ -1233,6 +1233,33 @@ should be checked."
 (use-package graphql-mode
   :ensure t)
 
+;;; Eat
+
+(use-package eat
+  :defer 10
+  :demand
+  :ensure
+  (
+   :host codeberg
+   :repo "akib/emacs-eat"
+   :files ("*.el" ("term" "term/*.el") "*.texi"
+	   "*.ti" ("terminfo/e" "terminfo/e/*")
+	   ("terminfo/65" "terminfo/65/*")
+	   ("integration" "integration/*")
+	   (:exclude ".dir-locals.el" "*-tests.el"))))
+
+;;; Agent shell
+(use-package agent-shell
+  :ensure t
+  :config
+  (setq agent-shell-anthropic-authentication
+        (agent-shell-anthropic-make-authentication :login t))
+  :ensure-system-package
+  ;; Add agent installation configs here
+  ((claude . "brew install claude-code")
+   (claude-agent-acp . "npm install -g @agentclientprotocol/claude-agent-acp")))
+
+
 ;;; Local Config
 
 ;; Per-machine overrides live in ~/.emacs.d/local.el (gitignored).
