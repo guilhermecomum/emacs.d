@@ -642,6 +642,12 @@ should be checked."
   :ensure t
   :after transient)
 
+;;;; Forge
+(use-package forge
+  :ensure t
+  :after magit)
+
+
 ;;; Org
 
 ;; org-agenda-files is machine-specific and set in ~/.emacs.d/local.el
