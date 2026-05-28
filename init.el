@@ -1,5 +1,8 @@
 ;;; init.el --- Personal Emacs configuration  -*- lexical-binding: t; -*-
 
+;; [imagem]
+
+
 ;;; Package Manager
 
 (defvar elpaca-installer-version 0.12)
