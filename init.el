@@ -210,6 +210,9 @@
 ;; Set the start point for the current buffer; affects file-search default dir.
 (setq default-directory "~/")
 
+;;;; Auth
+(setq auth-sources '("~/.authinfo"))
+
 ;;; Startup Screen
 
 (use-package dashboard
