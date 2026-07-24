@@ -60,6 +60,13 @@
 (add-to-list 'elpaca-ignored-dependencies 'org)
 (add-to-list 'elpaca-ignored-dependencies 'org-mode)
 
+;; Emacs >= 31 bundles compat (this build ships 31.0.0.1, same as ELPA's).
+;; python.el requires it during init (via org-babel-do-load-languages ->
+;; ob-python), so the built-in copy is always loaded before Elpaca could
+;; activate its own, triggering "compat loaded before Elpaca activation".
+(when (>= emacs-major-version 31)
+  (add-to-list 'elpaca-ignored-dependencies 'compat))
+
 ;; Turns off elpaca-use-package-mode current declaration
 ;; Note this will cause the declaration to be interpreted immediately (not deferred).
 ;; Useful for configuring built-in emacs features.
@@ -256,6 +263,34 @@
 (defadvice load-theme (before clear-previous-themes activate)
   "Clear existing theme settings instead of layering them"
   (mapc #'disable-theme custom-enabled-themes))
+
+;; Break a face inheritance cycle between doom-themes and built-in gnus:
+;; doom-themes sets `gnus-group-news-low-empty' to inherit
+;; `gnus-group-news-low', while gnus (gnus.el) sets `gnus-group-news-low' to
+;; inherit `gnus-group-news-low-empty'.  On a graphical frame the two form a
+;; loop and signal "inheritance cycle" when the face is realized (e.g. when the
+;; `C-x C-f' minibuffer draws).
+;;
+;; `set-face-attribute' alone is insufficient: when a new frame is created
+;; (e.g. by mini-frame), `x-create-frame-with-faces' calls `face-spec-recalc'
+;; which re-applies the raw theme spec from `theme-face' property before any
+;; user attribute can override it, triggering the cycle error.  We must rewrite
+;; the stored theme specs so `face-spec-recalc' never sees the cyclic
+;; inheritance.
+(defun gg--break-gnus-face-cycle (&rest _)
+  (dolist (entry '((gnus-group-news-low-empty . gnus-group-mail-1-empty)
+                   (gnus-group-news-low . gnus-group-mail-1)))
+    (let* ((face (car entry))
+           (replacement (cdr entry))
+           (theme-specs (get face 'theme-face)))
+      (when theme-specs
+        (put face 'theme-face
+             (mapcar (lambda (spec)
+                       (list (car spec) `((t (:inherit ,replacement)))))
+                     theme-specs)))
+      (when (facep face)
+        (set-face-attribute face nil :inherit replacement)))))
+(advice-add 'load-theme :after #'gg--break-gnus-face-cycle)
 
 ;;;; Theme
 
