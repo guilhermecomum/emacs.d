@@ -924,6 +924,13 @@ should be checked."
 (use-package apheleia
   :ensure t
   :config
+  ;; Ruby gems live in the project's Docker volume, so run rubocop inside
+  ;; the api container instead of the default prettier-ruby. The script
+  ;; resolves the worktree root and compose stack from the file's own path.
+  (push `(docker-rubocop . (,(expand-file-name "bin/docker-rubocop.sh" user-emacs-directory) filepath))
+        apheleia-formatters)
+  (setf (alist-get 'ruby-ts-mode apheleia-mode-alist) 'docker-rubocop
+        (alist-get 'ruby-mode apheleia-mode-alist) 'docker-rubocop)
   (apheleia-global-mode +1))
 
 ;;;; Jest mode
