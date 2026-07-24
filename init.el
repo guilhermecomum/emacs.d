@@ -1327,3 +1327,213 @@ should be checked."
 (let ((local-config (expand-file-name "local.el" user-emacs-directory)))
   (when (file-exists-p local-config)
     (load local-config)))
+;;;
+;;;; My functions
+(defvar yt-ollama-model "qwen3.5:9b"
+  "Ollama model used by `yt-summarize' to produce the summary.")
+
+(defvar yt-ollama-url "http://192.168.68.113:11434/api/generate"
+  "Endpoint of the Ollama /api/generate server used by `yt-summarize'.")
+
+(defvar yt-ollama-num-ctx 32768
+  "Context window (tokens) requested from Ollama.
+Long video transcripts overflow Ollama's small default context and get
+silently truncated, so `yt-summarize' asks for a large window here.")
+
+(defun yt--snake-case (title)
+  "Return TITLE downcased with spaces replaced by underscores.
+Everything else (dashes, dots, parens, &) is kept verbatim, matching
+YouTube titles closely so the file stays recognizable, e.g.
+\"Hogwarts Legacy - Tips (A & B)\" -> \"hogwarts_legacy_-_tips_(a_&_b)\"."
+  (replace-regexp-in-string " " "_" (downcase title)))
+
+(defun yt--clean-vtt (file)
+  "Strip timestamps/tags from VTT FILE, return plain text."
+  (with-temp-buffer
+    (insert-file-contents file)
+    (let (lines)
+      (dolist (line (split-string (buffer-string) "\n"))
+        (unless (or (string-match-p "^[0-9]\\{2\\}:" line)
+                    (string-match-p "^WEBVTT" line)
+                    (string-match-p "^Kind:" line)
+                    (string-match-p "^Language:" line)
+                    (string-match-p "^NOTE" line)
+                    (string-match-p "-->" line)
+                    (string-empty-p line))
+          (push line lines)))
+      (string-join (delete-dups (nreverse lines)) " "))))
+
+(defun yt--ollama-summarize-async (text callback)
+  "POST TEXT to local Ollama; call CALLBACK with the summary string."
+  (let* ((url-request-method "POST")
+         (url-request-extra-headers
+          '(("Content-Type" . "application/json; charset=utf-8")))
+         ;; Encode to UTF-8 bytes: the prompt/transcript are multibyte and
+         ;; `url-retrieve' rejects a multibyte request body.
+         (url-request-data
+          (encode-coding-string
+           (json-encode
+            `((model . ,yt-ollama-model)
+              (prompt . ,(concat "Resuma em português o conteúdo abaixo, que é a transcrição de um vídeo (ignore timestamps e metadados como 'Kind:' ou 'Language:'). Escreva o resumo como uma lista em org-mode: cada item em uma linha própria, começando com hífen e espaço (\"- \"). NÃO use asteriscos (*), títulos, nem markdown:\n\n" text))
+              (stream . :json-false)
+              ;; Disable the model's reasoning: on thinking models the
+              ;; `thinking' output can consume the whole budget and leave
+              ;; `response' empty. num_ctx avoids truncating long transcripts.
+              (think . :json-false)
+              (options . ((num_ctx . ,yt-ollama-num-ctx)))))
+           'utf-8)))
+    (url-retrieve
+     yt-ollama-url
+     (lambda (_status)
+       ;; Treat the response as raw bytes, then decode the body once as UTF-8
+       ;; so accented chars aren't double-encoded into mojibake.
+       (set-buffer-multibyte nil)
+       (goto-char (point-min))
+       (re-search-forward "\n\n")  ; pula os headers HTTP
+       (let* ((body (decode-coding-string
+                     (buffer-substring-no-properties (point) (point-max))
+                     'utf-8))
+              (json-object-type 'alist)
+              (resp (alist-get 'response (json-read-from-string body))))
+         (funcall callback resp))))))
+
+(defun yt--summaries-dir ()
+  "Return (creating if needed) the yt-summaries dir under `org-directory'."
+  (let ((dir (expand-file-name "yt-summaries" org-directory)))
+    (make-directory dir t)
+    dir))
+
+(defun yt--write-summary-file (title url summary)
+  "Write SUMMARY for TITLE/URL to its own org file in `yt--summaries-dir'.
+The file name is TITLE in snake_case (see `yt--snake-case') plus \".org\".
+If a buffer is already visiting that file (e.g. during `yt-resummarize'),
+revert it so the new summary shows up."
+  (let ((file (expand-file-name (concat (yt--snake-case title) ".org")
+                                (yt--summaries-dir))))
+    (with-temp-file file
+      (insert (format "#+TITLE: %s\n#+SOURCE: %s\n#+DATE: %s\n\n%s\n"
+                      title url
+                      (format-time-string "[%Y-%m-%d %a %H:%M]")
+                      summary)))
+    (when-let ((buf (find-buffer-visiting file)))
+      (with-current-buffer buf (revert-buffer t t t)))
+    (message "yt-summarize: arquivo criado — %s" file)
+    file))
+
+(defun yt--transcript-file (title)
+  "Path of the transcript sidecar (.txt) for TITLE in `yt--summaries-dir'."
+  (expand-file-name (concat (yt--snake-case title) ".txt") (yt--summaries-dir)))
+
+(defun yt--save-transcript (title text)
+  "Persist TEXT next to the org file so summaries can be re-run offline."
+  (let ((file (yt--transcript-file title)))
+    (with-temp-file file (insert text))
+    file))
+
+(defun yt--summarize-and-write (title url text)
+  "Save TEXT, summarize it via Ollama, and (re)write the org file.
+Saving the transcript first makes the whole thing idempotent: if Ollama
+fails or returns empty, the transcript is kept and `yt-resummarize' can
+retry without touching YouTube."
+  (yt--save-transcript title text)
+  (message "yt-summarize: chamando Ollama (%s)..." yt-ollama-model)
+  (yt--ollama-summarize-async
+   text
+   (lambda (summary)
+     (if (or (null summary) (string-empty-p (string-trim summary)))
+         (message "yt-summarize: Ollama retornou resumo vazio para %s (transcrição salva em %s)"
+                  title (yt--transcript-file title))
+       (yt--write-summary-file title url summary)))))
+
+(defun yt--video-info (url)
+  "Return yt-dlp -J metadata for URL as an alist, or nil on failure.
+Runs synchronously — it is a lightweight metadata call (no media or
+subtitle files are downloaded)."
+  ;; DESTINATION '(t nil) sends stdout to the buffer and DISCARDS stderr, so a
+  ;; stray "WARNING: ffmpeg not found" line can't corrupt the JSON we parse.
+  (with-temp-buffer
+    (when (zerop (call-process "yt-dlp" nil '(t nil) nil "--skip-download" "-J" url))
+      (goto-char (point-min))
+      (ignore-errors
+        (let ((json-object-type 'alist)) (json-read))))))
+
+(defun yt--pick-lang (info)
+  "Pick the video's original subtitle language code from -J INFO.
+Manual `subtitles' are the uploader's original language, so they win.
+Otherwise fall back to the original auto-caption (a \"xx-xx\" track whose
+target equals its source), then to any auto track, then to \"en\"."
+  (let ((subs  (alist-get 'subtitles info))
+        (autos (alist-get 'automatic_captions info)))
+    (cond
+     (subs (symbol-name (caar subs)))
+     (autos
+      (let ((keys (mapcar (lambda (kv) (symbol-name (car kv))) autos)))
+        (or (seq-find (lambda (k)
+                        (let ((p (split-string k "-")))
+                          (and (= (length p) 2) (string= (car p) (cadr p)))))
+                      keys)
+            (car keys))))
+     (t "en"))))
+
+(defun yt-summarize (url)
+  "Summarize the YouTube video at URL into its own org file.
+Probes the video for its title and original subtitle language, downloads
+only that transcript with yt-dlp, saves the transcript as a sidecar .txt,
+summarizes it asynchronously via Ollama, and writes one org file per video
+in `yt--summaries-dir'.  Re-run summarization offline with `yt-resummarize'."
+  (interactive
+   (list (read-string "YouTube URL: "
+                      (let ((k (current-kill 0 t)))
+                        (when (string-match-p "youtu\\.?be" k) k)))))
+  (message "yt-summarize: consultando metadados...")
+  (let* ((info   (yt--video-info url))
+         (title  (and info (alist-get 'title info)))
+         (lang   (and info (yt--pick-lang info)))
+         (tmpdir (make-temp-file "yt-summ-" t)))
+    (if (not (and info title lang))
+        (message "yt-summarize: não foi possível obter metadados de %s" url)
+      (message "yt-summarize: baixando legenda (%s) em background..." lang)
+      (make-process
+       :name "yt-dlp"
+       :buffer (generate-new-buffer "*yt-dlp-output*")
+       :command (list "yt-dlp" "--skip-download" "--write-auto-sub" "--write-sub"
+                      "--sub-lang" lang "--sub-format" "vtt"
+                      "-o" (expand-file-name "%(title)s.%(ext)s" tmpdir)
+                      url)
+       :sentinel
+       (lambda (proc _event)
+         (when (memq (process-status proc) '(exit signal))
+           (if (not (zerop (process-exit-status proc)))
+               (message "yt-summarize: yt-dlp falhou (ver %s)" (process-buffer proc))
+             (let ((vtt-file (car (directory-files tmpdir t "\\.vtt$"))))
+               (if (not vtt-file)
+                   (message "yt-summarize: sem legenda disponível para %s" url)
+                 (message "yt-summarize: legenda pronta, chamando Ollama...")
+                 (yt--summarize-and-write title url (yt--clean-vtt vtt-file))
+                 (delete-directory tmpdir t))))))))))
+
+(defun yt--org-keyword (key)
+  "Return the value of the `#+KEY:' line in the current buffer, or nil."
+  (save-excursion
+    (goto-char (point-min))
+    (when (re-search-forward (format "^#\\+%s:[ \t]*\\(.*\\)$" (regexp-quote key)) nil t)
+      (string-trim (match-string-no-properties 1)))))
+
+(defun yt-resummarize ()
+  "Regenerate the summary for the org file in the current buffer.
+Reads the transcript from the sidecar .txt saved by `yt-summarize' and
+re-runs Ollama, so it never re-fetches from YouTube.  Useful after a failed
+or empty summary, or to try a different `yt-ollama-model'."
+  (interactive)
+  (let* ((org-file (or (buffer-file-name)
+                       (user-error "Este buffer não visita um arquivo")))
+         (txt-file (concat (file-name-sans-extension org-file) ".txt")))
+    (unless (file-exists-p txt-file)
+      (user-error "Transcrição não encontrada: %s" txt-file))
+    (let ((title (yt--org-keyword "TITLE"))
+          (url   (yt--org-keyword "SOURCE"))
+          (text  (with-temp-buffer (insert-file-contents txt-file) (buffer-string))))
+      (unless (and title url)
+        (user-error "Faltam #+TITLE/#+SOURCE em %s" org-file))
+      (message "yt-resummarize: re-summarizando %s..." title)
+      (yt--summarize-and-write title url text))))
