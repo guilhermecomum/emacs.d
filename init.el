@@ -850,7 +850,24 @@ should be checked."
 
 ;;; Markdown
 
-(use-package markdown-mode :ensure t)
+(use-package markdown-mode
+  :ensure t
+  :custom
+  (markdown-fontify-code-blocks-natively nil))
+
+(use-package markdown-xwidget
+  :after markdown-mode
+  :elpaca (markdown-xwidget
+           :host github
+           :repo "cfclrk/markdown-xwidget"
+           :files (:defaults "resources"))
+  :bind (:map markdown-mode-command-map
+              ("x" . markdown-xwidget-preview-mode))
+  :config
+  (setq markdown-xwidget-command "multimarkdown --snippet"
+        markdown-xwidget-github-theme "light"
+        markdown-xwidget-mermaid-theme "default"
+        markdown-xwidget-code-block-theme "default"))
 
 ;;; Web mode
 
