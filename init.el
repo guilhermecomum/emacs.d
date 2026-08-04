@@ -2,7 +2,6 @@
 
 ;; [imagem]
 
-
 ;;; Package Manager
 
 (defvar elpaca-installer-version 0.12)
@@ -99,7 +98,13 @@
   ;; Enable mac option to create accented characters
   (setq ns-alternate-modifier 'none)
   (setq frame-resize-pixelwise t)
-  (setq ns-left-alternate-modifier 'none))
+  (setq ns-left-alternate-modifier 'none)
+
+  ;; Added to support GNU's --group-directories-first flag
+  (use-package ls-lisp
+    :config
+    (setq ls-lisp-dirs-first t
+          ls-lisp-use-insert-directory-program nil)))
 
 ;;;; Key mapping
 
@@ -107,7 +112,7 @@
 
 ;; Before killing a modified buffer, give option to see the diff.
 ;; Original code from https://emacs.stackexchange.com/questions/3245/
-(defun my/kill-this-buffer ()
+(defun gg/kill-this-buffer ()
   (interactive)
   (catch 'quit
     (save-window-excursion
@@ -134,8 +139,8 @@
 (global-set-key [(C-tab)] 'other-window)
 (global-set-key [(C-M-tab)] 'other-window)
 
-;; Remap kill buffer to my/kill-this-buffer
-(global-set-key (kbd "C-x k") 'my/kill-this-buffer)
+;; Remap kill buffer to gg/kill-this-buffer
+(global-set-key (kbd "C-x k") 'gg/kill-this-buffer)
 
 ;; Revert buffer
 (global-set-key (kbd "C-<f5>") 'revert-buffer)
@@ -184,17 +189,6 @@
 ;; Option 3: If you really trust all .dir-locals in your projects:
 ;; (setq enable-local-variables :all)  ; Still safer than disabling checks entirely
 
-(use-package ls-lisp
-  :config
-  (setq ls-lisp-dirs-first t
-        ls-lisp-use-insert-directory-program nil))
-
-;;;; Startup Performance
-
-;; Reduce GC frequency during startup.
-;; The default is 800 kilobytes. Measured in bytes.
-(setq gc-cons-threshold (* 50 1000 1000))
-
 ;;;; Native Compilation
 
 ;; Silence compiler warnings as they can be pretty disruptive
@@ -221,7 +215,6 @@
 (setq auth-sources '("~/.authinfo"))
 
 ;;; Startup Screen
-
 (use-package dashboard
   :ensure t
   :after nerd-icons
@@ -257,6 +250,9 @@
 
 ;;; Look & Feel
 
+;;;;; Font and Font size
+(set-face-attribute 'default nil :font "Menlo 13")
+
 ;;;; Improve theme loading
 
 ;; Source: https://www.reddit.com/r/emacs/comments/4mzynd/
@@ -264,58 +260,33 @@
   "Clear existing theme settings instead of layering them"
   (mapc #'disable-theme custom-enabled-themes))
 
-;; Break a face inheritance cycle between doom-themes and built-in gnus:
-;; doom-themes sets `gnus-group-news-low-empty' to inherit
-;; `gnus-group-news-low', while gnus (gnus.el) sets `gnus-group-news-low' to
-;; inherit `gnus-group-news-low-empty'.  On a graphical frame the two form a
-;; loop and signal "inheritance cycle" when the face is realized (e.g. when the
-;; `C-x C-f' minibuffer draws).
-;;
-;; `set-face-attribute' alone is insufficient: when a new frame is created
-;; (e.g. by mini-frame), `x-create-frame-with-faces' calls `face-spec-recalc'
-;; which re-applies the raw theme spec from `theme-face' property before any
-;; user attribute can override it, triggering the cycle error.  We must rewrite
-;; the stored theme specs so `face-spec-recalc' never sees the cyclic
-;; inheritance.
-(defun gg--break-gnus-face-cycle (&rest _)
-  (dolist (entry '((gnus-group-news-low-empty . gnus-group-mail-1-empty)
-                   (gnus-group-news-low . gnus-group-mail-1)))
-    (let* ((face (car entry))
-           (replacement (cdr entry))
-           (theme-specs (get face 'theme-face)))
-      (when theme-specs
-        (put face 'theme-face
-             (mapcar (lambda (spec)
-                       (list (car spec) `((t (:inherit ,replacement)))))
-                     theme-specs)))
-      (when (facep face)
-        (set-face-attribute face nil :inherit replacement)))))
-(advice-add 'load-theme :after #'gg--break-gnus-face-cycle)
 
 ;;;; Theme
 
-;;;;; Doom Themes
+;; The built-in wombat theme underlines `highlight'; turn that off.
+(custom-set-faces
+ '(highlight ((t (:underline nil)))))
 
-(use-package doom-themes
-  :ensure t
-  :preface
-  (setq
-   dark-theme "doom-fairy-floss"
-   light-theme "doom-solarized-light")
-  :config
-  (load-theme (intern dark-theme) t)
+(defvar my-theme-list '(misterioso wombat adwaita)
+  "List of themes to cycle through.")
 
-  (defun gg-switch-theme()
-    (interactive)
-    (let* ((theme (car custom-enabled-themes))
-           (change (if (string= theme light-theme) dark-theme light-theme)))
-      (load-theme (intern change) t)
-      (setq selected-theme change)
-      (message "Theme switched from %s to %s" theme change)))
-  (global-set-key (kbd "<f8>") 'gg-switch-theme)
+(defun gg/cycle-themes ()
+  "Cycle through the themes defined in `my-theme-list'."
+  (interactive)
+  ;; Get the first theme, move it to the end of the list
+  (let ((next-theme (car my-theme-list)))
+    (setq my-theme-list (append (cdr my-theme-list) (list next-theme)))
+    ;; Disable all active custom themes to prevent color bleeding
+    (mapc #'disable-theme custom-enabled-themes)
+    ;; Load the new theme without asking for safety confirmation
+    (load-theme next-theme t)
+    (message "Switched to theme: %s" next-theme)))
 
-  (set-face-attribute 'default nil :font "Menlo 13")
-  (set-face-attribute 'region nil :background "#000" :foreground "#ffffff"))
+(global-set-key (kbd "<f8>") 'gg/cycle-themes)
+
+;; Load the first theme at startup
+(gg/cycle-themes)
+
 
 ;;;; Dirvish (file tree / dired)
 
@@ -944,9 +915,11 @@ should be checked."
 
 ;;;; Mode
 
+;; typescript-language-server is installed manually (see local.el.example),
+;; not auto-installed here: :ensure-system-package would silently run
+;; "npm i -g" at startup whenever the binary is missing from mise's shims.
 (use-package typescript-ts-mode
-  :ensure nil
-  :ensure-system-package (typescript-language-server . "npm i -g typescript-language-server"))
+  :ensure nil)
 
 (defun node-project-p ()
   "Predicate for determining if the open project is a Node one."
@@ -1042,6 +1015,10 @@ should be checked."
 
 (use-package eglot
   :ensure nil
+  ;; Load at startup instead of on the first eglot-ensure: lazily loading
+  ;; eglot from inside a ts-mode hook hit a segfault in this Emacs build
+  ;; (eglot's top-level `char-displayable-p' probe → face_for_char crash).
+  :demand t
   :init
   (put 'eglot-server-programs 'safe-local-variable 'listp)
   :hook
@@ -1292,34 +1269,7 @@ should be checked."
 (use-package graphql-mode
   :ensure t)
 
-;;; Eat
-
-(use-package eat
-  :defer 10
-  :demand
-  :ensure
-  (
-   :host codeberg
-   :repo "akib/emacs-eat"
-   :files ("*.el" ("term" "term/*.el") "*.texi"
-	   "*.ti" ("terminfo/e" "terminfo/e/*")
-	   ("terminfo/65" "terminfo/65/*")
-	   ("integration" "integration/*")
-	   (:exclude ".dir-locals.el" "*-tests.el"))))
-
-;;; Agent shell
-(use-package agent-shell
-  :ensure t
-  :config
-  (setq agent-shell-anthropic-authentication
-        (agent-shell-anthropic-make-authentication :login t))
-  :ensure-system-package
-  ;; Add agent installation configs here
-  ((claude . "brew install claude-code")
-   (claude-agent-acp . "npm install -g @agentclientprotocol/claude-agent-acp")))
-
-
-;;; Local Config
+;;;;;;;;;;; Local Config
 
 ;; Per-machine overrides live in ~/.emacs.d/local.el (gitignored).
 ;; See local.el.example for a template. Loaded last so any setting here
@@ -1327,213 +1277,4 @@ should be checked."
 (let ((local-config (expand-file-name "local.el" user-emacs-directory)))
   (when (file-exists-p local-config)
     (load local-config)))
-;;;
-;;;; My functions
-(defvar yt-ollama-model "qwen3.5:9b"
-  "Ollama model used by `yt-summarize' to produce the summary.")
 
-(defvar yt-ollama-url "http://192.168.68.113:11434/api/generate"
-  "Endpoint of the Ollama /api/generate server used by `yt-summarize'.")
-
-(defvar yt-ollama-num-ctx 32768
-  "Context window (tokens) requested from Ollama.
-Long video transcripts overflow Ollama's small default context and get
-silently truncated, so `yt-summarize' asks for a large window here.")
-
-(defun yt--snake-case (title)
-  "Return TITLE downcased with spaces replaced by underscores.
-Everything else (dashes, dots, parens, &) is kept verbatim, matching
-YouTube titles closely so the file stays recognizable, e.g.
-\"Hogwarts Legacy - Tips (A & B)\" -> \"hogwarts_legacy_-_tips_(a_&_b)\"."
-  (replace-regexp-in-string " " "_" (downcase title)))
-
-(defun yt--clean-vtt (file)
-  "Strip timestamps/tags from VTT FILE, return plain text."
-  (with-temp-buffer
-    (insert-file-contents file)
-    (let (lines)
-      (dolist (line (split-string (buffer-string) "\n"))
-        (unless (or (string-match-p "^[0-9]\\{2\\}:" line)
-                    (string-match-p "^WEBVTT" line)
-                    (string-match-p "^Kind:" line)
-                    (string-match-p "^Language:" line)
-                    (string-match-p "^NOTE" line)
-                    (string-match-p "-->" line)
-                    (string-empty-p line))
-          (push line lines)))
-      (string-join (delete-dups (nreverse lines)) " "))))
-
-(defun yt--ollama-summarize-async (text callback)
-  "POST TEXT to local Ollama; call CALLBACK with the summary string."
-  (let* ((url-request-method "POST")
-         (url-request-extra-headers
-          '(("Content-Type" . "application/json; charset=utf-8")))
-         ;; Encode to UTF-8 bytes: the prompt/transcript are multibyte and
-         ;; `url-retrieve' rejects a multibyte request body.
-         (url-request-data
-          (encode-coding-string
-           (json-encode
-            `((model . ,yt-ollama-model)
-              (prompt . ,(concat "Resuma em português o conteúdo abaixo, que é a transcrição de um vídeo (ignore timestamps e metadados como 'Kind:' ou 'Language:'). Escreva o resumo como uma lista em org-mode: cada item em uma linha própria, começando com hífen e espaço (\"- \"). NÃO use asteriscos (*), títulos, nem markdown:\n\n" text))
-              (stream . :json-false)
-              ;; Disable the model's reasoning: on thinking models the
-              ;; `thinking' output can consume the whole budget and leave
-              ;; `response' empty. num_ctx avoids truncating long transcripts.
-              (think . :json-false)
-              (options . ((num_ctx . ,yt-ollama-num-ctx)))))
-           'utf-8)))
-    (url-retrieve
-     yt-ollama-url
-     (lambda (_status)
-       ;; Treat the response as raw bytes, then decode the body once as UTF-8
-       ;; so accented chars aren't double-encoded into mojibake.
-       (set-buffer-multibyte nil)
-       (goto-char (point-min))
-       (re-search-forward "\n\n")  ; pula os headers HTTP
-       (let* ((body (decode-coding-string
-                     (buffer-substring-no-properties (point) (point-max))
-                     'utf-8))
-              (json-object-type 'alist)
-              (resp (alist-get 'response (json-read-from-string body))))
-         (funcall callback resp))))))
-
-(defun yt--summaries-dir ()
-  "Return (creating if needed) the yt-summaries dir under `org-directory'."
-  (let ((dir (expand-file-name "yt-summaries" org-directory)))
-    (make-directory dir t)
-    dir))
-
-(defun yt--write-summary-file (title url summary)
-  "Write SUMMARY for TITLE/URL to its own org file in `yt--summaries-dir'.
-The file name is TITLE in snake_case (see `yt--snake-case') plus \".org\".
-If a buffer is already visiting that file (e.g. during `yt-resummarize'),
-revert it so the new summary shows up."
-  (let ((file (expand-file-name (concat (yt--snake-case title) ".org")
-                                (yt--summaries-dir))))
-    (with-temp-file file
-      (insert (format "#+TITLE: %s\n#+SOURCE: %s\n#+DATE: %s\n\n%s\n"
-                      title url
-                      (format-time-string "[%Y-%m-%d %a %H:%M]")
-                      summary)))
-    (when-let ((buf (find-buffer-visiting file)))
-      (with-current-buffer buf (revert-buffer t t t)))
-    (message "yt-summarize: arquivo criado — %s" file)
-    file))
-
-(defun yt--transcript-file (title)
-  "Path of the transcript sidecar (.txt) for TITLE in `yt--summaries-dir'."
-  (expand-file-name (concat (yt--snake-case title) ".txt") (yt--summaries-dir)))
-
-(defun yt--save-transcript (title text)
-  "Persist TEXT next to the org file so summaries can be re-run offline."
-  (let ((file (yt--transcript-file title)))
-    (with-temp-file file (insert text))
-    file))
-
-(defun yt--summarize-and-write (title url text)
-  "Save TEXT, summarize it via Ollama, and (re)write the org file.
-Saving the transcript first makes the whole thing idempotent: if Ollama
-fails or returns empty, the transcript is kept and `yt-resummarize' can
-retry without touching YouTube."
-  (yt--save-transcript title text)
-  (message "yt-summarize: chamando Ollama (%s)..." yt-ollama-model)
-  (yt--ollama-summarize-async
-   text
-   (lambda (summary)
-     (if (or (null summary) (string-empty-p (string-trim summary)))
-         (message "yt-summarize: Ollama retornou resumo vazio para %s (transcrição salva em %s)"
-                  title (yt--transcript-file title))
-       (yt--write-summary-file title url summary)))))
-
-(defun yt--video-info (url)
-  "Return yt-dlp -J metadata for URL as an alist, or nil on failure.
-Runs synchronously — it is a lightweight metadata call (no media or
-subtitle files are downloaded)."
-  ;; DESTINATION '(t nil) sends stdout to the buffer and DISCARDS stderr, so a
-  ;; stray "WARNING: ffmpeg not found" line can't corrupt the JSON we parse.
-  (with-temp-buffer
-    (when (zerop (call-process "yt-dlp" nil '(t nil) nil "--skip-download" "-J" url))
-      (goto-char (point-min))
-      (ignore-errors
-        (let ((json-object-type 'alist)) (json-read))))))
-
-(defun yt--pick-lang (info)
-  "Pick the video's original subtitle language code from -J INFO.
-Manual `subtitles' are the uploader's original language, so they win.
-Otherwise fall back to the original auto-caption (a \"xx-xx\" track whose
-target equals its source), then to any auto track, then to \"en\"."
-  (let ((subs  (alist-get 'subtitles info))
-        (autos (alist-get 'automatic_captions info)))
-    (cond
-     (subs (symbol-name (caar subs)))
-     (autos
-      (let ((keys (mapcar (lambda (kv) (symbol-name (car kv))) autos)))
-        (or (seq-find (lambda (k)
-                        (let ((p (split-string k "-")))
-                          (and (= (length p) 2) (string= (car p) (cadr p)))))
-                      keys)
-            (car keys))))
-     (t "en"))))
-
-(defun yt-summarize (url)
-  "Summarize the YouTube video at URL into its own org file.
-Probes the video for its title and original subtitle language, downloads
-only that transcript with yt-dlp, saves the transcript as a sidecar .txt,
-summarizes it asynchronously via Ollama, and writes one org file per video
-in `yt--summaries-dir'.  Re-run summarization offline with `yt-resummarize'."
-  (interactive
-   (list (read-string "YouTube URL: "
-                      (let ((k (current-kill 0 t)))
-                        (when (string-match-p "youtu\\.?be" k) k)))))
-  (message "yt-summarize: consultando metadados...")
-  (let* ((info   (yt--video-info url))
-         (title  (and info (alist-get 'title info)))
-         (lang   (and info (yt--pick-lang info)))
-         (tmpdir (make-temp-file "yt-summ-" t)))
-    (if (not (and info title lang))
-        (message "yt-summarize: não foi possível obter metadados de %s" url)
-      (message "yt-summarize: baixando legenda (%s) em background..." lang)
-      (make-process
-       :name "yt-dlp"
-       :buffer (generate-new-buffer "*yt-dlp-output*")
-       :command (list "yt-dlp" "--skip-download" "--write-auto-sub" "--write-sub"
-                      "--sub-lang" lang "--sub-format" "vtt"
-                      "-o" (expand-file-name "%(title)s.%(ext)s" tmpdir)
-                      url)
-       :sentinel
-       (lambda (proc _event)
-         (when (memq (process-status proc) '(exit signal))
-           (if (not (zerop (process-exit-status proc)))
-               (message "yt-summarize: yt-dlp falhou (ver %s)" (process-buffer proc))
-             (let ((vtt-file (car (directory-files tmpdir t "\\.vtt$"))))
-               (if (not vtt-file)
-                   (message "yt-summarize: sem legenda disponível para %s" url)
-                 (message "yt-summarize: legenda pronta, chamando Ollama...")
-                 (yt--summarize-and-write title url (yt--clean-vtt vtt-file))
-                 (delete-directory tmpdir t))))))))))
-
-(defun yt--org-keyword (key)
-  "Return the value of the `#+KEY:' line in the current buffer, or nil."
-  (save-excursion
-    (goto-char (point-min))
-    (when (re-search-forward (format "^#\\+%s:[ \t]*\\(.*\\)$" (regexp-quote key)) nil t)
-      (string-trim (match-string-no-properties 1)))))
-
-(defun yt-resummarize ()
-  "Regenerate the summary for the org file in the current buffer.
-Reads the transcript from the sidecar .txt saved by `yt-summarize' and
-re-runs Ollama, so it never re-fetches from YouTube.  Useful after a failed
-or empty summary, or to try a different `yt-ollama-model'."
-  (interactive)
-  (let* ((org-file (or (buffer-file-name)
-                       (user-error "Este buffer não visita um arquivo")))
-         (txt-file (concat (file-name-sans-extension org-file) ".txt")))
-    (unless (file-exists-p txt-file)
-      (user-error "Transcrição não encontrada: %s" txt-file))
-    (let ((title (yt--org-keyword "TITLE"))
-          (url   (yt--org-keyword "SOURCE"))
-          (text  (with-temp-buffer (insert-file-contents txt-file) (buffer-string))))
-      (unless (and title url)
-        (user-error "Faltam #+TITLE/#+SOURCE em %s" org-file))
-      (message "yt-resummarize: re-summarizando %s..." title)
-      (yt--summarize-and-write title url text))))

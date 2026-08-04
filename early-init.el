@@ -11,4 +11,7 @@
 (push '(tool-bar-lines . 0) default-frame-alist)
 (push '(vertical-scroll-bars) default-frame-alist)
 
+;; Set the font before the first frame is drawn to avoid a resize flicker
+(push '(font . "Menlo-13") default-frame-alist)
+
 ;;; early-init.el ends here
