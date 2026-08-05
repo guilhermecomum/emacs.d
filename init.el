@@ -232,6 +232,7 @@
         dashboard-icon-type 'nerd-icons
         dashboard-set-heading-icons t
         dashboard-set-file-icons t
+        dashboard-projects-backend 'project-el
         dashboard-items '((projects . 5) (agenda . 5)))
   :init
   (add-hook 'elpaca-after-init-hook #'dashboard-open))
@@ -685,23 +686,39 @@ should be checked."
 
 ;;; Projectile
 
-(use-package projectile
-  :ensure t
-  :init
-  (projectile-mode +1)
-  :bind (("C-c p" . projectile-command-map)
-         ("M-[" . projectile-previous-project-buffer)
-         ("M-]" . projectile-next-project-buffer))
-  :config
-  (setq projectile-indexing-method 'hybrid
-        projectile-sort-order 'recently-active
-        compilation-read-command nil
-        projectile-comint-mode t)
+;; Built-in project.el (replaces projectile). Indexing comes from git
+;; ls-files, so .gitignore already excludes node_modules etc.
 
-  (add-to-list 'projectile-globally-ignored-directories "node_modules")
-  (add-to-list 'projectile-globally-ignored-files "yarn.lock")
-  :custom
-  (projectile-globally-ignored-buffers '("*scratch*" "*lsp-log*" "*xref*" "*EGLOT" "*Messages*" "*compilation" "*vterm*" "*Flymake")))
+(defun gg/project--cycle-buffer (dir)
+  "Switch to the next (DIR 1) or previous (DIR -1) project file buffer."
+  (let* ((proj (or (project-current) (user-error "Not in a project")))
+         (bufs (seq-filter #'buffer-file-name (project-buffers proj))))
+    (if (< (length bufs) 2)
+        (user-error "No other project file buffers")
+      (let ((pos (or (seq-position bufs (current-buffer)) 0)))
+        (switch-to-buffer (nth (mod (+ pos dir) (length bufs)) bufs))))))
+
+(defun gg/project-next-buffer ()
+  "Switch to the next file buffer of the current project."
+  (interactive)
+  (gg/project--cycle-buffer 1))
+
+(defun gg/project-previous-buffer ()
+  "Switch to the previous file buffer of the current project."
+  (interactive)
+  (gg/project--cycle-buffer -1))
+
+(use-package project
+  :ensure nil
+  :demand t
+  :bind (("M-[" . gg/project-previous-buffer)
+         ("M-]" . gg/project-next-buffer))
+  :config
+  ;; Keep the projectile muscle memory: C-c p mirrors the default C-x p.
+  (global-set-key (kbd "C-c p") project-prefix-map)
+  ;; Don't prompt for the command on project compile (kept from the old
+  ;; projectile block).
+  (setq compilation-read-command nil))
 
 ;;; Magit
 
@@ -1213,7 +1230,6 @@ should be checked."
          ("C-x b" . consult-project-buffer))
   :hook (completion-list-mode . consult-preview-at-point-mode)
   :init
-  (autoload 'projectile-project-root "projectile")
   (setq register-preview-delay 0
         register-preview-function #'consult-register-format
         xref-show-xrefs-function #'consult-xref
