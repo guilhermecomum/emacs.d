@@ -155,10 +155,8 @@
 
 ;;;;; Editing
 
-;; Enhanced region commenting
-(use-package evil-nerd-commenter
-  :ensure t
-  :bind ("C-c c" . evilnc-comment-or-uncomment-lines))
+;; Toggle comments on the current line or region (built-in).
+(global-set-key (kbd "C-c c") #'comment-line)
 
 ;;;;; Conf
 
@@ -201,12 +199,20 @@
 
 ;;;; Path
 
-;; Load environment variables from the shell
-(use-package exec-path-from-shell
-  :ensure t
-  :init (exec-path-from-shell-initialize)
-  :config
-  (setq exec-path-from-shell-variables '("GOPATH" "PATH" "MANPATH")))
+;; PATH for GUI Emacs. Launched from the Dock there is no login shell, so
+;; prepend the dirs from .zshenv/.zprofile ourselves instead of paying
+;; exec-path-from-shell's ~600ms login-shell spawn at every startup.
+;; mise shims resolve node/ruby/python per project (see .zshenv).
+(let* ((extra-paths (list (expand-file-name "~/.local/share/mise/shims")
+                          "/opt/homebrew/bin"
+                          "/opt/homebrew/sbin"
+                          "/usr/local/bin"
+                          (expand-file-name "~/.local/bin")
+                          (expand-file-name "~/bin")))
+       (new-path (delete-dups (append extra-paths
+                                      (split-string (getenv "PATH") ":" t)))))
+  (setenv "PATH" (mapconcat #'identity new-path ":"))
+  (setq exec-path (delete-dups (append extra-paths exec-path))))
 
 ;; Set the start point for the current buffer; affects file-search default dir.
 (setq default-directory "~/")
@@ -264,8 +270,12 @@
 ;;;; Theme
 
 ;; The built-in wombat theme underlines `highlight'; turn that off.
+;; The mode-line boxes are pure vertical padding (flat-button draws the
+;; box in the background color), giving a taller doom-style bar.
 (custom-set-faces
- '(highlight ((t (:underline nil)))))
+ '(highlight ((t (:underline nil))))
+ '(mode-line ((t (:box (:line-width (1 . 6) :style flat-button)))))
+ '(mode-line-inactive ((t (:box (:line-width (1 . 6) :style flat-button))))))
 
 (defvar my-theme-list '(misterioso wombat adwaita)
   "List of themes to cycle through.")
@@ -340,17 +350,76 @@
 ;; Writing yes or no is long, type y / n instead
 (defalias 'yes-or-no-p 'y-or-n-p)
 
-;;;; Doom modeline
+;;;; Modeline
 
-(use-package doom-modeline
-  :ensure t
-  :after nerd-icons
-  :config
-  (setq doom-modeline-height 35
-        doom-modeline-bar-width 1
-        doom-modeline-icon t)
-  (set-face-background 'doom-modeline-bar (face-background 'mode-line))
-  (doom-modeline-mode 1))
+;; Built-in mode line laid out like doom-modeline: modified badge, file
+;; name, line:col and nyan on the left; encoding, major mode, VC branch
+;; and flymake counters right-aligned (native in Emacs 30+). The minor
+;; mode list — the main source of clutter — is dropped entirely.
+(setq mode-line-right-align-edge 'right-fringe)
+
+(defvar-local gg/mode-line-icon 'unset
+  "Cached nerd-icons icon for this buffer (`unset' until computed).")
+
+(defun gg/mode-line-icon ()
+  "Colored major-mode icon via nerd-icons; cached per buffer."
+  (when (eq gg/mode-line-icon 'unset)
+    (setq gg/mode-line-icon
+          (when (fboundp 'nerd-icons-icon-for-buffer)
+            (let ((icon (nerd-icons-icon-for-buffer)))
+              (and (stringp icon) icon)))))
+  gg/mode-line-icon)
+
+;; The icon follows the major mode, so recompute it on mode changes.
+(add-hook 'after-change-major-mode-hook
+          (lambda () (setq gg/mode-line-icon 'unset)))
+
+(defvar-local gg/mode-line-path-prefix 'unset
+  "Cached mode-line path prefix for this buffer (`unset' until computed).")
+
+(defun gg/mode-line-path-prefix ()
+  "Project name and file directory with each dir shortened to one letter.
+E.g. \"remix/a/r/\" for a file under app/routes in the remix project.
+Computed once per buffer; nil for non-file buffers or files outside
+a project."
+  (when (eq gg/mode-line-path-prefix 'unset)
+    (setq gg/mode-line-path-prefix
+          (when-let* ((file buffer-file-name)
+                      (proj (project-current))
+                      (root (project-root proj))
+                      (rel (file-relative-name file root)))
+            (unless (string-prefix-p ".." rel)
+              (concat (file-name-nondirectory (directory-file-name root))
+                      "/"
+                      (mapconcat (lambda (dir) (concat (substring dir 0 1) "/"))
+                                 (butlast (split-string rel "/" t))
+                                 ""))))))
+  gg/mode-line-path-prefix)
+
+(setq-default
+ mode-line-format
+ '("%e" " "
+   ;; Modified / read-only badge
+   (:eval (cond (buffer-read-only    (propertize "✱" 'face 'error))
+                ((buffer-modified-p) (propertize "●" 'face 'warning))
+                (t " ")))
+   " "
+   (:eval (when-let* ((icon (gg/mode-line-icon))) (list icon " ")))
+   (:eval (when-let* ((prefix (gg/mode-line-path-prefix)))
+            (propertize prefix 'face 'shadow)))
+   (:propertize "%b" face mode-line-buffer-id)
+   "  %l:%c  "
+   (:eval (when (bound-and-true-p nyan-mode) (list (nyan-create))))
+   mode-line-format-right-align
+   (:propertize ("" mode-name) face bold)
+   "  "
+   (:eval (when (stringp vc-mode)
+            (propertize (string-trim (replace-regexp-in-string
+                                      "^ Git[:-]" "" vc-mode))
+                        'face 'success)))
+   "  "
+   (flymake-mode flymake-mode-line-counters)
+   " "))
 
 ;;;; Dialog
 
@@ -445,15 +514,10 @@
           (lambda ()
             (setq-local outline-regexp ";;;\\(;*\\) ")))
 
-(use-package outline-minor-faces
-  :ensure t
-  :after outline
-  :hook (outline-minor-mode . outline-minor-faces-mode))
-
-(use-package backline
-  :ensure t
-  :after outline
-  :config (advice-add 'outline-flag-region :after 'backline-update))
+;; Built-in heading highlighting for outline-minor-mode (replaces
+;; outline-minor-faces + backline). Must be set before the mode is
+;; enabled in a buffer.
+(setq outline-minor-mode-highlight 'override)
 
 ;; Hide the leading `;;;' prefix on headings for a cleaner org-like look.
 (font-lock-add-keywords 'emacs-lisp-mode
@@ -926,34 +990,19 @@ should be checked."
   (let ((p-root (cdr (project-current))))
     (file-exists-p (concat p-root "package.json"))))
 
-;; source: https://github.com/emacs-typescript/typescript.el
+;; Render ANSI colors in compilation buffers with the built-in ansi-color
+;; (handles 256-color/truecolor since Emacs 28; replaces xterm-color).
 (require 'ansi-color)
-(defun colorize-compilation-buffer ()
-  (ansi-color-apply-on-region compilation-filter-start (point-max)))
-(add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
+(setq compilation-environment '("TERM=xterm-256color"))
+(add-hook 'compilation-filter-hook #'ansi-color-compilation-filter)
 
 ;;;; ts-comint
-
-;; xterm-color for proper ANSI color handling in comint buffers.
-(use-package xterm-color
-  :ensure t
-  :config
-  ;; Disable the default ansi-color handling in compilation buffers
-  (setq compilation-environment '("TERM=xterm-256color"))
-
-  ;; Remove the default ansi-color handling
-  (defun advice-compilation-filter (f proc string)
-    (funcall f proc (xterm-color-filter string)))
-
-  (advice-add 'compilation-filter :around #'advice-compilation-filter))
 
 (use-package ts-comint
   :ensure (ts-comint
            :type git :host github
            :repo "nverno/ts-comint")
-  :after xterm-color
   :config
-  ;; Configure ts-comint to use xterm-color for better ANSI color support
   (setenv "NODE_NO_READLINE" "1"))
 
 ;;; Ruby
@@ -983,11 +1032,13 @@ should be checked."
 
 ;;; JSON
 
-(use-package json-mode :ensure t)
+;; Built-in tree-sitter mode (json grammar already installed).
+(add-to-list 'auto-mode-alist '("\\.json\\'" . json-ts-mode))
 
 ;;; YAML
 
-(use-package yaml-mode :ensure t)
+;; Built-in tree-sitter mode (yaml grammar already installed).
+(add-to-list 'auto-mode-alist '("\\.ya?ml\\'" . yaml-ts-mode))
 
 ;;; Eglot
 
@@ -1199,8 +1250,9 @@ should be checked."
 
 ;;; which-key
 
+;; Built-in since Emacs 30.
 (use-package which-key
-  :ensure t
+  :ensure nil
   :config
   (which-key-mode))
 
