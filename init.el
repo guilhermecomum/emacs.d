@@ -106,6 +106,60 @@
     (setq ls-lisp-dirs-first t
           ls-lisp-use-insert-directory-program nil)))
 
+;;; Android
+(when (eq system-type 'android)
+  (visual-line-mode t)
+  (setq touch-screen-display-keyboard t)
+
+  (defun android-toggle-keyboard()
+    (interactive)
+    (if touch-screen-display-keyboard
+        (progn
+          (setq touch-screen-display-keyboard nil)
+          (tool-bar-add-item
+           "keyboard-off" 'android-toggle-keyboard
+           'android-toggle-keyboard
+           :help "Toggle keyboard")
+          (message "Disable virtual keyboard"))
+      (setq touch-screen-display-keyboard t)
+      (tool-bar-add-item
+       "keyboard" 'android-toggle-keyboard
+       'android-toggle-keyboard
+       :help "Toggle keyboard")
+      (message "Enable virtual keyboard")))
+
+  (defun android-tool-bar-configs()
+    (when (and (fboundp 'tool-bar-mode)
+               (string-equal system-type "android"))
+
+      (tool-bar-mode +1)
+      (setq! tool-bar-position 'bottom)
+      (setq! tool-bar-button-margin 27)
+
+      (setq tool-bar-map '(keymap nil))
+
+      (add-to-list 'image-load-path (expand-file-name "icons" user-emacs-directory))
+
+      (android-general-tool-bar 'tool-bar-add-item nil)
+
+
+      ))
+
+  (defun android-general-tool-bar(fun map)
+    (mapc (lambda (args)
+            (apply fun args))
+          `(("keyboard-esc" tool-bar-item-escape keyboard-esc ,map)
+            ("file-find-outline" find-file file-find-outline ,map)
+            ("keyboard-off" android-toggle-keyboard android-toggle-keyboard ,map)
+            ("calendar-multiselect" (lambda () (interactive) (org-agenda nil "z")) android-toggle-keyboard ,map)
+            ))
+    )
+
+  (define-key key-translation-map [tool-bar apple-keyboard-command] #'tool-bar-event-apply-control-modifier)
+  (define-key key-translation-map (kbd "<XF86Back>") [escape])
+  (define-key key-translation-map [tool-bar keyboard-esc] [escape])
+  (define-key key-translation-map [tool-bar keyboard-tab]  (kbd "TAB")))
+
 ;;;; Key mapping
 
 ;;;;; Buffer/Window
